@@ -1,6 +1,6 @@
-import SwiftUI
-import PDFKit
 import AsyncReactor
+import PDFKit
+import SwiftUI
 import UniformTypeIdentifiers
 
 class PDFHubReactor: AsyncReactor {
@@ -20,6 +20,7 @@ class PDFHubReactor: AsyncReactor {
         )
         case dismissAlert
     }
+
     enum SyncAction {
         case didUserSelectPDF([PDF])
         case didMergePDF(PDFDocument?)
@@ -97,7 +98,10 @@ class PDFHubReactor: AsyncReactor {
     }
     
     func selectPDF() {
-        let urls = openFilePanel(contentTypes: [.pdf], multipleSelection: true)
+        let urls = openFilePanel(
+            contentTypes: [.pdf],
+            multipleSelection: true
+        )
         let newPDFs = urls.map {
             PDF(
                 pdfURL: $0,
@@ -134,38 +138,16 @@ class PDFHubReactor: AsyncReactor {
         }
         
         if mergedPDF.pageCount > 0 {
-            let savePanel = NSSavePanel()
-            savePanel.allowedContentTypes = [.pdf]
-            savePanel.nameFieldStringValue = "merged.pdf"
-            savePanel.prompt = "Save Merged PDF"
-            savePanel.canCreateDirectories = true
-            
-            if savePanel.runModal() == .OK,
-               let url = savePanel.url {
-                do {
-                    
-                    if let data = mergedPDF.dataRepresentation() {
-                        try data.write(to: url)
-                        print("Merged PDF successfully saved at \(url.path)")
-                        
-                        self.send(.showAlert(
-                            message: "Merged PDF successfully saved at \(url.lastPathComponent)",
-                            success: true
-                        ))
-                    } else {
-                        self.send(.showAlert(
-                            message: "Failed to create PDF data",
-                            success: false
-                        ))
-                    }
-                } catch {
-                    print("Failed to save merged PDF. Error: \(error.localizedDescription)")
-                    
-                    self.send(.showAlert(
-                        message: "Failed to save PDF: \(error.localizedDescription)",
-                        success: false
-                    ))
-                }
+            if let saveURL = showSavePanel(
+                defaultName: "merged.pdf",
+                prompt: "Save Merged PDF",
+                allowedTypes: [.pdf]
+            ) {
+                savePDFDocument(
+                    mergedPDF,
+                    to: saveURL,
+                    successMessage: "Merged PDF successfully saved at \(saveURL.lastPathComponent)"
+                )
             }
         }
         
@@ -199,14 +181,9 @@ class PDFHubReactor: AsyncReactor {
         if !allSplitPDFs.isEmpty {
             Task {
                 await MainActor.run {
-                    let savePanel = NSOpenPanel()
-                    savePanel.canChooseDirectories = true
-                    savePanel.canChooseFiles = false
-                    savePanel.allowsMultipleSelection = false
-                    savePanel.prompt = "Save Split PDFs"
-                    
-                    if savePanel.runModal() == .OK,
-                       let selectedURL = savePanel.url {
+                    if let selectedURL = showDirectoryPanel(
+                        prompt: "Save Split PDFs"
+                    ) {
                         var successCount = 0
                         var failureCount = 0
                         
@@ -266,7 +243,8 @@ class PDFHubReactor: AsyncReactor {
         
         for url in urls {
             if !state.imageURLs.contains(url),
-               let image = NSImage(contentsOf: url) {
+               let image = NSImage(contentsOf: url)
+            {
                 state.selectedImages.append(image)
                 state.imageURLs.append(url)
             }
@@ -280,21 +258,22 @@ class PDFHubReactor: AsyncReactor {
         
         for (index, imageUrl) in imageUrls.enumerated() {
             if let image = NSImage(contentsOf: imageUrl),
-               let pdfPage = PDFPage(image: image) {
+               let pdfPage = PDFPage(image: image)
+            {
                 pdfDocument.insert(pdfPage, at: index)
             }
         }
         
-        let savePanel = NSSavePanel()
-        savePanel.allowedContentTypes = [.pdf]
-        savePanel.nameFieldStringValue = "ConvertedImages.pdf"
-        
-        if savePanel.runModal() == .OK, let saveURL = savePanel.url {
-            pdfDocument.write(to: saveURL)
-            self.send(.showAlert(
-                message: "Successfully converted images to PDF file",
-                success: true
-            ))
+        if let saveURL = showSavePanel(
+            defaultName: "ConvertedImages.pdf",
+            prompt: "Save Converted PDF",
+            allowedTypes: [.pdf]
+        ) {
+            savePDFDocument(
+                pdfDocument,
+                to: saveURL,
+                successMessage: "Successfully converted images to PDF file"
+            )
         }
     }
     
@@ -319,6 +298,60 @@ class PDFHubReactor: AsyncReactor {
         
         return panel.runModal() == .OK ? panel.urls : []
     }
-
     
+    private func showSavePanel(
+        defaultName: String,
+        prompt: String,
+        allowedTypes: [UTType]
+    ) -> URL? {
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = allowedTypes
+        savePanel.nameFieldStringValue = defaultName
+        savePanel.prompt = prompt
+        savePanel.canCreateDirectories = true
+        
+        return savePanel.runModal() == .OK ? savePanel.url : nil
+    }
+    
+    private func showDirectoryPanel(
+        prompt: String
+    ) -> URL? {
+        let savePanel = NSOpenPanel()
+        savePanel.canChooseDirectories = true
+        savePanel.canChooseFiles = false
+        savePanel.allowsMultipleSelection = false
+        savePanel.prompt = prompt
+        
+        return savePanel.runModal() == .OK ? savePanel.url : nil
+    }
+    
+    private func savePDFDocument(
+        _ document: PDFDocument,
+        to url: URL,
+        successMessage: String
+    ) {
+        do {
+            if let data = document.dataRepresentation() {
+                try data.write(to: url)
+                print("\(successMessage) at \(url.path)")
+                
+                send(.showAlert(
+                    message: successMessage,
+                    success: true
+                ))
+            } else {
+                send(.showAlert(
+                    message: "Failed to create PDF data",
+                    success: false
+                ))
+            }
+        } catch {
+            print("Failed to save PDF. Error: \(error.localizedDescription)")
+            
+            send(.showAlert(
+                message: "Failed to save PDF: \(error.localizedDescription)",
+                success: false
+            ))
+        }
+    }
 }
