@@ -1,6 +1,6 @@
-import SwiftUI
-import PDFKit
 import AsyncReactor
+import PDFKit
+import SwiftUI
 import UniformTypeIdentifiers
 
 class PDFHubReactor: AsyncReactor {
@@ -9,10 +9,12 @@ class PDFHubReactor: AsyncReactor {
         case mergePDF([URL])
         case splitPDF([URL])
         case deletePDF(UUID)
+        case clearPDFs
         
         case selectImages
         case convertImagesToPDF([URL])
         case deleteImage(Int)
+        case clearImages
         
         case showAlert(
             message: String,
@@ -20,6 +22,7 @@ class PDFHubReactor: AsyncReactor {
         )
         case dismissAlert
     }
+
     enum SyncAction {
         case didUserSelectPDF([PDF])
         case didMergePDF(PDFDocument?)
@@ -48,8 +51,22 @@ class PDFHubReactor: AsyncReactor {
     
     @Published private(set) var state: State
     
-    init() {
+    private let filePanelService: FilePanelServiceProtocol
+    private let pdfService: PDFServiceProtocol
+    private let imageService: ImageServiceProtocol
+    private let pdfFileWriterService: PDFFileWriterServiceProtocol
+    
+    init(
+        filePanelService: FilePanelServiceProtocol = FilePanelService(),
+        pdfService: PDFServiceProtocol = PDFService(),
+        imageService: ImageServiceProtocol = ImageService(),
+        pdfFileWriterService: PDFFileWriterServiceProtocol = PDFFileWriterService()
+    ) {
         self.state = State()
+        self.filePanelService = filePanelService
+        self.pdfService = pdfService
+        self.imageService = imageService
+        self.pdfFileWriterService = pdfFileWriterService
     }
     
     func action(_ action: Action) async {
@@ -62,12 +79,16 @@ class PDFHubReactor: AsyncReactor {
             state.splitPDFs = splitPDF(urls: urls)
         case .deletePDF(let id):
             deletePDF(with: id)
+        case .clearPDFs:
+            clearPDFs()
         case .selectImages:
             selectImages()
         case .convertImagesToPDF(let urls):
             convertImagesToPDF(imageUrls: urls)
         case .deleteImage(let index):
             deleteImage(at: index)
+        case .clearImages:
+            clearImages()
         case .showAlert(let message, let success):
             state.exportMessage = message
             state.exportSuccess = success
@@ -97,159 +118,114 @@ class PDFHubReactor: AsyncReactor {
     }
     
     func selectPDF() {
-        let urls = openFilePanel(contentTypes: [.pdf], multipleSelection: true)
-        let newPDFs = urls.map {
-            PDF(
-                pdfURL: $0,
-                rotationAngle: 0
-            )
-        }
+        let urls = filePanelService.openFilePanel(
+            contentTypes: [.pdf],
+            multipleSelection: true
+        )
         
-        for newPDF in newPDFs {
-            if !state.selectedPDFs.contains(where: { $0.pdfURL == newPDF.pdfURL }) {
-                state.selectedPDFs.append(newPDF)
+        let newPDFs = urls
+            .filter { url in
+                !state.selectedPDFs.contains(where: { $0.pdfURL == url })
             }
-        }
+            .map { url in
+                PDF(pdfURL: url, rotationAngle: 0)
+            }
+        
+        state.selectedPDFs.append(contentsOf: newPDFs)
     }
     
     func mergePDFs(
         urls: [URL]
     ) -> PDFDocument? {
-        let mergedPDF = PDFDocument()
+        guard !urls.isEmpty else { return nil }
         
-        for (_, url) in urls.enumerated() {
-            if let pdf = PDFDocument(url: url) {
-                let rotationAngle = state.selectedPDFs.first(where: { $0.pdfURL == url })?.rotationAngle ?? 0
-                
-                for i in 0..<pdf.pageCount {
-                    if let page = pdf.page(at: i) {
-                        page.rotation = rotationAngle
-                        mergedPDF.insert(
-                            page,
-                            at: mergedPDF.pageCount
-                        )
-                    }
-                }
-            }
+        let rotationAngles = PDFRotationMapper.mapRotationAngles(
+            urls: urls,
+            from: state.selectedPDFs
+        )
+        
+        guard let mergedPDF = pdfService.mergePDFs(urls: urls, rotationAngles: rotationAngles) else {
+            send(.showAlert(
+                message: "Failed to merge PDFs",
+                success: false
+            ))
+            return nil
         }
         
-        if mergedPDF.pageCount > 0 {
-            let savePanel = NSSavePanel()
-            savePanel.allowedContentTypes = [.pdf]
-            savePanel.nameFieldStringValue = "merged.pdf"
-            savePanel.prompt = "Save Merged PDF"
-            savePanel.canCreateDirectories = true
-            
-            if savePanel.runModal() == .OK,
-               let url = savePanel.url {
-                do {
-                    
-                    if let data = mergedPDF.dataRepresentation() {
-                        try data.write(to: url)
-                        print("Merged PDF successfully saved at \(url.path)")
-                        
-                        self.send(.showAlert(
-                            message: "Merged PDF successfully saved at \(url.lastPathComponent)",
-                            success: true
-                        ))
-                    } else {
-                        self.send(.showAlert(
-                            message: "Failed to create PDF data",
-                            success: false
-                        ))
-                    }
-                } catch {
-                    print("Failed to save merged PDF. Error: \(error.localizedDescription)")
-                    
-                    self.send(.showAlert(
-                        message: "Failed to save PDF: \(error.localizedDescription)",
-                        success: false
-                    ))
-                }
-            }
-        }
+        saveMergedPDF(mergedPDF)
         
         return mergedPDF
+    }
+    
+    private func saveMergedPDF(_ mergedPDF: PDFDocument) {
+        guard let saveURL = filePanelService.showSavePanel(
+            defaultName: "merged.pdf",
+            prompt: "Save Merged PDF",
+            allowedTypes: [.pdf]
+        ) else {
+            return
+        }
+        
+        do {
+            try pdfFileWriterService.savePDFDocument(mergedPDF, to: saveURL)
+            send(.showAlert(
+                message: "Merged PDF successfully saved at \(saveURL.lastPathComponent)",
+                success: true
+            ))
+        } catch {
+            send(.showAlert(
+                message: "Failed to save merged PDF: \(error.localizedDescription)",
+                success: false
+            ))
+        }
     }
     
     func splitPDF(
         urls: [URL]
     ) -> [PDFDocument] {
-        var allSplitPDFs: [PDFDocument] = []
+        guard !urls.isEmpty else { return [] }
         
-        for url in urls {
-            if let pdf = PDFDocument(url: url) {
-                let rotationAngle = state.selectedPDFs.first(where: { $0.pdfURL == url })?.rotationAngle ?? 0
-                
-                for i in 0..<pdf.pageCount {
-                    let singlePagePDF = PDFDocument()
-                    
-                    if let page = pdf.page(at: i) {
-                        page.rotation = rotationAngle
-                        singlePagePDF.insert(
-                            page,
-                            at: 0
-                        )
-                        allSplitPDFs.append(singlePagePDF)
-                    }
-                }
-            }
+        let rotationAngles = PDFRotationMapper.mapRotationAngles(
+            urls: urls,
+            from: state.selectedPDFs
+        )
+        
+        let allSplitPDFs = pdfService.splitPDF(urls: urls, rotationAngles: rotationAngles)
+        
+        guard !allSplitPDFs.isEmpty else {
+            send(.showAlert(
+                message: "No pages found to split",
+                success: false
+            ))
+            return []
         }
         
-        if !allSplitPDFs.isEmpty {
-            Task {
-                await MainActor.run {
-                    let savePanel = NSOpenPanel()
-                    savePanel.canChooseDirectories = true
-                    savePanel.canChooseFiles = false
-                    savePanel.allowsMultipleSelection = false
-                    savePanel.prompt = "Save Split PDFs"
-                    
-                    if savePanel.runModal() == .OK,
-                       let selectedURL = savePanel.url {
-                        var successCount = 0
-                        var failureCount = 0
-                        
-                        for (index, pdfDocument) in allSplitPDFs.enumerated() {
-                            let fileName = "split_\(index).pdf"
-                            let fileURL = selectedURL.appendingPathComponent(fileName)
-                            
-                            do {
-                                if let data = pdfDocument.dataRepresentation() {
-                                    try data.write(to: fileURL)
-                                    print("Successfully saved: \(fileURL.path)")
-                                    successCount += 1
-                                } else {
-                                    failureCount += 1
-                                }
-                            } catch {
-                                print("Failed to save: \(fileURL.path). Error: \(error.localizedDescription)")
-                                failureCount += 1
-                            }
-                        }
-                        
-                        if failureCount == 0 {
-                            self.send(.showAlert(
-                                message: "Successfully saved \(successCount) PDF files",
-                                success: true
-                            ))
-                        } else if successCount > 0 {
-                            self.send(.showAlert(
-                                message: "Partially successful: Saved \(successCount) files, failed to save \(failureCount) files",
-                                success: true
-                            ))
-                        } else {
-                            self.send(.showAlert(
-                                message: "Failed to save any PDF files",
-                                success: false
-                            ))
-                        }
-                    }
-                }
-            }
-        }
+        saveSplitPDFs(allSplitPDFs)
         
         return allSplitPDFs
+    }
+    
+    private func saveSplitPDFs(_ splitPDFs: [PDFDocument]) {
+        Task {
+            await MainActor.run {
+                guard let selectedURL = filePanelService.showDirectoryPanel(
+                    prompt: "Save Split PDFs"
+                ) else {
+                    return
+                }
+                
+                let result = pdfFileWriterService.savePDFDocuments(
+                    splitPDFs,
+                    to: selectedURL,
+                    fileNamePrefix: "split"
+                )
+                
+                send(.showAlert(
+                    message: result.message,
+                    success: !result.isCompleteFailure
+                ))
+            }
+        }
     }
     
     func deletePDF(
@@ -258,42 +234,74 @@ class PDFHubReactor: AsyncReactor {
         state.selectedPDFs.removeAll { $0.id == id }
     }
     
+    private func clearPDFs() {
+        state.selectedPDFs.removeAll()
+        state.mergedPDF = nil
+        state.splitPDFs.removeAll()
+    }
+    
     private func selectImages() {
-        let urls = openFilePanel(
+        let urls = filePanelService.openFilePanel(
             contentTypes: [.png, .jpeg, .tiff, .heic, .bmp, .gif],
             multipleSelection: true
         )
         
-        for url in urls {
-            if !state.imageURLs.contains(url),
-               let image = NSImage(contentsOf: url) {
-                state.selectedImages.append(image)
-                state.imageURLs.append(url)
+        let newImages = urls
+            .filter { !state.imageURLs.contains($0) }
+            .compactMap { url -> (NSImage, URL)? in
+                guard let image = imageService.loadImage(from: url) else {
+                    return nil
+                }
+                return (image, url)
             }
+        
+        for (image, url) in newImages {
+            state.selectedImages.append(image)
+            state.imageURLs.append(url)
         }
     }
     
     private func convertImagesToPDF(
         imageUrls: [URL]
     ) {
-        let pdfDocument = PDFDocument()
-        
-        for (index, imageUrl) in imageUrls.enumerated() {
-            if let image = NSImage(contentsOf: imageUrl),
-               let pdfPage = PDFPage(image: image) {
-                pdfDocument.insert(pdfPage, at: index)
-            }
+        guard !imageUrls.isEmpty else {
+            send(.showAlert(
+                message: "No images selected",
+                success: false
+            ))
+            return
         }
         
-        let savePanel = NSSavePanel()
-        savePanel.allowedContentTypes = [.pdf]
-        savePanel.nameFieldStringValue = "ConvertedImages.pdf"
+        guard let pdfDocument = imageService.convertImagesToPDF(imageUrls: imageUrls) else {
+            send(.showAlert(
+                message: "Failed to convert images to PDF",
+                success: false
+            ))
+            return
+        }
         
-        if savePanel.runModal() == .OK, let saveURL = savePanel.url {
-            pdfDocument.write(to: saveURL)
-            self.send(.showAlert(
+        saveConvertedPDF(pdfDocument)
+    }
+    
+    private func saveConvertedPDF(_ pdfDocument: PDFDocument) {
+        guard let saveURL = filePanelService.showSavePanel(
+            defaultName: "ConvertedImages.pdf",
+            prompt: "Save Converted PDF",
+            allowedTypes: [.pdf]
+        ) else {
+            return
+        }
+        
+        do {
+            try pdfFileWriterService.savePDFDocument(pdfDocument, to: saveURL)
+            send(.showAlert(
                 message: "Successfully converted images to PDF file",
                 success: true
+            ))
+        } catch {
+            send(.showAlert(
+                message: "Failed to save converted PDF: \(error.localizedDescription)",
+                success: false
             ))
         }
     }
@@ -307,18 +315,9 @@ class PDFHubReactor: AsyncReactor {
         state.imageURLs.remove(at: index)
     }
     
-    private func openFilePanel(
-        contentTypes: [UTType],
-        multipleSelection: Bool
-    ) -> [URL] {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = contentTypes
-        panel.allowsMultipleSelection = multipleSelection
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        
-        return panel.runModal() == .OK ? panel.urls : []
+    private func clearImages() {
+        state.selectedImages.removeAll()
+        state.imageURLs.removeAll()
     }
-
     
 }

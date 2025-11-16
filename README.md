@@ -1,12 +1,18 @@
-# PDF HUB
+# Beaver
 
-PDF HUB is an open source macOS app for working with PDF files. You can convert one or more images into a single PDF, or split a PDF into multiple documents.
+![Beaver](Images/BeaverIcon.png)
+
+Beaver is an open-source macOS app for working with PDF files. You can convert one or more images into a single PDF, split a PDF into multiple documents, or merge multiple PDFs into one.
+
+Perfect for privacy-conscious users -> All processing happens locally on your Mac. Your documents never leave your device, making it ideal for sensitive documents like visa applications, legal papers, medical records, or any confidential information you need to convert or manage.
 
 ## Features
 
 - Convert images to PDF
 - Split PDF into separate pages
-- Simple and clean macOS interface
+- Merge multiple PDFs into one
+- 100% local processing -> Your files never leave your device
+
 
 ## Built With
 
@@ -24,12 +30,13 @@ You need to have Xcode installed.
 
 ## Screenshots
 
-![Main Screen](https://i.ibb.co/XkCcF2RS/Screenshot-2025-06-12-at-22-14-08.png)
-![Split PDF Feature](https://i.ibb.co/tpj04rm1/Screenshot-2025-06-12-at-22-14-29.png)
+![Main Screen](Screenshots/Beaver1.png)
+![Split PDF Feature](Screenshots/Beaver2.png)
+![Images to PDF Feature](Screenshots/Beaver3.png)
 
 ## Project Status
 
-This project is currently in development.
+This project has been released and is actively maintained with ongoing updates.
 
 ## License
 
