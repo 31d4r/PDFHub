@@ -52,8 +52,8 @@ struct PDFGridListView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(hex: Constants.backgroundGradientStart),
-                    Color(hex: Constants.backgroundGradientEnd)
+                    Color(hex: DesignSystem.Colors.backgroundGradientStart),
+                    Color(hex: DesignSystem.Colors.backgroundGradientEnd)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -64,8 +64,8 @@ struct PDFGridListView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: Constants.primaryGradientStart).opacity(Constants.circleStartOpacity),
-                            Color(hex: Constants.primaryGradientEnd).opacity(Constants.circleEndOpacity)
+                            Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(DesignSystem.Opacity.circleStart),
+                            Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(DesignSystem.Opacity.circleEnd)
                         ],
                         startPoint: .center,
                         endPoint: .trailing
@@ -106,76 +106,76 @@ struct PDFGridListView: View {
     @ViewBuilder
     private func headerView() -> some View {
         if !selectedPDFs.isEmpty {
-            VStack(spacing: Constants.headerSpacing) {
+            VStack(spacing: DesignSystem.Spacing.headerSpacing) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(Constants.titleText)
+                        Text(DesignSystem.Text.pdfDocumentsTitle)
                             .font(
-                                .system(size: Constants.titleFontSize, weight: .bold, design: .rounded)
+                                .system(size: DesignSystem.Typography.titleFontSize, weight: .bold, design: .rounded)
                             )
-                            .foregroundColor(Color(hex: Constants.titleColor))
+                            .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
                         
                         Text("\(selectedPDFs.count) file\(selectedPDFs.count == 1 ? "" : "s") loaded")
-                            .font(.system(size: Constants.subtitleFontSize, weight: .medium, design: .rounded))
-                            .foregroundColor(Color(hex: Constants.subtitleColor))
+                            .font(.system(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded))
+                            .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                     }
                     
                     Spacer()
                     
-                    HStack(spacing: Constants.buttonSpacing) {
+                    HStack(spacing: DesignSystem.Spacing.buttonSpacing) {
                         actionButton(
-                            icon: Constants.addButtonIcon,
-                            title: Constants.addButtonTitle,
-                            color: Color(hex: Constants.addButtonColor)
+                            icon: DesignSystem.Icons.addButtonIcon,
+                            title: DesignSystem.ButtonLabels.addPDF,
+                            color: Color(hex: DesignSystem.Colors.addButtonColor)
                         ) {
                             reactor.send(.selectPDF)
                         }
                         
                         actionButton(
-                            icon: Constants.splitButtonIcon,
-                            title: Constants.splitButtonTitle,
-                            color: Color(hex: Constants.splitButtonColor)
+                            icon: DesignSystem.Icons.splitButtonIcon,
+                            title: DesignSystem.ButtonLabels.splitPDFs,
+                            color: Color(hex: DesignSystem.Colors.splitButtonColor)
                         ) {
                             let urls = selectedPDFs.map { $0.pdfURL }
                             reactor.send(.splitPDF(urls))
                         }
                         
                         actionButton(
-                            icon: Constants.mergeButtonIcon,
-                            title: Constants.mergeButtonTitle,
-                            color: Color(hex: Constants.mergeButtonColor)
+                            icon: DesignSystem.Icons.mergeButtonIcon,
+                            title: DesignSystem.ButtonLabels.mergePDFs,
+                            color: Color(hex: DesignSystem.Colors.mergeButtonColor)
                         ) {
                             let urls = selectedPDFs.map { $0.pdfURL }
                             reactor.send(.mergePDF(urls))
                         }
                         
                         actionButton(
-                            icon: Constants.clearButtonIcon,
-                            title: Constants.clearButtonTitle,
-                            color: Color(hex: Constants.deleteButtonColor)
+                            icon: DesignSystem.Icons.clearButtonIcon,
+                            title: DesignSystem.ButtonLabels.clearAll,
+                            color: Color(hex: DesignSystem.Colors.deleteButtonColor)
                         ) {
-                            selectedPDFs.removeAll()
+                            reactor.send(.clearPDFs)
                         }
                     }
                 }
-                .padding(.horizontal, Constants.headerHorizontalPadding)
-                .padding(.top, Constants.headerTopPadding)
+                .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
+                .padding(.top, DesignSystem.Spacing.headerTopPadding)
                 
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color(hex: Constants.primaryGradientStart).opacity(Constants.separatorStartOpacity),
-                                Color(hex: Constants.primaryGradientEnd).opacity(Constants.separatorEndOpacity)
+                                Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(DesignSystem.Opacity.separatorStart),
+                                Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(DesignSystem.Opacity.separatorEnd)
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .frame(height: Constants.separatorHeight)
-                    .padding(.horizontal, Constants.headerHorizontalPadding)
+                    .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
             }
-            .padding(.bottom, Constants.headerBottomPadding)
+            .padding(.bottom, DesignSystem.Spacing.headerBottomPadding)
         }
     }
     
@@ -191,19 +191,19 @@ struct PDFGridListView: View {
                     .font(.system(size: Constants.buttonIconSize, weight: .semibold))
                 
                 Text(title)
-                    .font(.system(size: Constants.buttonFontSize, weight: .semibold, design: .rounded))
+                    .font(.system(size: DesignSystem.Typography.buttonFontSize, weight: .semibold, design: .rounded))
             }
             .foregroundColor(.white)
-            .padding(.horizontal, Constants.buttonHorizontalPadding)
-            .padding(.vertical, Constants.buttonVerticalPadding)
+            .padding(.horizontal, DesignSystem.Spacing.buttonHorizontalPadding)
+            .padding(.vertical, DesignSystem.Spacing.buttonVerticalPadding)
             .background(
-                RoundedRectangle(cornerRadius: Constants.buttonCornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.button, style: .continuous)
                     .fill(color)
                     .shadow(
-                        color: color.opacity(Constants.buttonShadowOpacity),
-                        radius: Constants.buttonShadowRadius,
-                        x: Constants.buttonShadowOffset.width,
-                        y: Constants.buttonShadowOffset.height
+                        color: color.opacity(DesignSystem.Shadows.defaultOpacity),
+                        radius: DesignSystem.Shadows.defaultRadius,
+                        x: DesignSystem.Shadows.defaultOffset.width,
+                        y: DesignSystem.Shadows.defaultOffset.height
                     )
             )
         }
@@ -222,15 +222,15 @@ struct PDFGridListView: View {
                                         pdf.rotationAngle = (pdf.rotationAngle - 90 + 360) % 360
                                     }
                                 } label: {
-                                    Image(systemName: Constants.rotateLeftIconFill)
+                                    Image(systemName: DesignSystem.Icons.rotateLeftIconFill)
                                         .font(.system(size: Constants.rotateIconSize, weight: .semibold))
                                         .foregroundColor(.white)
                                         .frame(width: Constants.rotateButtonSize, height: Constants.rotateButtonSize)
                                         .background(
                                             Circle()
-                                                .fill(Color(hex: Constants.rotateButtonColor))
+                                                .fill(Color(hex: DesignSystem.Colors.rotateButtonColor))
                                                 .shadow(
-                                                    color: Color(hex: Constants.rotateButtonColor).opacity(Constants.rotateButtonShadowOpacity),
+                                                    color: Color(hex: DesignSystem.Colors.rotateButtonColor).opacity(Constants.rotateButtonShadowOpacity),
                                                     radius: Constants.rotateButtonShadowRadius,
                                                     x: 0,
                                                     y: Constants.rotateButtonShadowOffset
@@ -244,15 +244,15 @@ struct PDFGridListView: View {
                                         pdf.rotationAngle = (pdf.rotationAngle + 90) % 360
                                     }
                                 } label: {
-                                    Image(systemName: Constants.rotateRightIconFill)
+                                    Image(systemName: DesignSystem.Icons.rotateRightIconFill)
                                         .font(.system(size: Constants.rotateIconSize, weight: .semibold))
                                         .foregroundColor(.white)
                                         .frame(width: Constants.rotateButtonSize, height: Constants.rotateButtonSize)
                                         .background(
                                             Circle()
-                                                .fill(Color(hex: Constants.rotateButtonColor))
+                                                .fill(Color(hex: DesignSystem.Colors.rotateButtonColor))
                                                 .shadow(
-                                                    color: Color(hex: Constants.rotateButtonColor).opacity(Constants.rotateButtonShadowOpacity),
+                                                    color: Color(hex: DesignSystem.Colors.rotateButtonColor).opacity(Constants.rotateButtonShadowOpacity),
                                                     radius: Constants.rotateButtonShadowRadius,
                                                     x: 0,
                                                     y: Constants.rotateButtonShadowOffset
@@ -267,15 +267,15 @@ struct PDFGridListView: View {
                             Button {
                                 reactor.send(.deletePDF($pdf.id))
                             } label: {
-                                Image(systemName: Constants.deleteIconFill)
+                                Image(systemName: DesignSystem.Icons.deleteIconFill)
                                     .font(.system(size: Constants.deleteIconSize, weight: .semibold))
                                     .foregroundColor(.white)
                                     .frame(width: Constants.deleteButtonSize, height: Constants.deleteButtonSize)
                                     .background(
                                         Circle()
-                                            .fill(Color(hex: Constants.deleteButtonBackgroundColor))
+                                            .fill(Color(hex: DesignSystem.Colors.deleteButtonBackgroundColor))
                                             .shadow(
-                                                color: Color(hex: Constants.deleteButtonBackgroundColor).opacity(Constants.deleteButtonShadowOpacity),
+                                                color: Color(hex: DesignSystem.Colors.deleteButtonBackgroundColor).opacity(Constants.deleteButtonShadowOpacity),
                                                 radius: Constants.deleteButtonShadowRadius,
                                                 x: 0,
                                                 y: Constants.deleteButtonShadowOffset
@@ -289,8 +289,8 @@ struct PDFGridListView: View {
                         .padding(.bottom, Constants.cardMiddlePadding)
                         
                         ZStack {
-                            RoundedRectangle(cornerRadius: Constants.pdfContainerCornerRadius, style: .continuous)
-                                .fill(Color(hex: Constants.pdfContainerBackgroundColor))
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.pdfContainer, style: .continuous)
+                                .fill(Color(hex: DesignSystem.Colors.pdfContainerBackgroundColor))
                                 .frame(height: Constants.pdfContainerHeight)
                             
                             PDFKitView(
@@ -298,26 +298,26 @@ struct PDFGridListView: View {
                                 rotationAngle: $pdf.rotationAngle
                             )
                             .frame(height: Constants.pdfViewHeight)
-                            .clipShape(RoundedRectangle(cornerRadius: Constants.pdfViewCornerRadius, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.pdfView, style: .continuous))
                             .shadow(
                                 color: .black.opacity(Constants.pdfViewShadowOpacity),
-                                radius: Constants.pdfViewShadowRadius,
+                                radius: DesignSystem.Shadows.defaultRadius,
                                 x: 0,
-                                y: Constants.pdfViewShadowOffset
+                                y: DesignSystem.Shadows.backgroundOffset
                             )
                         }
                         .padding(.horizontal, Constants.cardHorizontalPadding)
                         
                         VStack(spacing: Constants.textSpacing) {
                             Text(pdf.pdfURL.lastPathComponent)
-                                .font(.system(size: Constants.fileNameFontSize, weight: .semibold, design: .rounded))
-                                .foregroundColor(Color(hex: Constants.titleColor))
+                                .font(.system(size: DesignSystem.Typography.fileNameFontSize, weight: .semibold, design: .rounded))
+                                .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
                                 .lineLimit(2)
                                 .multilineTextAlignment(.center)
                             
-                            Text(Constants.pdfDocumentText)
-                                .font(.system(size: Constants.documentTypeFontSize, weight: .medium, design: .rounded))
-                                .foregroundColor(Color(hex: Constants.subtitleColor))
+                            Text(DesignSystem.Text.pdfDocument)
+                                .font(.system(size: DesignSystem.Typography.documentTypeFontSize, weight: .medium, design: .rounded))
+                                .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                         }
                         .padding(.horizontal, Constants.cardHorizontalPadding)
                         .padding(.vertical, Constants.cardBottomPadding)
@@ -328,56 +328,21 @@ struct PDFGridListView: View {
                     )
                 }
             }
-            .padding(Constants.contentPadding)
+            .padding(DesignSystem.Spacing.contentPadding)
         }
     }
 }
 
 private enum Constants {
-    /// Colors
-    static let backgroundGradientStart = "F7FAFC"
-    static let backgroundGradientEnd = "EDF2F7"
-    static let primaryGradientStart = "FF6B35"
-    static let primaryGradientEnd = "FFD23F"
-    static let titleColor = "2D3748"
-    static let subtitleColor = "4A5568"
-    static let addButtonColor = "4299E1"
-    static let splitButtonColor = "48BB78"
-    static let mergeButtonColor = "F7931E"
-    static let deleteButtonColor = "F56565"
-    
-    /// Background Circle
     static let circleSize: CGFloat = 400
     static let circleOffset = CGSize(width: -250, height: -200)
-    static let circleStartOpacity: Double = 0.05
-    static let circleEndOpacity: Double = 0.02
     static let circleBlurRadius: CGFloat = 2
     
-    /// Header
-    static let headerSpacing: CGFloat = 16
-    static let titleFontSize: CGFloat = 28
-    static let subtitleFontSize: CGFloat = 16
-    static let headerHorizontalPadding: CGFloat = 32
-    static let headerTopPadding: CGFloat = 20
-    static let headerBottomPadding: CGFloat = 20
     static let separatorHeight: CGFloat = 2
-    static let separatorStartOpacity: Double = 0.3
-    static let separatorEndOpacity: Double = 0.1
     
-    /// Action Buttons
-    static let buttonSpacing: CGFloat = 12
     static let buttonIconSize: CGFloat = 16
-    static let buttonFontSize: CGFloat = 14
-    static let buttonHorizontalPadding: CGFloat = 16
-    static let buttonVerticalPadding: CGFloat = 10
-    static let buttonCornerRadius: CGFloat = 12
-    static let buttonShadowOpacity: Double = 0.3
-    static let buttonShadowRadius: CGFloat = 8
-    static let buttonShadowOffset = CGSize(width: 0, height: 4)
     
-    /// Content Layout
     static let gridSpacing: CGFloat = 20
-    static let contentPadding: CGFloat = 16
     static let cardCornerRadius: CGFloat = 20
     static let cardHorizontalPadding: CGFloat = 20
     static let cardTopPadding: CGFloat = 20
@@ -391,61 +356,29 @@ private enum Constants {
     static let cardHoverShadowOffset: CGFloat = 8
     static let cardBorderWidth: CGFloat = 1
     static let cardHoverBorderWidth: CGFloat = 2
-    static let cardBorderStartOpacity: Double = 0.2
-    static let cardBorderEndOpacity: Double = 0.1
     static let cardHoverBorderStartOpacity: Double = 0.4
     static let cardHoverBorderEndOpacity: Double = 0.2
     static let cardNormalScale: CGFloat = 1.0
     static let cardHoverScale: CGFloat = 1.02
     static let cardAnimationDuration: Double = 0.2
     
-    /// PDF Container
     static let pdfContainerHeight: CGFloat = 400
-    static let pdfContainerCornerRadius: CGFloat = 16
-    static let pdfContainerBackgroundColor = "F7FAFC"
     static let pdfViewHeight: CGFloat = 380
-    static let pdfViewCornerRadius: CGFloat = 12
     static let pdfViewShadowOpacity: Double = 0.1
-    static let pdfViewShadowRadius: CGFloat = 8
-    static let pdfViewShadowOffset: CGFloat = 4
     
-    /// Rotation Buttons
     static let rotateButtonSpacing: CGFloat = 8
     static let rotateButtonSize: CGFloat = 32
     static let rotateIconSize: CGFloat = 14
-    static let rotateButtonColor = "4299E1"
     static let rotateButtonShadowOpacity: Double = 0.3
     static let rotateButtonShadowRadius: CGFloat = 6
     static let rotateButtonShadowOffset: CGFloat = 3
     static let rotateAnimationDuration: Double = 0.3
     
-    /// Delete Button
     static let deleteButtonSize: CGFloat = 32
     static let deleteIconSize: CGFloat = 16
-    static let deleteButtonBackgroundColor = "F56565"
     static let deleteButtonShadowOpacity: Double = 0.3
     static let deleteButtonShadowRadius: CGFloat = 6
     static let deleteButtonShadowOffset: CGFloat = 3
     
-    /// Text
     static let textSpacing: CGFloat = 8
-    static let fileNameFontSize: CGFloat = 16
-    static let documentTypeFontSize: CGFloat = 12
-    static let pdfDocumentText = "PDF Document"
-    
-    /// Icons
-    static let rotateLeftIconFill = "rotate.left.fill"
-    static let rotateRightIconFill = "rotate.right.fill"
-    static let deleteIconFill = "trash.fill"
-    
-    /// Button Labels
-    static let addButtonIcon = "plus.circle.fill"
-    static let addButtonTitle = "Add PDF"
-    static let splitButtonIcon = "rectangle.split.2x1.fill"
-    static let splitButtonTitle = "Split PDFs"
-    static let mergeButtonIcon = "arrow.triangle.merge"
-    static let mergeButtonTitle = "Merge PDFs"
-    static let clearButtonIcon = "trash.fill"
-    static let clearButtonTitle = "Clear All"
-    static let titleText = "PDF Documents"
 }

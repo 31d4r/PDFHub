@@ -40,8 +40,8 @@ struct ImageToPDFView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(hex: Constants.backgroundGradientStart),
-                    Color(hex: Constants.backgroundGradientEnd)
+                    Color(hex: DesignSystem.Colors.backgroundGradientStart),
+                    Color(hex: DesignSystem.Colors.backgroundGradientEnd)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -52,8 +52,8 @@ struct ImageToPDFView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: Constants.primaryGradientStart).opacity(Constants.circleStartOpacity),
-                            Color(hex: Constants.primaryGradientEnd).opacity(Constants.circleEndOpacity)
+                            Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(DesignSystem.Opacity.circleStart),
+                            Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(DesignSystem.Opacity.circleEnd)
                         ],
                         startPoint: .center,
                         endPoint: .trailing
@@ -94,7 +94,7 @@ struct ImageToPDFView: View {
     @ViewBuilder
     private func headerView() -> some View {
         if !selectedImages.isEmpty {
-            VStack(spacing: Constants.headerSpacing) {
+            VStack(spacing: DesignSystem.Spacing.headerSpacing) {
                 HStack {
                     VStack(
                         alignment: .leading,
@@ -106,8 +106,8 @@ struct ImageToPDFView: View {
                                     .fill(
                                         LinearGradient(
                                             colors: [
-                                                Color(hex: Constants.primaryGradientStart),
-                                                Color(hex: Constants.primaryGradientEnd)
+                                                Color(hex: DesignSystem.Colors.primaryGradientStart),
+                                                Color(hex: DesignSystem.Colors.primaryGradientEnd)
                                             ],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
@@ -118,7 +118,7 @@ struct ImageToPDFView: View {
                                         height: Constants.headerIconSize
                                     )
                                 
-                                Image(systemName: Constants.headerIcon)
+                                Image(systemName: DesignSystem.Icons.headerIcon)
                                     .font(
                                         .system(
                                             size: Constants.headerIconImageSize,
@@ -132,44 +132,44 @@ struct ImageToPDFView: View {
                                 alignment: .leading,
                                 spacing: Constants.headerTextSpacing
                             ) {
-                                Text(Constants.titleText)
+                                Text(DesignSystem.Text.imagesToPDFTitle)
                                     .font(
                                         .system(
-                                            size: Constants.titleFontSize,
+                                            size: DesignSystem.Typography.titleFontSize,
                                             weight: .bold,
                                             design: .rounded
                                         )
                                     )
-                                    .foregroundColor(Color(hex: Constants.titleColor))
+                                    .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
                                 
                                 Text("\(selectedImages.count) image\(selectedImages.count == 1 ? "" : "s") ready to convert")
                                     .font(
                                         .system(
-                                            size: Constants.subtitleFontSize,
+                                            size: DesignSystem.Typography.subtitleFontSize,
                                             weight: .medium,
                                             design: .rounded
                                         )
                                     )
-                                    .foregroundColor(Color(hex: Constants.subtitleColor))
+                                    .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                             }
                         }
                     }
                     
                     Spacer()
                     
-                    HStack(spacing: Constants.buttonSpacing) {
+                    HStack(spacing: DesignSystem.Spacing.buttonSpacing) {
                         actionButton(
-                            icon: Constants.addButtonIcon,
-                            title: Constants.addButtonTitle,
-                            color: Color(hex: Constants.addButtonColor)
+                            icon: DesignSystem.Icons.addButtonIcon,
+                            title: DesignSystem.ButtonLabels.addImages,
+                            color: Color(hex: DesignSystem.Colors.addButtonColor)
                         ) {
                             reactor.send(.selectImages)
                         }
                         
                         actionButton(
-                            icon: Constants.convertButtonIcon,
-                            title: Constants.convertButtonTitle,
-                            color: Color(hex: Constants.convertButtonColor),
+                            icon: DesignSystem.Icons.convertButtonIcon,
+                            title: DesignSystem.ButtonLabels.convertToPDF,
+                            color: Color(hex: DesignSystem.Colors.convertButtonColor),
                             isDisabled: selectedImages.isEmpty
                         ) {
                             if !imageURLs.isEmpty {
@@ -178,16 +178,16 @@ struct ImageToPDFView: View {
                         }
                         
                         actionButton(
-                            icon: Constants.clearButtonIcon,
-                            title: Constants.clearButtonTitle,
-                            color: Color(hex: Constants.clearButtonColor)
+                            icon: DesignSystem.Icons.clearButtonIcon,
+                            title: DesignSystem.ButtonLabels.clearAll,
+                            color: Color(hex: DesignSystem.Colors.clearButtonColor)
                         ) {
-                            selectedImages.removeAll()
+                            reactor.send(.clearImages)
                         }
                     }
                 }
-                .padding(.horizontal, Constants.headerHorizontalPadding)
-                .padding(.top, Constants.headerTopPadding)
+                .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
+                .padding(.top, DesignSystem.Spacing.headerTopPadding)
                 
                 HStack {
                     ForEach(0..<min(selectedImages.count, Constants.maxVisibleDots), id: \.self) { index in
@@ -195,8 +195,8 @@ struct ImageToPDFView: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color(hex: Constants.primaryGradientStart),
-                                        Color(hex: Constants.primaryGradientEnd)
+                                        Color(hex: DesignSystem.Colors.primaryGradientStart),
+                                        Color(hex: DesignSystem.Colors.primaryGradientEnd)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -212,21 +212,21 @@ struct ImageToPDFView: View {
                     
                     if selectedImages.count > Constants.maxVisibleDots {
                         Text("+\(selectedImages.count - Constants.maxVisibleDots)")
-                            .font(.system(size: Constants.counterFontSize, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color(hex: Constants.subtitleColor))
+                            .font(.system(size: DesignSystem.Typography.counterFontSize, weight: .semibold, design: .rounded))
+                            .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                     }
                 }
                 .padding(
                     .horizontal,
-                    Constants.headerHorizontalPadding
+                    DesignSystem.Spacing.headerHorizontalPadding
                 )
                 
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color(hex: Constants.primaryGradientStart).opacity(Constants.separatorStartOpacity),
-                                Color(hex: Constants.primaryGradientEnd).opacity(Constants.separatorEndOpacity)
+                                Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(DesignSystem.Opacity.separatorStart),
+                                Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(DesignSystem.Opacity.separatorEnd)
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
@@ -235,12 +235,12 @@ struct ImageToPDFView: View {
                     .frame(height: Constants.separatorHeight)
                     .padding(
                         .horizontal,
-                        Constants.headerHorizontalPadding
+                        DesignSystem.Spacing.headerHorizontalPadding
                     )
             }
             .padding(
                 .bottom,
-                Constants.headerBottomPadding
+                DesignSystem.Spacing.headerBottomPadding
             )
         }
     }
@@ -265,23 +265,23 @@ struct ImageToPDFView: View {
                 Text(title)
                     .font(
                         .system(
-                            size: Constants.buttonFontSize,
+                            size: DesignSystem.Typography.buttonFontSize,
                             weight: .semibold,
                             design: .rounded
                         )
                     )
             }
             .foregroundColor(isDisabled ? .gray : .white)
-            .padding(.horizontal, Constants.buttonHorizontalPadding)
-            .padding(.vertical, Constants.buttonVerticalPadding)
+            .padding(.horizontal, DesignSystem.Spacing.buttonHorizontalPadding)
+            .padding(.vertical, DesignSystem.Spacing.buttonVerticalPadding)
             .background(
-                RoundedRectangle(cornerRadius: Constants.buttonCornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.button, style: .continuous)
                     .fill(isDisabled ? Color.gray.opacity(0.3) : color)
                     .shadow(
-                        color: isDisabled ? .clear : color.opacity(Constants.buttonShadowOpacity),
-                        radius: Constants.buttonShadowRadius,
-                        x: Constants.buttonShadowOffset.width,
-                        y: Constants.buttonShadowOffset.height
+                        color: isDisabled ? .clear : color.opacity(DesignSystem.Shadows.defaultOpacity),
+                        radius: DesignSystem.Shadows.defaultRadius,
+                        x: DesignSystem.Shadows.defaultOffset.width,
+                        y: DesignSystem.Shadows.defaultOffset.height
                     )
             )
         }
@@ -301,7 +301,7 @@ struct ImageToPDFView: View {
                             Button {
                                 reactor.send(.deleteImage(idx))
                             } label: {
-                                Image(systemName: Constants.deleteIcon)
+                                Image(systemName: DesignSystem.Icons.deleteIconFill)
                                     .font(
                                         .system(
                                             size: Constants.deleteButtonIconSize,
@@ -315,9 +315,9 @@ struct ImageToPDFView: View {
                                     )
                                     .background(
                                         Circle()
-                                            .fill(Color(hex: Constants.deleteButtonBackgroundColor))
+                                            .fill(Color(hex: DesignSystem.Colors.deleteButtonBackgroundColor))
                                             .shadow(
-                                                color: Color(hex: Constants.deleteButtonBackgroundColor).opacity(Constants.deleteButtonShadowOpacity),
+                                                color: Color(hex: DesignSystem.Colors.deleteButtonBackgroundColor).opacity(Constants.deleteButtonShadowOpacity),
                                                 radius: Constants.deleteButtonShadowRadius,
                                                 x: 0,
                                                 y: Constants.deleteButtonShadowOffset
@@ -327,7 +327,7 @@ struct ImageToPDFView: View {
                             .buttonStyle(.plain)
                             .help("Delete This Image")
                         }
-                        .padding(Constants.contentPadding)
+                        .padding(DesignSystem.Spacing.contentPadding)
                         
                         Image(nsImage: image)
                             .resizable()
@@ -336,7 +336,7 @@ struct ImageToPDFView: View {
                                 maxWidth: Constants.imageMaxWidth,
                                 maxHeight: Constants.imageMaxHeight
                             )
-                            .padding(Constants.contentPadding)
+                            .padding(DesignSystem.Spacing.contentPadding)
                     }
                     .background(
                         RoundedRectangle(
@@ -359,8 +359,8 @@ struct ImageToPDFView: View {
                         .stroke(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: Constants.primaryGradientStart).opacity(Constants.cardBorderStartOpacity),
-                                    Color(hex: Constants.primaryGradientEnd).opacity(Constants.cardBorderEndOpacity)
+                                    Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(DesignSystem.Opacity.cardBorderStart),
+                                    Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(DesignSystem.Opacity.cardBorderEnd)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -370,63 +370,26 @@ struct ImageToPDFView: View {
                     )
                 }
             }
-            .padding(Constants.contentPadding)
+            .padding(DesignSystem.Spacing.contentPadding)
         }
     }
 }
 
 private enum Constants {
-    /// Colors
-    static let backgroundGradientStart = "F7FAFC"
-    static let backgroundGradientEnd = "EDF2F7"
-    static let primaryGradientStart = "F7931E"
-    static let primaryGradientEnd = "FFD23F"
-    static let titleColor = "2D3748"
-    static let subtitleColor = "4A5568"
-    static let addButtonColor = "4299E1"
-    static let convertButtonColor = "48BB78"
-    static let clearButtonColor = "F56565"
-    
-    /// Background Circle
     static let circleSize: CGFloat = 350
     static let circleOffset = CGSize(width: 300, height: -150)
-    static let circleStartOpacity: Double = 0.05
-    static let circleEndOpacity: Double = 0.02
     static let circleBlurRadius: CGFloat = 2
     
-    /// Header Icon
     static let headerIconSize: CGFloat = 40
     static let headerIconImageSize: CGFloat = 18
-    static let headerSpacing: CGFloat = 16
     static let headerHorizontalSpacing: CGFloat = 12
     static let headerVerticalSpacing: CGFloat = 4
     static let headerTextSpacing: CGFloat = 2
     
-    /// Typography
-    static let titleFontSize: CGFloat = 28
-    static let subtitleFontSize: CGFloat = 16
-    static let counterFontSize: CGFloat = 12
-    
-    /// Header Layout
-    static let headerHorizontalPadding: CGFloat = 32
-    static let headerTopPadding: CGFloat = 20
-    static let headerBottomPadding: CGFloat = 20
     static let separatorHeight: CGFloat = 2
-    static let separatorStartOpacity: Double = 0.3
-    static let separatorEndOpacity: Double = 0.1
     
-    /// Action Buttons
-    static let buttonSpacing: CGFloat = 12
     static let buttonIconSize: CGFloat = 16
-    static let buttonFontSize: CGFloat = 14
-    static let buttonHorizontalPadding: CGFloat = 16
-    static let buttonVerticalPadding: CGFloat = 10
-    static let buttonCornerRadius: CGFloat = 12
-    static let buttonShadowOpacity: Double = 0.3
-    static let buttonShadowRadius: CGFloat = 8
-    static let buttonShadowOffset = CGSize(width: 0, height: 4)
     
-    /// Progress Dots
     static let dotSize: CGFloat = 8
     static let maxVisibleDots = 10
     static let activeDotScale: CGFloat = 1.0
@@ -434,35 +397,18 @@ private enum Constants {
     static let activeDotOpacity: Double = 1.0
     static let inactiveDotOpacity: Double = 0.3
     
-    /// Content Layout
     static let gridSpacing: CGFloat = 20
     static let imageMaxWidth: CGFloat = 400
     static let imageMaxHeight: CGFloat = 400
-    static let contentPadding: CGFloat = 16
     static let cardCornerRadius: CGFloat = 12
     static let cardBorderWidth: CGFloat = 1
     static let cardShadowOpacity: Double = 0.08
     static let cardShadowRadius: CGFloat = 12
     static let cardShadowOffset: CGFloat = 4
-    static let cardBorderStartOpacity: Double = 0.2
-    static let cardBorderEndOpacity: Double = 0.1
     
-    /// Delete Button
-    static let deleteIcon = "trash.fill"
     static let deleteButtonIconSize: CGFloat = 16
     static let deleteButtonSize: CGFloat = 32
-    static let deleteButtonBackgroundColor = "F56565"
     static let deleteButtonShadowOpacity: Double = 0.3
     static let deleteButtonShadowRadius: CGFloat = 6
     static let deleteButtonShadowOffset: CGFloat = 3
-    
-    /// Button Labels
-    static let addButtonIcon = "plus.circle.fill"
-    static let addButtonTitle = "Add Images"
-    static let convertButtonIcon = "arrow.down.doc.fill"
-    static let convertButtonTitle = "Convert to PDF"
-    static let clearButtonIcon = "trash.fill"
-    static let clearButtonTitle = "Clear All"
-    static let headerIcon = "photo.stack.fill"
-    static let titleText = "Images to PDF"
 }

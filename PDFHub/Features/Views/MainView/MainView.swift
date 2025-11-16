@@ -50,8 +50,8 @@ struct MainView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(hex: Constants.backgroundGradientStart),
-                    Color(hex: Constants.backgroundGradientEnd)
+                    Color(hex: DesignSystem.Colors.backgroundGradientStart),
+                    Color(hex: DesignSystem.Colors.backgroundGradientEnd)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -62,8 +62,8 @@ struct MainView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: Constants.primaryGradientStart).opacity(Constants.leftCircleStartOpacity),
-                            Color(hex: Constants.primaryGradientEnd).opacity(Constants.leftCircleEndOpacity)
+                            Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(Constants.leftCircleStartOpacity),
+                            Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(Constants.leftCircleEndOpacity)
                         ],
                         startPoint: .center,
                         endPoint: .trailing
@@ -80,8 +80,8 @@ struct MainView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: Constants.primaryGradientMiddle).opacity(Constants.rightCircleStartOpacity),
-                            Color(hex: Constants.primaryGradientStart).opacity(Constants.rightCircleEndOpacity)
+                            Color(hex: DesignSystem.Colors.primaryGradientMiddle).opacity(Constants.rightCircleStartOpacity),
+                            Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(Constants.rightCircleEndOpacity)
                         ],
                         startPoint: .center,
                         endPoint: .leading
@@ -101,9 +101,9 @@ struct MainView: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color(hex: Constants.primaryGradientStart),
-                                        Color(hex: Constants.primaryGradientMiddle),
-                                        Color(hex: Constants.primaryGradientEnd)
+                                        Color(hex: DesignSystem.Colors.primaryGradientStart),
+                                        Color(hex: DesignSystem.Colors.primaryGradientMiddle),
+                                        Color(hex: DesignSystem.Colors.primaryGradientEnd)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -114,7 +114,7 @@ struct MainView: View {
                                 height: Constants.iconCircleSize
                             )
                             .shadow(
-                                color: Color(hex: Constants.primaryGradientStart).opacity(Constants.iconShadowOpacity),
+                                color: Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(Constants.iconShadowOpacity),
                                 radius: Constants.iconShadowRadius,
                                 x: Constants.iconShadowOffset.width,
                                 y: Constants.iconShadowOffset.height
@@ -131,7 +131,7 @@ struct MainView: View {
                     }
                     
                     VStack(spacing: Constants.titleSubtitleSpacing) {
-                        Text(Constants.titleText)
+                        Text(DesignSystem.Text.pdfHubTitle)
                             .font(
                                 .system(
                                     size: Constants.titleFontSize,
@@ -139,9 +139,9 @@ struct MainView: View {
                                     design: .rounded
                                 )
                             )
-                            .foregroundColor(Color(hex: Constants.titleColor))
+                            .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
                         
-                        Text(Constants.subtitleText)
+                        Text(DesignSystem.Text.pdfHubSubtitle)
                             .font(
                                 .system(
                                     size: Constants.subtitleFontSize,
@@ -149,7 +149,7 @@ struct MainView: View {
                                     design: .rounded
                                 )
                             )
-                            .foregroundColor(Color(hex: Constants.subtitleColor))
+                            .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                     }
                 }
                 .padding(.top, Constants.topPadding)
@@ -157,8 +157,8 @@ struct MainView: View {
                 HStack(spacing: Constants.buttonsHorizontalSpacing) {
                     menuButton(
                         description: Constants.pdfButtonDescription,
-                        icon: Constants.pdfButtonIcon,
-                        fileExtensions: Constants.pdfExtensions,
+                        icon: DesignSystem.Icons.pdfButtonIcon,
+                        fileExtensions: DesignSystem.FileTypes.pdfExtensions,
                         action: { reactor.send(.selectPDF) },
                         handleURL: { url in
                             let newPDF = PDF(pdfURL: url, rotationAngle: 0)
@@ -173,8 +173,8 @@ struct MainView: View {
                     
                     menuButton(
                         description: Constants.imageButtonDescription,
-                        icon: Constants.imageButtonIcon,
-                        fileExtensions: Constants.imageExtensions,
+                        icon: DesignSystem.Icons.imageButtonIcon,
+                        fileExtensions: DesignSystem.FileTypes.imageExtensions,
                         action: { reactor.send(.selectImages) },
                         handleURL: { url in
                             guard let image = NSImage(contentsOf: url),
@@ -208,7 +208,7 @@ struct MainView: View {
             icon: icon,
             action: action
         )
-        .onDrop(of: [Constants.fileURLType], isTargeted: nil) { providers in
+        .onDrop(of: [DesignSystem.FileTypes.fileURLType], isTargeted: nil) { providers in
             handleFileDrop(
                 providers: providers,
                 acceptedFileExtensions: fileExtensions,
@@ -223,11 +223,11 @@ struct MainView: View {
         fileTypeHandler: @escaping (URL) -> Void
     ) -> Bool {
         let acceptedProviders = providers.filter {
-            $0.hasItemConformingToTypeIdentifier(Constants.fileURLType)
+            $0.hasItemConformingToTypeIdentifier(DesignSystem.FileTypes.fileURLType)
         }
         
         for provider in acceptedProviders {
-            provider.loadItem(forTypeIdentifier: Constants.fileURLType, options: nil) { item, _ in
+            provider.loadItem(forTypeIdentifier: DesignSystem.FileTypes.fileURLType, options: nil) { item, _ in
                 guard
                     let data = item as? Data,
                     let url = URL(dataRepresentation: data, relativeTo: nil),
@@ -247,16 +247,6 @@ struct MainView: View {
 }
 
 private enum Constants {
-    /// Colors
-    static let backgroundGradientStart = "F7FAFC"
-    static let backgroundGradientEnd = "EDF2F7"
-    static let primaryGradientStart = "FF6B35"
-    static let primaryGradientMiddle = "F7931E"
-    static let primaryGradientEnd = "FFD23F"
-    static let titleColor = "2D3748"
-    static let subtitleColor = "4A5568"
-    
-    /// Background Circles
     static let leftCircleSize: CGFloat = 300
     static let rightCircleSize: CGFloat = 200
     static let leftCircleOffset = CGSize(width: -200, height: -150)
@@ -267,20 +257,15 @@ private enum Constants {
     static let rightCircleEndOpacity: Double = 0.03
     static let circleBlurRadius: CGFloat = 1
     
-    /// App Icon
     static let iconCircleSize: CGFloat = 120
     static let iconSize: CGFloat = 80
     static let iconShadowOpacity: Double = 0.3
     static let iconShadowRadius: CGFloat = 20
     static let iconShadowOffset = CGSize(width: 0, height: 10)
     
-    /// Typography
     static let titleFontSize: CGFloat = 48
     static let subtitleFontSize: CGFloat = 18
-    static let titleText = "PDF HUB"
-    static let subtitleText = "Your PDF workflow companion"
     
-    /// Spacing
     static let mainVerticalSpacing: CGFloat = 40
     static let titleVerticalSpacing: CGFloat = 20
     static let titleSubtitleSpacing: CGFloat = 8
@@ -288,16 +273,6 @@ private enum Constants {
     static let topPadding: CGFloat = 40
     static let bottomPadding: CGFloat = 60
     
-    /// Menu Button Content
     static let pdfButtonDescription = "Split & Merge\nPDF Files"
-    static let pdfButtonIcon = "doc.text.fill"
     static let imageButtonDescription = "Convert Images\nto PDF"
-    static let imageButtonIcon = "photo.stack.fill"
-    
-    /// File Extensions
-    static let pdfExtensions = ["pdf"]
-    static let imageExtensions = ["png", "jpg", "jpeg", "tiff", "heic", "bmp", "gif"]
-    
-    /// Drop Handling
-    static let fileURLType = "public.file-url"
 }
