@@ -4,11 +4,15 @@
 
 Beaver is an open-source macOS app for working with PDF files. You can convert one or more images into a single PDF, split a PDF into multiple documents, or merge multiple PDFs into one.
 
+Perfect for privacy-conscious users -> All processing happens locally on your Mac. Your documents never leave your device, making it ideal for sensitive documents like visa applications, legal papers, medical records, or any confidential information you need to convert or manage.
+
 ## Features
 
 - Convert images to PDF
 - Split PDF into separate pages
 - Merge multiple PDFs into one
+- 100% local processing -> Your files never leave your device
+
 
 ## Built With
 
