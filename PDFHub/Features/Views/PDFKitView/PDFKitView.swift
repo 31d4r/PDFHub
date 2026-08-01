@@ -3,8 +3,12 @@ import SwiftUI
 
 struct PDFKitView: NSViewRepresentable {
     let url: URL?
-    @Binding var rotationAngle: Int
-    
+    @Binding var rotationAngle: RotationAngle
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
     func makeNSView(
         context: Context
     ) -> PDFView {
@@ -13,35 +17,53 @@ struct PDFKitView: NSViewRepresentable {
         pdfView.displayMode = .singlePageContinuous
         pdfView.displaysPageBreaks = true
         pdfView.displayDirection = .vertical
-        
-        if let url = url {
+
+        if let url {
             pdfView.document = PDFDocument(url: url)
+            context.coordinator.loadedURL = url
         }
-        
+
+        applyRotation(
+            to: pdfView.document,
+            angle: rotationAngle
+        )
+
         return pdfView
     }
-    
+
     func updateNSView(
         _ nsView: PDFView,
         context: Context
     ) {
-        if let url = url {
-            nsView.document = PDFDocument(url: url)
+        if let url {
+            if context.coordinator.loadedURL != url {
+                nsView.document = PDFDocument(url: url)
+                context.coordinator.loadedURL = url
+            }
+        } else if context.coordinator.loadedURL != nil {
+            nsView.document = nil
+            context.coordinator.loadedURL = nil
         }
-        
-        if let document = nsView.document {
-            rotateDocument(document, by: rotationAngle)
+
+        applyRotation(
+            to: nsView.document,
+            angle: rotationAngle
+        )
+    }
+
+    private func applyRotation(
+        to document: PDFDocument?,
+        angle: RotationAngle
+    ) {
+        guard let document else { return }
+
+        for pageIndex in 0 ..< document.pageCount {
+            guard let page = document.page(at: pageIndex) else { continue }
+            page.rotation = angle.degrees
         }
     }
-    
-    private func rotateDocument(
-        _ document: PDFDocument,
-        by angle: Int
-    ) {
-        for i in 0 ..< document.pageCount {
-            if let page = document.page(at: i) {
-                page.rotation = (page.rotation + angle) % 360
-            }
-        }
+
+    final class Coordinator {
+        var loadedURL: URL?
     }
 }

@@ -10,8 +10,20 @@
 		CE22519C2D848668003F6736 /* AsyncReactor in Frameworks */ = {isa = PBXBuildFile; productRef = CE22519B2D848668003F6736 /* AsyncReactor */; };
 /* End PBXBuildFile section */
 
+
+/* Begin PBXContainerItemProxy section */
+		A1B2C3D42D848628003F6708 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE2251802D848628003F6736 /* Project object */;
+			tproxyType = 1;
+			remoteGlobalIDString = CE2251872D848628003F6736;
+			remoteInfo = PDFHub;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		CE2251882D848628003F6736 /* PDFHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D42D848628003F6701 /* PDFHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -33,6 +45,11 @@
 			path = PDFHub;
 			sourceTree = "<group>";
 		};
+		A1B2C3D42D848628003F6706 /* PDFHubTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PDFHubTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +61,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1B2C3D42D848628003F6704 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -51,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				CECDD78E2D8AE8F700FE7AD7 /* PDFHub */,
+				A1B2C3D42D848628003F6706 /* PDFHubTests */,
 				CE2251892D848628003F6736 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -59,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				CE2251882D848628003F6736 /* PDFHub.app */,
+				A1B2C3D42D848628003F6701 /* PDFHubTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -89,6 +115,29 @@
 			productReference = CE2251882D848628003F6736 /* PDFHub.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A1B2C3D42D848628003F6702 /* PDFHubTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "PDFHubTests" */;
+			buildPhases = (
+				A1B2C3D42D848628003F6703 /* Sources */,
+				A1B2C3D42D848628003F6704 /* Frameworks */,
+				A1B2C3D42D848628003F6705 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1B2C3D42D848628003F6707 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A1B2C3D42D848628003F6706 /* PDFHubTests */,
+			);
+			name = PDFHubTests;
+			packageProductDependencies = (
+			);
+			productName = PDFHubTests;
+			productReference = A1B2C3D42D848628003F6701 /* PDFHubTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -101,6 +150,10 @@
 				TargetAttributes = {
 					CE2251872D848628003F6736 = {
 						CreatedOnToolsVersion = 16.1;
+					};
+					A1B2C3D42D848628003F6702 = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = CE2251872D848628003F6736;
 					};
 				};
 			};
@@ -122,12 +175,20 @@
 			projectRoot = "";
 			targets = (
 				CE2251872D848628003F6736 /* PDFHub */,
+				A1B2C3D42D848628003F6702 /* PDFHubTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CE2251862D848628003F6736 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D42D848628003F6705 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -144,7 +205,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1B2C3D42D848628003F6703 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+
+/* Begin PBXTargetDependency section */
+		A1B2C3D42D848628003F6707 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE2251872D848628003F6736 /* PDFHub */;
+			targetProxy = A1B2C3D42D848628003F6708 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CE2251952D848629003F6736 /* Debug */ = {
@@ -345,6 +422,45 @@
 			};
 			name = Release;
 		};
+
+		A1B2C3D42D848628003F670A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 89ZNTTCP5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.PDFHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDFHub.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PDFHub";
+			};
+			name = Debug;
+		};
+		A1B2C3D42D848628003F670B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 89ZNTTCP5L;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.PDFHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDFHub.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PDFHub";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -362,6 +478,15 @@
 			buildConfigurations = (
 				CE2251982D848629003F6736 /* Debug */,
 				CE2251992D848629003F6736 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "PDFHubTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D42D848628003F670A /* Debug */,
+				A1B2C3D42D848628003F670B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
