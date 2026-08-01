@@ -6,16 +6,21 @@ import UniformTypeIdentifiers
 class PDFHubReactor: AsyncReactor {
     enum Action {
         case selectPDF
+        case addPDFs([URL])
         case mergePDF([URL])
         case splitPDF([URL])
         case deletePDF(UUID)
         case clearPDFs
-        
+
         case selectImages
-        case convertImagesToPDF([URL])
-        case deleteImage(Int)
+        case addImages([URL])
+        case convertImagesToPDF
+        case deleteImage(UUID)
         case clearImages
-        
+
+        case goBack
+        case navigate(AppScreen)
+
         case showAlert(
             message: String,
             success: Bool
@@ -27,35 +32,27 @@ class PDFHubReactor: AsyncReactor {
         case didUserSelectPDF([PDF])
         case didMergePDF(PDFDocument?)
         case didSplitPDFs([PDFDocument])
-        case didChangePDFRotation(Int)
-        
-        case didUserSelectImages([NSImage])
-        case didChangeImageURLs([URL])
-        
-        case didExportAlertPresent(Bool)
+        case didUserSelectImages([ImageItem])
+        case didChangeScreen(AppScreen)
+        case didSetExportAlert(ExportAlert?)
     }
-    
+
     struct State {
+        var screen: AppScreen = .menu
         var selectedPDFs: [PDF] = []
         var mergedPDF: PDFDocument?
         var splitPDFs: [PDFDocument] = []
-        var rotationAngle = 0
-        
-        var selectedImages = [NSImage]()
-        var imageURLs = [URL]()
-        
-        var isExportAlertPresented = false
-        var exportMessage = ""
-        var exportSuccess = false
+        var selectedImages: [ImageItem] = []
+        var exportAlert: ExportAlert?
     }
-    
+
     @Published private(set) var state: State
-    
+
     private let filePanelService: FilePanelServiceProtocol
     private let pdfService: PDFServiceProtocol
     private let imageService: ImageServiceProtocol
     private let pdfFileWriterService: PDFFileWriterServiceProtocol
-    
+
     init(
         filePanelService: FilePanelServiceProtocol = FilePanelService(),
         pdfService: PDFServiceProtocol = PDFService(),
@@ -68,11 +65,13 @@ class PDFHubReactor: AsyncReactor {
         self.imageService = imageService
         self.pdfFileWriterService = pdfFileWriterService
     }
-    
+
     func action(_ action: Action) async {
         switch action {
         case .selectPDF:
             selectPDF()
+        case .addPDFs(let urls):
+            addPDFs(urls)
         case .mergePDF(let urls):
             state.mergedPDF = mergePDFs(urls: urls)
         case .splitPDF(let urls):
@@ -83,21 +82,28 @@ class PDFHubReactor: AsyncReactor {
             clearPDFs()
         case .selectImages:
             selectImages()
-        case .convertImagesToPDF(let urls):
-            convertImagesToPDF(imageUrls: urls)
-        case .deleteImage(let index):
-            deleteImage(at: index)
+        case .addImages(let urls):
+            addImages(urls)
+        case .convertImagesToPDF:
+            convertImagesToPDF()
+        case .deleteImage(let id):
+            deleteImage(with: id)
         case .clearImages:
             clearImages()
+        case .goBack:
+            goBack()
+        case .navigate(let screen):
+            state.screen = screen
         case .showAlert(let message, let success):
-            state.exportMessage = message
-            state.exportSuccess = success
-            state.isExportAlertPresented = true
+            state.exportAlert = ExportAlert(
+                message: message,
+                isSuccess: success
+            )
         case .dismissAlert:
-            state.isExportAlertPresented = false
+            state.exportAlert = nil
         }
     }
-    
+
     func action(_ action: SyncAction) {
         switch action {
         case .didUserSelectPDF(let pdfs):
@@ -108,216 +114,245 @@ class PDFHubReactor: AsyncReactor {
             state.splitPDFs = pdfDocuments
         case .didUserSelectImages(let images):
             state.selectedImages = images
-        case .didChangeImageURLs(let urls):
-            state.imageURLs = urls
-        case .didExportAlertPresent(let present):
-            state.isExportAlertPresented = present
-        case .didChangePDFRotation(let rotation):
-            state.rotationAngle = rotation
+        case .didChangeScreen(let screen):
+            state.screen = screen
+        case .didSetExportAlert(let alert):
+            state.exportAlert = alert
         }
     }
-    
-    func selectPDF() {
+
+    private func selectPDF() {
         let urls = filePanelService.openFilePanel(
             contentTypes: [.pdf],
             multipleSelection: true
         )
-        
-        let newPDFs = urls
-            .filter { url in
-                !state.selectedPDFs.contains(where: { $0.pdfURL == url })
-            }
-            .map { url in
-                PDF(pdfURL: url, rotationAngle: 0)
-            }
-        
-        state.selectedPDFs.append(contentsOf: newPDFs)
+        addPDFs(urls)
     }
-    
-    func mergePDFs(
+
+    private func addPDFs(_ urls: [URL]) {
+        var seen = Set(state.selectedPDFs.map(\.pdfURL))
+        let newPDFs = urls.compactMap { url -> PDF? in
+            guard !seen.contains(url) else { return nil }
+            seen.insert(url)
+            return PDF(pdfURL: url)
+        }
+
+        guard !newPDFs.isEmpty else { return }
+
+        state.selectedPDFs.append(contentsOf: newPDFs)
+        state.screen = .pdfWorkflow
+    }
+
+    private func mergePDFs(
         urls: [URL]
     ) -> PDFDocument? {
         guard !urls.isEmpty else { return nil }
-        
+
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
             urls: urls,
             from: state.selectedPDFs
         )
-        
-        guard let mergedPDF = pdfService.mergePDFs(urls: urls, rotationAngles: rotationAngles) else {
+
+        guard let mergedPDF = pdfService.mergePDFs(
+            urls: urls,
+            rotationAngles: rotationAngles
+        ) else {
             send(.showAlert(
-                message: "Failed to merge PDFs",
+                message: DesignSystem.Alerts.failedToMergePDFs,
                 success: false
             ))
             return nil
         }
-        
+
         saveMergedPDF(mergedPDF)
-        
         return mergedPDF
     }
-    
+
     private func saveMergedPDF(_ mergedPDF: PDFDocument) {
         guard let saveURL = filePanelService.showSavePanel(
-            defaultName: "merged.pdf",
-            prompt: "Save Merged PDF",
+            defaultName: DesignSystem.FileNames.mergedPDF,
+            prompt: DesignSystem.FileNames.saveMergedPDFPrompt,
             allowedTypes: [.pdf]
         ) else {
             return
         }
-        
+
         do {
             try pdfFileWriterService.savePDFDocument(mergedPDF, to: saveURL)
             send(.showAlert(
-                message: "Merged PDF successfully saved at \(saveURL.lastPathComponent)",
+                message: DesignSystem.Alerts.mergedPDFSaved(
+                    fileName: saveURL.lastPathComponent
+                ),
                 success: true
             ))
         } catch {
             send(.showAlert(
-                message: "Failed to save merged PDF: \(error.localizedDescription)",
+                message: DesignSystem.Alerts.failedToSaveMergedPDF(
+                    error.localizedDescription
+                ),
                 success: false
             ))
         }
     }
-    
-    func splitPDF(
+
+    private func splitPDF(
         urls: [URL]
     ) -> [PDFDocument] {
         guard !urls.isEmpty else { return [] }
-        
+
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
             urls: urls,
             from: state.selectedPDFs
         )
-        
-        let allSplitPDFs = pdfService.splitPDF(urls: urls, rotationAngles: rotationAngles)
-        
+
+        let allSplitPDFs = pdfService.splitPDF(
+            urls: urls,
+            rotationAngles: rotationAngles
+        )
+
         guard !allSplitPDFs.isEmpty else {
             send(.showAlert(
-                message: "No pages found to split",
+                message: DesignSystem.Alerts.noPagesFoundToSplit,
                 success: false
             ))
             return []
         }
-        
+
         saveSplitPDFs(allSplitPDFs)
-        
         return allSplitPDFs
     }
-    
+
     private func saveSplitPDFs(_ splitPDFs: [PDFDocument]) {
-        Task {
-            await MainActor.run {
-                guard let selectedURL = filePanelService.showDirectoryPanel(
-                    prompt: "Save Split PDFs"
-                ) else {
-                    return
-                }
-                
-                let result = pdfFileWriterService.savePDFDocuments(
-                    splitPDFs,
-                    to: selectedURL,
-                    fileNamePrefix: "split"
-                )
-                
-                send(.showAlert(
-                    message: result.message,
-                    success: !result.isCompleteFailure
-                ))
-            }
+        guard let selectedURL = filePanelService.showDirectoryPanel(
+            prompt: DesignSystem.FileNames.saveSplitPDFsPrompt
+        ) else {
+            return
         }
+
+        let result = pdfFileWriterService.savePDFDocuments(
+            splitPDFs,
+            to: selectedURL,
+            fileNamePrefix: DesignSystem.FileNames.splitPrefix
+        )
+
+        send(.showAlert(
+            message: DesignSystem.Alerts.message(for: result),
+            success: !result.isCompleteFailure
+        ))
     }
-    
-    func deletePDF(
+
+    private func deletePDF(
         with id: UUID
     ) {
         state.selectedPDFs.removeAll { $0.id == id }
+        if state.selectedPDFs.isEmpty {
+            state.screen = .menu
+            state.mergedPDF = nil
+            state.splitPDFs.removeAll()
+        }
     }
-    
+
     private func clearPDFs() {
         state.selectedPDFs.removeAll()
         state.mergedPDF = nil
         state.splitPDFs.removeAll()
+        state.screen = .menu
     }
-    
+
     private func selectImages() {
         let urls = filePanelService.openFilePanel(
-            contentTypes: [.png, .jpeg, .tiff, .heic, .bmp, .gif],
+            contentTypes: SupportedImageType.allUTTypes,
             multipleSelection: true
         )
-        
-        let newImages = urls
-            .filter { !state.imageURLs.contains($0) }
-            .compactMap { url -> (NSImage, URL)? in
-                guard let image = imageService.loadImage(from: url) else {
-                    return nil
-                }
-                return (image, url)
-            }
-        
-        for (image, url) in newImages {
-            state.selectedImages.append(image)
-            state.imageURLs.append(url)
-        }
+        addImages(urls)
     }
-    
-    private func convertImagesToPDF(
-        imageUrls: [URL]
-    ) {
+
+    private func addImages(_ urls: [URL]) {
+        var seen = Set(state.selectedImages.map(\.url))
+        let newItems = urls.compactMap { url -> ImageItem? in
+            guard !seen.contains(url) else { return nil }
+            guard let image = imageService.loadImage(from: url) else {
+                return nil
+            }
+            seen.insert(url)
+            return ImageItem(url: url, image: image)
+        }
+
+        guard !newItems.isEmpty else { return }
+
+        state.selectedImages.append(contentsOf: newItems)
+        state.screen = .imageWorkflow
+    }
+
+    private func convertImagesToPDF() {
+        let imageUrls = state.selectedImages.map(\.url)
+
         guard !imageUrls.isEmpty else {
             send(.showAlert(
-                message: "No images selected",
+                message: DesignSystem.Alerts.noImagesSelected,
                 success: false
             ))
             return
         }
-        
+
         guard let pdfDocument = imageService.convertImagesToPDF(imageUrls: imageUrls) else {
             send(.showAlert(
-                message: "Failed to convert images to PDF",
+                message: DesignSystem.Alerts.failedToConvertImages,
                 success: false
             ))
             return
         }
-        
+
         saveConvertedPDF(pdfDocument)
     }
-    
+
     private func saveConvertedPDF(_ pdfDocument: PDFDocument) {
         guard let saveURL = filePanelService.showSavePanel(
-            defaultName: "ConvertedImages.pdf",
-            prompt: "Save Converted PDF",
+            defaultName: DesignSystem.FileNames.convertedImagesPDF,
+            prompt: DesignSystem.FileNames.saveConvertedPDFPrompt,
             allowedTypes: [.pdf]
         ) else {
             return
         }
-        
+
         do {
             try pdfFileWriterService.savePDFDocument(pdfDocument, to: saveURL)
             send(.showAlert(
-                message: "Successfully converted images to PDF file",
+                message: DesignSystem.Alerts.convertedImagesSuccess,
                 success: true
             ))
         } catch {
             send(.showAlert(
-                message: "Failed to save converted PDF: \(error.localizedDescription)",
+                message: DesignSystem.Alerts.failedToSaveConvertedPDF(
+                    error.localizedDescription
+                ),
                 success: false
             ))
         }
     }
-    
+
     private func deleteImage(
-        at index: Int
+        with id: UUID
     ) {
-        guard index < state.selectedImages.count else { return }
-        
-        state.selectedImages.remove(at: index)
-        state.imageURLs.remove(at: index)
+        state.selectedImages.removeAll { $0.id == id }
+        if state.selectedImages.isEmpty {
+            state.screen = .menu
+        }
     }
-    
+
     private func clearImages() {
         state.selectedImages.removeAll()
-        state.imageURLs.removeAll()
+        state.screen = .menu
     }
-    
+
+    private func goBack() {
+        switch state.screen {
+        case .pdfWorkflow:
+            clearPDFs()
+        case .imageWorkflow:
+            clearImages()
+        case .menu:
+            break
+        }
+    }
 }
