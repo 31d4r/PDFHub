@@ -24,13 +24,13 @@ final class BeaverReactor: AsyncReactor {
             message: String,
             success: Bool
         )
-        case dismissAlert
     }
 
     enum SyncAction {
         case didUserSelectPDF([PDF])
         case didUserSelectImages([ImageItem])
         case didChangeScreen(AppScreen)
+        case didDismissAlert
     }
 
     /// Long-running work in progress. While set, exports are ignored and the UI is disabled.
@@ -106,8 +106,6 @@ final class BeaverReactor: AsyncReactor {
                 message: message,
                 isSuccess: success
             )
-        case .dismissAlert:
-            state.exportAlert = nil
         }
     }
 
@@ -119,6 +117,8 @@ final class BeaverReactor: AsyncReactor {
             state.selectedImages = images
         case .didChangeScreen(let screen):
             state.screen = screen
+        case .didDismissAlert:
+            state.exportAlert = nil
         }
     }
 

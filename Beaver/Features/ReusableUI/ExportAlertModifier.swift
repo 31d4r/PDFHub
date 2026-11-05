@@ -1,29 +1,28 @@
 import SwiftUI
 
+/// Presents `state.exportAlert` and clears it when the user dismisses the alert.
 struct ExportAlertModifier: ViewModifier {
     @ObservedObject var reactor: BeaverReactor
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
-    @State private var alertSuccess = false
 
     func body(content: Content) -> some View {
+        let alert = reactor.state.exportAlert
+
         content
-            .onReceive(reactor.$state) { state in
-                guard let alert = state.exportAlert else { return }
-                showingAlert = true
-                alertMessage = alert.message
-                alertSuccess = alert.isSuccess
-                Task {
-                    try? await Task.sleep(nanoseconds: 100_000_000)
-                    reactor.send(.dismissAlert)
-                }
-            }
-            .alert(isPresented: $showingAlert) {
-                Alert(
-                    title: Text(alertSuccess ? DesignSystem.Alerts.success : DesignSystem.Alerts.error),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text(DesignSystem.Alerts.ok))
-                )
+            .alert(
+                alert?.isSuccess == true ? DesignSystem.Alerts.success : DesignSystem.Alerts.error,
+                isPresented: Binding(
+                    get: { reactor.state.exportAlert != nil },
+                    set: { isPresented in
+                        if !isPresented {
+                            reactor.action(.didDismissAlert)
+                        }
+                    }
+                ),
+                presenting: alert
+            ) { _ in
+                Button(DesignSystem.Alerts.ok, role: .cancel) {}
+            } message: { alert in
+                Text(alert.message)
             }
     }
 }
