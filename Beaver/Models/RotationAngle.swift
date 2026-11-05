@@ -26,6 +26,15 @@ enum RotationAngle: Int, CaseIterable, Equatable {
         }
     }
 
+    /// Adds this user rotation to a page's existing rotation, keeping the result in 0..<360.
+    func applied(to pageRotation: Int) -> Int {
+        Self.normalized(pageRotation + degrees)
+    }
+
+    static func normalized(_ degrees: Int) -> Int {
+        ((degrees % 360) + 360) % 360
+    }
+
     func rotated(_ direction: RotationDirection) -> RotationAngle {
         switch direction {
         case .left: return rotatedLeft

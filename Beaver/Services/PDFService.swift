@@ -43,30 +43,31 @@ struct PDFService: PDFServiceProtocol {
     
     private func addPages(from sourcePDF: PDFDocument, to targetPDF: PDFDocument, withRotation rotation: Int) {
         for pageIndex in 0..<sourcePDF.pageCount {
-            guard let page = sourcePDF.page(at: pageIndex) else { continue }
-            
+            guard let page = copiedPage(at: pageIndex, of: sourcePDF, addingRotation: rotation) else { continue }
             targetPDF.insert(page, at: targetPDF.pageCount)
-            if let insertedPage = targetPDF.page(at: targetPDF.pageCount - 1) {
-                insertedPage.rotation = rotation
-            }
         }
     }
-    
+
     private func createSinglePagePDFs(from pdf: PDFDocument, withRotation rotation: Int) -> [PDFDocument] {
         var singlePagePDFs: [PDFDocument] = []
-        
+
         for pageIndex in 0..<pdf.pageCount {
-            guard let page = pdf.page(at: pageIndex) else { continue }
-            
+            guard let page = copiedPage(at: pageIndex, of: pdf, addingRotation: rotation) else { continue }
+
             let singlePagePDF = PDFDocument()
             singlePagePDF.insert(page, at: 0)
-            if let insertedPage = singlePagePDF.page(at: 0) {
-                insertedPage.rotation = rotation
-            }
             singlePagePDFs.append(singlePagePDF)
         }
-        
+
         return singlePagePDFs
+    }
+
+    /// Copies a page so the source document is never mutated, and adds the user's
+    /// rotation on top of the rotation already stored in the page.
+    private func copiedPage(at index: Int, of document: PDFDocument, addingRotation rotation: Int) -> PDFPage? {
+        guard let page = document.page(at: index)?.copy() as? PDFPage else { return nil }
+        page.rotation = RotationAngle.normalized(page.rotation + rotation)
+        return page
     }
 }
 
