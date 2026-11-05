@@ -2,7 +2,8 @@
 import BeaverCore
 import SwiftUI
 
-/// The iOS toolbar. Browsing: Select at the top, Add (scan, photos, files) and Actions at the bottom. Selecting:
+/// The iOS toolbar. Browsing: More and Select at the top, Add (scan, photos, files) and Actions at
+/// the bottom, all hidden while the workspace is empty (see `MobileToolbarLayout`). Selecting:
 /// Select All and Done at the top, and Rotate, Actions and Remove for the chosen files at
 /// the bottom. Merge, Split, Convert and Combine stay listed when they can't run and say why.
 struct MobileWorkspaceToolbar: ToolbarContent {
@@ -14,6 +15,7 @@ struct MobileWorkspaceToolbar: ToolbarContent {
     let onScanFromPhoto: () -> Void
 
     private var state: BeaverReactor.State { reactor.state }
+    private var layout: MobileToolbarLayout { MobileToolbarLayout(state) }
 
     var body: some ToolbarContent {
         if isSelecting {
@@ -33,18 +35,24 @@ struct MobileWorkspaceToolbar: ToolbarContent {
             }
         } else {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                moreMenu
-                if !state.isEmpty {
+                if layout.showsMoreMenu {
+                    moreMenu
+                }
+                if layout.showsSelect {
                     Button(DesignSystem.Mobile.select) { isSelecting = true }
                         .accessibilityHint(DesignSystem.Mobile.selectHelp)
                         .disabled(!state.canEdit)
                 }
             }
-            ToolbarItemGroup(placement: .bottomBar) {
-                addControl
-                Spacer()
-                if !state.isEmpty {
-                    actionsMenu
+            if layout.showsBottomBar {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    if layout.showsAddMenu {
+                        addControl
+                    }
+                    Spacer()
+                    if layout.showsActionsMenu {
+                        actionsMenu
+                    }
                 }
             }
         }

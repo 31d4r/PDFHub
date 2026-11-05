@@ -60,6 +60,7 @@ struct MobileMainView: View {
                     )
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) { statusBar }
+                .animation(reduceMotion ? nil : .snappy, value: state.isEmpty)
                 .animation(reduceMotion ? nil : .snappy, value: state.activity)
                 .animation(reduceMotion ? nil : .snappy, value: state.exportAlert)
                 .animation(reduceMotion ? nil : .snappy, value: photoImport != nil)
