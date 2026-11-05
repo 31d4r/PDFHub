@@ -107,6 +107,8 @@ enum DesignSystem {
         static let imageButtonIcon = "photo.stack.fill"
         static let headerIcon = "photo.stack.fill"
         static let backButtonIcon = "chevron.left"
+        static let pagesIcon = "square.grid.2x2"
+        static let selectedPageIcon = "checkmark.circle.fill"
     }
 
     enum ButtonLabels {
@@ -166,6 +168,49 @@ enum DesignSystem {
         }
     }
 
+    /// The page view of one PDF.
+    enum Pages {
+        static var showPages: String { String(localized: "Pages…") }
+        static var showPagesHelp: String { String(localized: "Show and Rotate Pages") }
+        static var selectAll: String { String(localized: "Select All") }
+        static var rotateSelectedLeft: String { String(localized: "Rotate Selected Left") }
+        static var rotateSelectedRight: String { String(localized: "Rotate Selected Right") }
+        static var rotateAllPages: String { String(localized: "Rotate All Pages") }
+        static var rotateAllPagesLeft: String { String(localized: "Rotate All Pages Left") }
+        static var rotateAllPagesRight: String { String(localized: "Rotate All Pages Right") }
+        static var done: String { String(localized: "Done") }
+        static var unreadable: String { String(localized: "Beaver couldn’t read the pages of this PDF.") }
+        static var selectionHint: String {
+            String(localized: "Click to select, ⌘-click to add or remove, ⇧-click for a range.")
+        }
+        static var pagesRotatedBadge: String { String(localized: "Pages rotated") }
+        static var pagesRotatedBadgeHelp: String { String(localized: "Some pages have their own rotation") }
+
+        static func title(_ fileName: String) -> String {
+            String(localized: "Pages of \(fileName)")
+        }
+
+        static func pageCount(_ count: Int) -> String {
+            String(localized: "\(count) pages")
+        }
+
+        static func selectedCount(_ count: Int) -> String {
+            String(localized: "\(count) selected")
+        }
+
+        /// `index` is zero-based; people see page numbers from 1.
+        static func page(_ index: Int) -> String {
+            String(localized: "Page \(index + 1)")
+        }
+
+        /// "Page 3, rotated 90 degrees", or "Page 3" when upright.
+        static func pageAccessibilityLabel(_ index: Int, rotation: RotationAngle) -> String {
+            rotation == .zero
+                ? page(index)
+                : String(localized: "Page \(index + 1), rotated \(rotation.degrees) degrees")
+        }
+    }
+
     /// Labels for moving a card. "Left" and "Right" follow the grid's reading order.
     enum Reorder {
         static var moveToBeginning: String { String(localized: "Move to Beginning") }
@@ -190,6 +235,8 @@ enum DesignSystem {
         /// The name of an undoable change, shown after "Undo" or "Redo".
         static var rotateEditName: String { String(localized: "menu.edit.rotate", defaultValue: "Rotate") }
         static var rotateAllEditName: String { String(localized: "menu.edit.rotateAll", defaultValue: "Rotate All") }
+        static var rotatePagesEditName: String { String(localized: "menu.edit.rotatePages", defaultValue: "Rotate Pages") }
+        static var rotateAllPagesEditName: String { String(localized: "menu.edit.rotateAllPages", defaultValue: "Rotate All Pages") }
 
         static func undo(_ editName: String) -> String {
             String(localized: "menu.undoNamed", defaultValue: "Undo \(editName)", comment: "Edit menu, e.g. Undo Rotate All")

@@ -219,7 +219,7 @@ struct RotateAllUndoTests {
         #expect(reactor.state.canUndoRotation)
         #expect(export.calls == [.merge(
             urls: urls,
-            rotationAngles: [TestFixtures.samplePDF: 90, TestFixtures.sample2PDF: 90],
+            rotations: [PDFRotation(file: .ninety), PDFRotation(file: .ninety)],
             destination: destination
         )])
     }

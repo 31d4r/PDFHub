@@ -12,6 +12,13 @@ struct PDFGridListView: View {
     )
     private var selectedPDFs: [PDFItem]
 
+    @ActionBinding(
+        BeaverReactor.self,
+        keyPath: \.isPagesPresented,
+        action: BeaverReactor.SyncAction.didChangePagesPresented
+    )
+    private var isPagesPresented: Bool
+
     private let columns = [
         GridItem(.adaptive(minimum: 400))
     ]
@@ -43,6 +50,12 @@ struct PDFGridListView: View {
         .processingOverlay(reactor.state.activity)
         .discardConfirmation(reactor: reactor)
         .exportAlert(reactor: reactor)
+        .sheet(isPresented: $isPagesPresented) {
+            if let pdf = reactor.state.pagesPDF {
+                PDFPagesView(pdf: pdf)
+                    .environmentObject(reactor)
+            }
+        }
     }
 
     @ViewBuilder
@@ -144,6 +157,13 @@ struct PDFGridListView: View {
                                 reactor.action(.rotatePDF(id: pdf.id, direction: direction))
                             }
 
+                            PagesButton(
+                                fileName: pdf.url.lastPathComponent,
+                                isDisabled: reactor.state.activity != nil
+                            ) {
+                                reactor.action(.showPages(id: pdf.id))
+                            }
+
                             Spacer()
 
                             DeleteIconButton(
@@ -166,7 +186,7 @@ struct PDFGridListView: View {
 
                             PDFKitView(
                                 url: pdf.url,
-                                rotationAngle: $pdf.rotationAngle
+                                rotation: pdf.rotation
                             )
                             .frame(height: Constants.pdfViewHeight)
                             .accessibilityLabel(DesignSystem.Accessibility.preview(pdf.url.lastPathComponent))
@@ -182,6 +202,12 @@ struct PDFGridListView: View {
                                 x: 0,
                                 y: DesignSystem.Shadows.backgroundOffset
                             )
+                        }
+                        .overlay(alignment: .topLeading) {
+                            if pdf.hasPageRotations {
+                                PageRotationsBadge()
+                                    .padding(Constants.badgePadding)
+                            }
                         }
                         .padding(.horizontal, Constants.cardHorizontalPadding)
 
@@ -213,7 +239,14 @@ struct PDFGridListView: View {
                         title: pdf.url.lastPathComponent,
                         systemImage: DesignSystem.Icons.pdfButtonIcon,
                         cornerRadius: DesignSystem.CornerRadius.card,
-                        isEnabled: reactor.state.activity == nil
+                        isEnabled: reactor.state.activity == nil,
+                        extraAction: CardAction(
+                            title: DesignSystem.Pages.showPages,
+                            systemImage: DesignSystem.Icons.pagesIcon,
+                            isEnabled: reactor.state.activity == nil
+                        ) {
+                            reactor.action(.showPages(id: pdf.id))
+                        }
                     ) { id, destination in
                         reactor.action(.movePDF(id: id, to: destination))
                     }
@@ -230,7 +263,53 @@ private extension PDFGridListView {
     }
 }
 
+/// Opens the page view for one PDF.
+private struct PagesButton: View {
+    let fileName: String
+    let isDisabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: DesignSystem.Icons.pagesIcon)
+                .scaledFont(size: DesignSystem.Layout.rotateIconSize, weight: .semibold)
+                .foregroundColor(.white)
+                .frame(width: DesignSystem.Layout.rotateButtonSize, height: DesignSystem.Layout.rotateButtonSize)
+                .background(
+                    Circle()
+                        .fill(DesignSystem.Colors.mergeButtonColor)
+                        .shadow(
+                            color: DesignSystem.Colors.mergeButtonColor.opacity(DesignSystem.Shadows.iconButtonOpacity),
+                            radius: DesignSystem.Shadows.iconButtonRadius,
+                            x: 0,
+                            y: DesignSystem.Shadows.iconButtonOffset
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .disabled(isDisabled)
+        .opacity(isDisabled ? DesignSystem.Opacity.disabled : 1)
+        .help(DesignSystem.Pages.showPagesHelp)
+        .accessibilityLabel(DesignSystem.Pages.showPages)
+        .accessibilityValue(fileName)
+    }
+}
+
+/// Shown on a card when some of its pages have their own rotation.
+private struct PageRotationsBadge: View {
+    var body: some View {
+        Label(DesignSystem.Pages.pagesRotatedBadge, systemImage: DesignSystem.Icons.rotateRightIcon)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(DesignSystem.Colors.rotateButtonColor))
+            .help(DesignSystem.Pages.pagesRotatedBadgeHelp)
+    }
+}
+
 private enum Constants {
+    static let badgePadding: CGFloat = 8
     static let circleSize: CGFloat = 400
     static let circleOffset = CGSize(width: -250, height: -200)
 

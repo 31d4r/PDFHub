@@ -52,6 +52,13 @@ final class BeaverReactor: AsyncReactor {
         case rotateImage(id: UUID, direction: RotationDirection)
         /// Turns every file on the current screen.
         case rotateAll(RotationDirection)
+        /// Turns single pages (zero-based) of one PDF on top of its file rotation.
+        case rotatePages(id: UUID, pages: [Int], direction: RotationDirection)
+        /// Turns every page of one PDF, from the page view.
+        case rotateAllPages(id: UUID, direction: RotationDirection)
+        /// Opens the page view for one PDF.
+        case showPages(id: UUID)
+        case didChangePagesPresented(Bool)
         case undo
         case redo
     }
@@ -60,11 +67,15 @@ final class BeaverReactor: AsyncReactor {
     enum RotationEdit: Equatable, Sendable {
         case rotate
         case rotateAll
+        case rotatePages
+        case rotateAllPages
 
         var title: String {
             switch self {
             case .rotate: return DesignSystem.Commands.rotateEditName
             case .rotateAll: return DesignSystem.Commands.rotateAllEditName
+            case .rotatePages: return DesignSystem.Commands.rotatePagesEditName
+            case .rotateAllPages: return DesignSystem.Commands.rotateAllPagesEditName
             }
         }
     }
@@ -101,6 +112,14 @@ final class BeaverReactor: AsyncReactor {
         var fileImport: FileImportRequest?
         var isFileImporterPresented = false
         var rotationHistory = UndoHistory<RotationSnapshot, RotationEdit>()
+        /// The PDF whose page view is open.
+        var pagesPDFID: UUID?
+
+        var isPagesPresented: Bool { pagesPDFID != nil }
+
+        var pagesPDF: PDFItem? {
+            pagesPDFID.flatMap { id in selectedPDFs.first { $0.id == id } }
+        }
 
         var rotationSnapshot: RotationSnapshot {
             RotationSnapshot(pdfs: selectedPDFs, images: selectedImages)
@@ -108,7 +127,7 @@ final class BeaverReactor: AsyncReactor {
 
         /// Whether Rotate All has anything to turn right now.
         var canRotateAll: Bool {
-            guard activity == nil else { return false }
+            guard activity == nil, pagesPDFID == nil else { return false }
             switch screen {
             case .pdfWorkflow: return !selectedPDFs.isEmpty
             case .imageWorkflow: return !selectedImages.isEmpty
@@ -131,7 +150,7 @@ final class BeaverReactor: AsyncReactor {
         /// Whether a discard would throw away rotations the user made on the current screen.
         var hasDiscardableRotations: Bool {
             switch screen {
-            case .pdfWorkflow: return selectedPDFs.contains { $0.rotationAngle != .zero }
+            case .pdfWorkflow: return selectedPDFs.contains { $0.rotationAngle != .zero || $0.hasPageRotations }
             case .imageWorkflow: return selectedImages.contains { $0.rotationAngle != .zero }
             case .menu: return false
             }
@@ -234,6 +253,21 @@ final class BeaverReactor: AsyncReactor {
             }
         case .rotateAll(let direction):
             rotateAll(direction)
+        case .rotatePages(let id, let pages, let direction):
+            recordingRotation(.rotatePages) { state in
+                guard let index = state.selectedPDFs.firstIndex(where: { $0.id == id }) else { return }
+                state.selectedPDFs[index].rotatePages(pages, direction)
+            }
+        case .rotateAllPages(let id, let direction):
+            recordingRotation(.rotateAllPages) { state in
+                guard let index = state.selectedPDFs.firstIndex(where: { $0.id == id }) else { return }
+                state.selectedPDFs[index].rotationAngle = state.selectedPDFs[index].rotationAngle.rotated(direction)
+            }
+        case .showPages(let id):
+            guard state.activity == nil, state.selectedPDFs.contains(where: { $0.id == id }) else { return }
+            state.pagesPDFID = id
+        case .didChangePagesPresented(let isPresented):
+            if !isPresented { state.pagesPDFID = nil }
         case .undo:
             stepRotationHistory { history, current in history.undo(current: current) }
         case .redo:
@@ -357,14 +391,14 @@ final class BeaverReactor: AsyncReactor {
             return
         }
 
-        let rotationAngles = PDFRotationMapper.mapRotationAngles(
+        let rotations = PDFRotationMapper.rotations(
             urls: urls,
             from: state.selectedPDFs
         )
         let exportService = exportService
 
         await runExport(.merging) {
-            await exportService.mergePDFs(urls: urls, rotationAngles: rotationAngles, to: saveURL)
+            await exportService.mergePDFs(urls: urls, rotations: rotations, to: saveURL)
         }
     }
 
@@ -376,14 +410,14 @@ final class BeaverReactor: AsyncReactor {
             if isScoped { directory.stopAccessingSecurityScopedResource() }
         }
 
-        let rotationAngles = PDFRotationMapper.mapRotationAngles(
+        let rotations = PDFRotationMapper.rotations(
             urls: urls,
             from: state.selectedPDFs
         )
         let exportService = exportService
 
         await runExport(.splitting) {
-            await exportService.splitPDFs(urls: urls, rotationAngles: rotationAngles, into: directory)
+            await exportService.splitPDFs(urls: urls, rotations: rotations, into: directory)
         }
     }
 
@@ -391,6 +425,7 @@ final class BeaverReactor: AsyncReactor {
         with id: UUID
     ) {
         state.selectedPDFs.removeAll { $0.id == id }
+        if state.pagesPDFID == id { state.pagesPDFID = nil }
         releaseUnusedFileAccess()
         if state.selectedPDFs.isEmpty {
             state.rotationHistory.removeAll()
@@ -400,6 +435,7 @@ final class BeaverReactor: AsyncReactor {
 
     private func clearPDFs() {
         state.selectedPDFs.removeAll()
+        state.pagesPDFID = nil
         state.rotationHistory.removeAll()
         releaseUnusedFileAccess()
         state.screen = .menu

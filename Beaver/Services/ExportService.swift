@@ -6,8 +6,8 @@ import PDFKit
 /// writing) away from the main actor. Only `Sendable` values cross the boundary:
 /// URLs in, an `ExportAlert` out. `PDFDocument`s never leave this service.
 protocol ExportServiceProtocol: Sendable {
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int], to destination: URL) async -> ExportAlert
-    func splitPDFs(urls: [URL], rotationAngles: [URL: Int], into directory: URL) async -> ExportAlert
+    func mergePDFs(urls: [URL], rotations: [PDFRotation], to destination: URL) async -> ExportAlert
+    func splitPDFs(urls: [URL], rotations: [PDFRotation], into directory: URL) async -> ExportAlert
     /// `rotations[i]` turns `urls[i]` clockwise before it becomes a page.
     func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert
 }
@@ -28,8 +28,8 @@ struct ExportService: ExportServiceProtocol {
     }
 
     @concurrent
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int], to destination: URL) async -> ExportAlert {
-        let result = pdfService.mergePDFs(urls: urls, rotationAngles: rotationAngles)
+    func mergePDFs(urls: [URL], rotations: [PDFRotation], to destination: URL) async -> ExportAlert {
+        let result = pdfService.mergePDFs(urls: urls, rotations: rotations)
 
         guard let document = result.document else {
             return ExportAlert(
@@ -59,8 +59,8 @@ struct ExportService: ExportServiceProtocol {
     }
 
     @concurrent
-    func splitPDFs(urls: [URL], rotationAngles: [URL: Int], into directory: URL) async -> ExportAlert {
-        let result = pdfService.splitPDF(urls: urls, rotationAngles: rotationAngles)
+    func splitPDFs(urls: [URL], rotations: [PDFRotation], into directory: URL) async -> ExportAlert {
+        let result = pdfService.splitPDF(urls: urls, rotations: rotations)
 
         guard !result.pages.isEmpty else {
             return ExportAlert(

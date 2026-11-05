@@ -47,6 +47,40 @@
         }
       }
     },
+    "%lld pages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld page"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld pages"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld selected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld selected"
+          }
+        }
+      }
+    },
     "+%lld" : {},
     "Add Images" : {
       "extractionState" : "manual"
@@ -60,11 +94,33 @@
     "Beaver" : {
       "extractionState" : "manual"
     },
+    "Beaver couldn’t read the pages of this PDF." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beaver couldn’t read the pages of this PDF."
+          }
+        }
+      }
+    },
     "Cancel" : {
       "extractionState" : "manual"
     },
     "Clear All" : {
       "extractionState" : "manual"
+    },
+    "Click to select, ⌘-click to add or remove, ⇧-click for a range." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click to select, ⌘-click to add or remove, ⇧-click for a range."
+          }
+        }
+      }
     },
     "Convert Images\nto PDF" : {
       "extractionState" : "manual"
@@ -77,6 +133,17 @@
     },
     "Delete This Image" : {
       "extractionState" : "manual"
+    },
+    "Done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
     },
     "Error" : {
       "extractionState" : "manual"
@@ -169,6 +236,61 @@
     },
     "PDF Documents" : {
       "extractionState" : "manual"
+    },
+    "Page %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page %lld"
+          }
+        }
+      }
+    },
+    "Page %lld, rotated %lld degrees" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page %lld, rotated %lld degrees"
+          }
+        }
+      }
+    },
+    "Pages of %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages of %@"
+          }
+        }
+      }
+    },
+    "Pages rotated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages rotated"
+          }
+        }
+      }
+    },
+    "Pages…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pages…"
+          }
+        }
+      }
     },
     "Partially successful: Saved %lld files, failed to save %lld files" : {
       "extractionState" : "manual",
@@ -288,6 +410,61 @@
         }
       }
     },
+    "Rotate All Pages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All Pages"
+          }
+        }
+      }
+    },
+    "Rotate All Pages Left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All Pages Left"
+          }
+        }
+      }
+    },
+    "Rotate All Pages Right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All Pages Right"
+          }
+        }
+      }
+    },
+    "Rotate Selected Left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate Selected Left"
+          }
+        }
+      }
+    },
+    "Rotate Selected Right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate Selected Right"
+          }
+        }
+      }
+    },
     "Rotate left" : {
       "extractionState" : "manual"
     },
@@ -313,6 +490,28 @@
     },
     "Save Split PDFs" : {
       "extractionState" : "manual"
+    },
+    "Select All" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All"
+          }
+        }
+      }
+    },
+    "Show and Rotate Pages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show and Rotate Pages"
+          }
+        }
+      }
     },
     "Skipped %lld files that could not be read: %@" : {
       "extractionState" : "manual",
@@ -343,6 +542,17 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "Some pages have their own rotation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some pages have their own rotation"
           }
         }
       }
@@ -467,6 +677,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rotate All"
+          }
+        }
+      }
+    },
+    "menu.edit.rotateAllPages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All Pages"
+          }
+        }
+      }
+    },
+    "menu.edit.rotatePages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate Pages"
           }
         }
       }

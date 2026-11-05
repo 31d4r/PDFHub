@@ -18,7 +18,7 @@ struct ExportServiceTests {
         let sources = [TestFixtures.samplePDF, TestFixtures.sample2PDF]
         let expectedPages = sources.compactMap { PDFDocument(url: $0)?.pageCount }.reduce(0, +)
 
-        let alert = await ExportService().mergePDFs(urls: sources, rotationAngles: [:], to: destination)
+        let alert = await ExportService().mergePDFs(urls: sources, rotations: [], to: destination)
 
         #expect(alert.isSuccess)
         let merged = try #require(PDFDocument(url: destination))
@@ -30,7 +30,7 @@ struct ExportServiceTests {
         defer { try? FileManager.default.removeItem(at: directory) }
         let expectedPages = try #require(PDFDocument(url: TestFixtures.sample2PDF)).pageCount
 
-        let alert = await ExportService().splitPDFs(urls: [TestFixtures.sample2PDF], rotationAngles: [:], into: directory)
+        let alert = await ExportService().splitPDFs(urls: [TestFixtures.sample2PDF], rotations: [], into: directory)
 
         #expect(alert.isSuccess)
         let files = try FileManager.default.contentsOfDirectory(atPath: directory.path)
@@ -55,7 +55,7 @@ struct ExportServiceTests {
         let destination = directory.appendingPathComponent("merged.pdf")
         let missing = directory.appendingPathComponent("missing.pdf")
 
-        let alert = await ExportService().mergePDFs(urls: [missing], rotationAngles: [:], to: destination)
+        let alert = await ExportService().mergePDFs(urls: [missing], rotations: [], to: destination)
 
         #expect(!alert.isSuccess)
         #expect(!FileManager.default.fileExists(atPath: destination.path))

@@ -28,7 +28,7 @@ struct ReactorExportTests {
 
         #expect(export.calls == [.merge(
             urls: urls,
-            rotationAngles: [TestFixtures.samplePDF: 0, TestFixtures.sample2PDF: 0],
+            rotations: [.none, .none],
             destination: destination
         )])
         #expect(reactor.state.exportAlert == ExportAlert(message: "merged", isSuccess: true))
@@ -68,7 +68,7 @@ struct ReactorExportTests {
 
         #expect(export.calls == [.split(
             urls: [TestFixtures.samplePDF],
-            rotationAngles: [TestFixtures.samplePDF: 0],
+            rotations: [.none],
             directory: directory
         )])
         #expect(reactor.state.exportAlert == failure)

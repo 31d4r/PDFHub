@@ -6,8 +6,8 @@ import Foundation
 /// call waits until `release()` so tests can observe the in-progress state.
 final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
     enum Call: Equatable {
-        case merge(urls: [URL], rotationAngles: [URL: Int], destination: URL)
-        case split(urls: [URL], rotationAngles: [URL: Int], directory: URL)
+        case merge(urls: [URL], rotations: [PDFRotation], destination: URL)
+        case split(urls: [URL], rotations: [PDFRotation], directory: URL)
         case convert(urls: [URL], rotations: [RotationAngle], destination: URL)
     }
 
@@ -36,12 +36,12 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
         gateContinuation.yield()
     }
 
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int], to destination: URL) async -> ExportAlert {
-        await record(.merge(urls: urls, rotationAngles: rotationAngles, destination: destination))
+    func mergePDFs(urls: [URL], rotations: [PDFRotation], to destination: URL) async -> ExportAlert {
+        await record(.merge(urls: urls, rotations: rotations, destination: destination))
     }
 
-    func splitPDFs(urls: [URL], rotationAngles: [URL: Int], into directory: URL) async -> ExportAlert {
-        await record(.split(urls: urls, rotationAngles: rotationAngles, directory: directory))
+    func splitPDFs(urls: [URL], rotations: [PDFRotation], into directory: URL) async -> ExportAlert {
+        await record(.split(urls: urls, rotations: rotations, directory: directory))
     }
 
     func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert {

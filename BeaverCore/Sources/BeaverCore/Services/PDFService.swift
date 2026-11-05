@@ -3,8 +3,26 @@ import PDFKit
 
 public protocol PDFServiceProtocol: Sendable {
     func loadPDF(from url: URL) -> PDFDocument?
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult
-    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult
+    /// `rotations[i]` applies to `urls[i]`; missing entries mean no rotation.
+    func mergePDFs(urls: [URL], rotations: [PDFRotation]) -> PDFMergeResult
+    /// `rotations[i]` applies to `urls[i]`; missing entries mean no rotation.
+    func splitPDF(urls: [URL], rotations: [PDFRotation]) -> PDFSplitResult
+}
+
+public extension PDFServiceProtocol {
+    /// Whole-file rotations only, in degrees, by URL.
+    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult {
+        mergePDFs(urls: urls, rotations: Self.fileRotations(urls: urls, rotationAngles))
+    }
+
+    /// Whole-file rotations only, in degrees, by URL.
+    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult {
+        splitPDF(urls: urls, rotations: Self.fileRotations(urls: urls, rotationAngles))
+    }
+
+    private static func fileRotations(urls: [URL], _ rotationAngles: [URL: Int]) -> [PDFRotation] {
+        urls.map { PDFRotation(file: RotationAngle(normalizing: rotationAngles[$0] ?? 0)) }
+    }
 }
 
 public struct PDFMergeResult {
@@ -54,20 +72,19 @@ public struct PDFService: PDFServiceProtocol {
         return PDFDocument(url: url)
     }
     
-    public func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult {
+    public func mergePDFs(urls: [URL], rotations: [PDFRotation]) -> PDFMergeResult {
         guard !urls.isEmpty else { return PDFMergeResult(document: nil, skippedURLs: []) }
 
         let mergedPDF = PDFDocument()
         var skippedURLs: [URL] = []
 
-        for url in urls {
+        for (index, url) in urls.enumerated() {
             guard let pdf = loadPDF(from: url) else {
                 skippedURLs.append(url)
                 continue
             }
-            let rotationAngle = rotationAngles[url] ?? 0
-            
-            addPages(from: pdf, to: mergedPDF, withRotation: rotationAngle)
+
+            addPages(from: pdf, to: mergedPDF, withRotation: Self.rotation(at: index, in: rotations))
         }
         
         return PDFMergeResult(
@@ -76,18 +93,17 @@ public struct PDFService: PDFServiceProtocol {
         )
     }
     
-    public func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult {
+    public func splitPDF(urls: [URL], rotations: [PDFRotation]) -> PDFSplitResult {
         var allSplitPages: [SplitPage] = []
         var skippedURLs: [URL] = []
 
-        for url in urls {
+        for (index, url) in urls.enumerated() {
             guard let pdf = loadPDF(from: url) else {
                 skippedURLs.append(url)
                 continue
             }
-            let rotationAngle = rotationAngles[url] ?? 0
 
-            let splitDocuments = createSinglePagePDFs(from: pdf, withRotation: rotationAngle)
+            let splitDocuments = createSinglePagePDFs(from: pdf, withRotation: Self.rotation(at: index, in: rotations))
             for (index, document) in splitDocuments.enumerated() {
                 allSplitPages.append(SplitPage(
                     document: document,
@@ -99,14 +115,18 @@ public struct PDFService: PDFServiceProtocol {
         return PDFSplitResult(pages: allSplitPages, skippedURLs: skippedURLs)
     }
     
-    private func addPages(from sourcePDF: PDFDocument, to targetPDF: PDFDocument, withRotation rotation: Int) {
+    private static func rotation(at index: Int, in rotations: [PDFRotation]) -> PDFRotation {
+        rotations.indices.contains(index) ? rotations[index] : .none
+    }
+
+    private func addPages(from sourcePDF: PDFDocument, to targetPDF: PDFDocument, withRotation rotation: PDFRotation) {
         for pageIndex in 0..<sourcePDF.pageCount {
             guard let page = copiedPage(at: pageIndex, of: sourcePDF, addingRotation: rotation) else { continue }
             targetPDF.insert(page, at: targetPDF.pageCount)
         }
     }
 
-    private func createSinglePagePDFs(from pdf: PDFDocument, withRotation rotation: Int) -> [PDFDocument] {
+    private func createSinglePagePDFs(from pdf: PDFDocument, withRotation rotation: PDFRotation) -> [PDFDocument] {
         var singlePagePDFs: [PDFDocument] = []
 
         for pageIndex in 0..<pdf.pageCount {
@@ -120,11 +140,11 @@ public struct PDFService: PDFServiceProtocol {
         return singlePagePDFs
     }
 
-    /// Copies a page so the source document is never mutated, and adds the user's
-    /// rotation on top of the rotation already stored in the page.
-    private func copiedPage(at index: Int, of document: PDFDocument, addingRotation rotation: Int) -> PDFPage? {
+    /// Copies a page so the source document is never mutated, and adds the user's file and
+    /// page rotations on top of the rotation already stored in the page.
+    private func copiedPage(at index: Int, of document: PDFDocument, addingRotation rotation: PDFRotation) -> PDFPage? {
         guard let page = document.page(at: index)?.copy() as? PDFPage else { return nil }
-        page.rotation = RotationAngle.normalized(page.rotation + rotation)
+        page.rotation = rotation.degrees(forPage: index, savedRotation: page.rotation)
         return page
     }
 }

@@ -167,7 +167,7 @@ struct ReactorReorderTests {
 
         #expect(export.calls == [.merge(
             urls: [TestFixtures.sample2PDF, TestFixtures.samplePDF],
-            rotationAngles: [TestFixtures.sample2PDF: 180, TestFixtures.samplePDF: 0],
+            rotations: [PDFRotation(file: .oneEighty), .none],
             destination: destination
         )])
     }

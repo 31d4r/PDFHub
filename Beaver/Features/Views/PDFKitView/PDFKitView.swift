@@ -4,7 +4,8 @@ import SwiftUI
 
 struct PDFKitView: NSViewRepresentable {
     let url: URL?
-    @Binding var rotationAngle: RotationAngle
+    /// The user's file and page rotations, shown on top of each page's saved rotation.
+    let rotation: PDFRotation
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -23,7 +24,7 @@ struct PDFKitView: NSViewRepresentable {
             context.coordinator.load(url, into: pdfView)
         }
 
-        context.coordinator.apply(rotationAngle, to: pdfView)
+        context.coordinator.apply(rotation, to: pdfView)
 
         return pdfView
     }
@@ -40,7 +41,7 @@ struct PDFKitView: NSViewRepresentable {
             context.coordinator.unload(from: nsView)
         }
 
-        context.coordinator.apply(rotationAngle, to: nsView)
+        context.coordinator.apply(rotation, to: nsView)
     }
 
     @MainActor
@@ -48,13 +49,13 @@ struct PDFKitView: NSViewRepresentable {
         private(set) var loadedURL: URL?
         /// Rotation stored in each page when the document was opened.
         private var originalRotations: [Int] = []
-        private var appliedAngle: RotationAngle?
+        private var appliedRotation: PDFRotation?
 
         func load(_ url: URL, into pdfView: PDFView) {
             let document = PDFDocument(url: url)
             pdfView.document = document
             loadedURL = url
-            appliedAngle = nil
+            appliedRotation = nil
             originalRotations = (0 ..< (document?.pageCount ?? 0)).map {
                 document?.page(at: $0)?.rotation ?? 0
             }
@@ -63,19 +64,19 @@ struct PDFKitView: NSViewRepresentable {
         func unload(from pdfView: PDFView) {
             pdfView.document = nil
             loadedURL = nil
-            appliedAngle = nil
+            appliedRotation = nil
             originalRotations = []
         }
 
-        /// Shows the user rotation on top of each page's own rotation. Only touches
-        /// the pages when the angle changes, so rotations never compound.
-        func apply(_ angle: RotationAngle, to pdfView: PDFView) {
-            guard let document = pdfView.document, appliedAngle != angle else { return }
+        /// Shows the user's rotations on top of each page's own rotation. Only touches
+        /// the pages when the rotations change, so they never compound.
+        func apply(_ rotation: PDFRotation, to pdfView: PDFView) {
+            guard let document = pdfView.document, appliedRotation != rotation else { return }
 
             for (pageIndex, original) in originalRotations.enumerated() {
-                document.page(at: pageIndex)?.rotation = angle.applied(to: original)
+                document.page(at: pageIndex)?.rotation = rotation.degrees(forPage: pageIndex, savedRotation: original)
             }
-            appliedAngle = angle
+            appliedRotation = rotation
         }
     }
 }

@@ -21,6 +21,14 @@ extension UTType {
     static let beaverCard = UTType(exportedAs: "com.eldartutnjic.Beaver.card")
 }
 
+/// An extra command a card offers in its context menu and to VoiceOver, before the move items.
+struct CardAction {
+    let title: String
+    let systemImage: String
+    var isEnabled = true
+    let perform: () -> Void
+}
+
 /// Lets a grid card be moved: drag it onto another card, or use the context menu
 /// or the VoiceOver actions (Move to Beginning, Move Left, Move Right, Move to End).
 struct ReorderableCardModifier: ViewModifier {
@@ -31,6 +39,7 @@ struct ReorderableCardModifier: ViewModifier {
     let systemImage: String
     let cornerRadius: CGFloat
     let isEnabled: Bool
+    var extraAction: CardAction?
     /// Moves the item with the given id to the given index.
     let onMove: (UUID, Int) -> Void
 
@@ -60,6 +69,16 @@ struct ReorderableCardModifier: ViewModifier {
                 isTargeted = targeted && isEnabled
             }
             .contextMenu {
+                if let extraAction {
+                    Button {
+                        extraAction.perform()
+                    } label: {
+                        Label(extraAction.title, systemImage: extraAction.systemImage)
+                    }
+                    .disabled(!extraAction.isEnabled)
+
+                    Divider()
+                }
                 ForEach(MoveDirection.allCases, id: \.self) { direction in
                     Button(Self.label(for: direction)) {
                         moveSelf(direction)
@@ -69,6 +88,9 @@ struct ReorderableCardModifier: ViewModifier {
             }
             .accessibilityElement(children: .contain)
             .accessibilityActions {
+                if let extraAction, extraAction.isEnabled {
+                    Button(extraAction.title, action: extraAction.perform)
+                }
                 ForEach(MoveDirection.allCases.filter(canMove), id: \.self) { direction in
                     Button(Self.label(for: direction)) {
                         moveSelf(direction)
@@ -128,6 +150,7 @@ extension View {
         systemImage: String,
         cornerRadius: CGFloat,
         isEnabled: Bool,
+        extraAction: CardAction? = nil,
         onMove: @escaping (UUID, Int) -> Void
     ) -> some View {
         modifier(ReorderableCardModifier(
@@ -138,6 +161,7 @@ extension View {
             systemImage: systemImage,
             cornerRadius: cornerRadius,
             isEnabled: isEnabled,
+            extraAction: extraAction,
             onMove: onMove
         ))
     }
