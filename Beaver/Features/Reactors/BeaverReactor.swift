@@ -1,4 +1,5 @@
 import BeaverCore
+import CoreGraphics
 import AsyncReactor
 import SwiftUI
 import UniformTypeIdentifiers
@@ -31,6 +32,8 @@ final class BeaverReactor: AsyncReactor {
             message: String,
             success: Bool
         )
+        /// Reads text from an image (or the first page of a PDF) for Copy / Recognized Text.
+        case recognizeText(id: UUID)
     }
 
     enum SyncAction {
@@ -71,6 +74,7 @@ final class BeaverReactor: AsyncReactor {
         case open(id: UUID)
         case undo
         case redo
+        case dismissRecognizedText
     }
 
     /// The modifier keys held during a click.
@@ -136,6 +140,8 @@ final class BeaverReactor: AsyncReactor {
         var pagesPDFID: UUID?
         /// The file shown in Quick Look.
         var quickLookURL: URL?
+        /// Text Vision read from a file, shown in a sheet.
+        var recognizedText: RecognizedTextSheet.Content?
 
         var pdfs: [PDFItem] { items.pdfs }
         var images: [ImageItem] { items.images }
@@ -252,6 +258,8 @@ final class BeaverReactor: AsyncReactor {
                 message: message,
                 isSuccess: success
             )
+        case .recognizeText(let id):
+            await recognizeText(id: id)
         }
     }
 
@@ -322,7 +330,32 @@ final class BeaverReactor: AsyncReactor {
             stepHistory { history, current in history.undo(current: current) }
         case .redo:
             stepHistory { history, current in history.redo(current: current) }
+        case .dismissRecognizedText:
+            state.recognizedText = nil
         }
+    }
+
+    // MARK: - Text recognition
+
+    private func recognizeText(id: UUID) async {
+        guard let item = state.items.first(where: { $0.id == id }) else { return }
+        state.recognizedText = .loading(pageTitle: item.name)
+        let url = item.url
+        let image: CGImage?
+        switch item.kind {
+        case .image:
+            image = await Task.detached { [imageService] in
+                imageService.thumbnail(for: url, maxPixelSize: 2000)
+            }.value
+        case .pdf:
+            image = await PDFPageThumbnailer(url: url).thumbnail(at: 0, maxPixelSize: 2000)
+        }
+        guard let image else {
+            state.recognizedText = .empty
+            return
+        }
+        let text = (try? await TextRecognizer.recognize(in: image)) ?? RecognizedText(runs: [])
+        state.recognizedText = text.isEmpty ? .empty : .ready(text.string)
     }
 
     // MARK: - Selection
@@ -524,11 +557,13 @@ final class BeaverReactor: AsyncReactor {
             }
         case .convert:
             let images = sources.images
+            let recognizeText = TextSearchablePreference.isEnabled
             await runExport(.converting) {
                 await exportService.convertImages(
                     urls: images.map(\.url),
                     rotations: images.map(\.rotationAngle),
-                    to: saveURL
+                    to: saveURL,
+                    recognizeText: recognizeText
                 )
             }
         case .combine:

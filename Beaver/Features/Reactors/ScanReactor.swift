@@ -32,6 +32,8 @@ final class ScanReactor: AsyncReactor {
         case delete(Set<UUID>)
         /// A new name; an empty one keeps the old name.
         case rename(String)
+        /// Whether the saved PDF gets an invisible searchable text layer.
+        case setMakeTextSearchable(Bool)
         /// Throws the scan away, photos included.
         case discard
         /// Shows a problem found outside the reactor, such as photos that didn't load.
@@ -52,6 +54,8 @@ final class ScanReactor: AsyncReactor {
         var errorMessage: String?
         /// The PDF, once saved.
         var savedURL: URL?
+        /// When true, Vision adds a searchable text layer while saving.
+        var makeTextSearchable: Bool = true
 
         var currentIndex: Int? { pages.firstIndex { $0.id == currentPageID } }
         var currentPage: ScanPage? { currentIndex.map { pages[$0] } }
@@ -83,7 +87,7 @@ final class ScanReactor: AsyncReactor {
         self.builder = builder
         self.saveLocationProvider = saveLocationProvider
         self.defaultName = ScanFileName.make(prefix: DesignSystem.Scan.namePrefix, date: date)
-        self.state = State(name: defaultName)
+        self.state = State(name: defaultName, makeTextSearchable: TextSearchablePreference.isEnabled)
     }
 
     func action(_ action: Action) async {
@@ -128,6 +132,8 @@ final class ScanReactor: AsyncReactor {
             if ScanFileName.sanitized(name) != nil {
                 state.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
             }
+        case .setMakeTextSearchable(let on):
+            state.makeTextSearchable = on
         case .discard:
             guard state.activity == nil else { return }
             builder.discard(state.pages)
@@ -228,7 +234,8 @@ final class ScanReactor: AsyncReactor {
         }
         state.activity = .saving
         let pages = state.pages
-        let isWritten = await Self.write(pages, to: url, using: builder)
+        let recognizeText = state.makeTextSearchable
+        let isWritten = await Self.write(pages, to: url, recognizeText: recognizeText, using: builder)
         state.activity = nil
         if isWritten {
             builder.discard(pages)
@@ -239,9 +246,14 @@ final class ScanReactor: AsyncReactor {
     }
 
     @concurrent
-    private nonisolated static func write(_ pages: [ScanPage], to url: URL, using builder: ScanDocumentBuilder) async -> Bool {
+    private nonisolated static func write(
+        _ pages: [ScanPage],
+        to url: URL,
+        recognizeText: Bool,
+        using builder: ScanDocumentBuilder
+    ) async -> Bool {
         do {
-            try await builder.writePDF(pages, to: url)
+            try await builder.writePDF(pages, to: url, recognizeText: recognizeText)
             return true
         } catch {
             try? FileManager.default.removeItem(at: url)

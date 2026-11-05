@@ -9,7 +9,13 @@ protocol ExportServiceProtocol: Sendable {
     func mergePDFs(urls: [URL], rotations: [PDFRotation], to destination: URL) async -> ExportAlert
     func splitPDFs(urls: [URL], rotations: [PDFRotation], into directory: URL) async -> ExportAlert
     /// `rotations[i]` turns `urls[i]` clockwise before it becomes a page.
-    func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert
+    /// When `recognizeText` is true, Vision adds a searchable text layer.
+    func convertImages(
+        urls: [URL],
+        rotations: [RotationAngle],
+        to destination: URL,
+        recognizeText: Bool
+    ) async -> ExportAlert
     /// Saves PDFs and images as one PDF, in the given order.
     func combine(sources: [ExportSource], to destination: URL) async -> ExportAlert
     /// Saves every page of the PDFs, and every image, as its own PDF in `directory`.
@@ -97,8 +103,17 @@ struct ExportService: ExportServiceProtocol {
     }
 
     @concurrent
-    func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert {
-        let result = imageService.convertImagesToPDF(imageUrls: urls, rotations: rotations)
+    func convertImages(
+        urls: [URL],
+        rotations: [RotationAngle],
+        to destination: URL,
+        recognizeText: Bool
+    ) async -> ExportAlert {
+        let result = await imageService.convertImagesToPDF(
+            imageUrls: urls,
+            rotations: rotations,
+            recognizeText: recognizeText
+        )
 
         guard let document = result.document else {
             return ExportAlert(

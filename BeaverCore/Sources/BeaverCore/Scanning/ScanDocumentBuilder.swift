@@ -58,14 +58,34 @@ public struct ScanDocumentBuilder: Sendable {
     }
 
     /// Writes every page, in order, into one PDF at `url`. Stops early when the task is cancelled.
-    public func writePDF(_ pages: [ScanPage], to url: URL) async throws {
+    /// When `recognizeText` is true, each page gets an invisible searchable text layer.
+    /// `onProgress` reports 0…1 across render + recognition of every page.
+    public func writePDF(
+        _ pages: [ScanPage],
+        to url: URL,
+        recognizeText: Bool = true,
+        onProgress: (@Sendable (Double) -> Void)? = nil
+    ) async throws {
         var images: [CGImage] = []
-        for page in pages {
+        var text: [RecognizedText?] = []
+        let total = max(pages.count, 1)
+        for (index, page) in pages.enumerated() {
             try Task.checkCancellation()
             guard let image = render(page) else { throw Error.unreadablePage }
             images.append(image)
+            if recognizeText {
+                let base = Double(index) / Double(total)
+                let span = 1 / Double(total)
+                let recognized = try await TextRecognizer.recognize(in: image) { fraction in
+                    onProgress?(base + fraction * span * 0.9)
+                }
+                text.append(recognized)
+            } else {
+                text.append(nil)
+            }
+            onProgress?(Double(index + 1) / Double(total))
         }
-        try ScanPDFWriter.write(images, to: url)
+        try ScanPDFWriter.write(images, text: recognizeText ? text : [], to: url)
     }
 
     /// Deletes stored photos once the scan is saved or discarded.

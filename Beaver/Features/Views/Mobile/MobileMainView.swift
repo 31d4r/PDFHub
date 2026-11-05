@@ -44,6 +44,17 @@ struct MobileMainView: View {
 
     private var state: BeaverReactor.State { reactor.state }
 
+    private var recognizedTextBinding: Binding<RecognizedTextSheet.Content?> {
+        Binding(
+            get: { reactor.state.recognizedText },
+            set: { value in
+                if value == nil {
+                    reactor.action(.dismissRecognizedText)
+                }
+            }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             droppableContent
@@ -102,6 +113,9 @@ struct MobileMainView: View {
         }
         .removeAllConfirmation(reactor: reactor)
         .exportAlert(reactor: reactor)
+        .sheet(item: recognizedTextBinding) { _ in
+            RecognizedTextSheet(content: recognizedTextBinding)
+        }
         .fileImporter(
             isPresented: $isFileImporterPresented,
             allowedContentTypes: state.fileImport?.allowedContentTypes ?? [],

@@ -2223,6 +2223,18 @@
         }
       }
     },
+    "scan.copyText" : {
+      "comment" : "Copy the text Vision read from the page",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Text"
+          }
+        }
+      }
+    },
     "scan.corner.bottomLeft" : {
       "comment" : "VoiceOver: a corner handle",
       "extractionState" : "manual",
@@ -2559,6 +2571,30 @@
         }
       }
     },
+    "scan.makeTextSearchable" : {
+      "comment" : "Toggle: add invisible OCR text so the PDF can be searched and copied",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make Text Searchable"
+          }
+        }
+      }
+    },
+    "scan.makeTextSearchable.help" : {
+      "comment" : "Accessibility hint for Make Text Searchable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds invisible text so you can search and copy from the PDF in Files and Preview."
+          }
+        }
+      }
+    },
     "scan.move.down" : {
       "comment" : "VoiceOver action on a corner handle",
       "extractionState" : "manual",
@@ -2667,6 +2703,18 @@
         }
       }
     },
+    "scan.noTextFound" : {
+      "comment" : "When Vision finds no text on a scanned page",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No text found on this page."
+          }
+        }
+      }
+    },
     "scan.openSettings" : {
       "comment" : "iOS: open Beaver's page in Settings",
       "extractionState" : "manual",
@@ -2759,6 +2807,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Finding Pages…"
+          }
+        }
+      }
+    },
+    "scan.recognizedText" : {
+      "comment" : "Sheet title: the text Vision read from the page",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognized Text"
+          }
+        }
+      }
+    },
+    "scan.recognizedText.help" : {
+      "comment" : "Accessibility hint for Recognized Text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the text Beaver read from this page."
+          }
+        }
+      }
+    },
+    "scan.recognizingText" : {
+      "comment" : "Shown while Vision reads text from a page",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading Text…"
           }
         }
       }
@@ -2975,6 +3059,30 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan More Pages"
+          }
+        }
+      }
+    },
+    "scan.shareText" : {
+      "comment" : "Share the text Vision read from the page",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share Text"
+          }
+        }
+      }
+    },
+    "scan.textCopied" : {
+      "comment" : "VoiceOver / confirmation after copying recognized text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text Copied"
           }
         }
       }

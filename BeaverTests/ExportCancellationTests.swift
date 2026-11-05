@@ -92,7 +92,7 @@ struct ExportCancellationTests {
         defer { try? FileManager.default.removeItem(at: directory) }
         let destination = directory.appendingPathComponent("images.pdf")
 
-        let alert = await ExportService().convertImages(urls: [TestFixtures.samplePNG], rotations: [], to: destination)
+        let alert = await ExportService().convertImages(urls: [TestFixtures.samplePNG], rotations: [], to: destination, recognizeText: false)
 
         #expect(alert.isSuccess)
         #expect(alert.output == destination)

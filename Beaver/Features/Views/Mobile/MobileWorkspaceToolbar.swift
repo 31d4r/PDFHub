@@ -8,6 +8,7 @@ import SwiftUI
 /// the bottom. Merge, Split, Convert and Combine stay listed when they can't run and say why.
 struct MobileWorkspaceToolbar: ToolbarContent {
     @ObservedObject var reactor: BeaverReactor
+    @AppStorage(TextSearchablePreference.key) private var makeTextSearchable = true
     @Binding var isSelecting: Bool
     let onAddPhotos: () -> Void
     let onAddFiles: () -> Void
@@ -149,6 +150,11 @@ struct MobileWorkspaceToolbar: ToolbarContent {
                 }
                 .disabled(!availability.isAvailable)
             }
+            Divider()
+            Toggle(isOn: $makeTextSearchable) {
+                Label(DesignSystem.Scan.makeTextSearchable, systemImage: "text.viewfinder")
+            }
+            .accessibilityHint(DesignSystem.Scan.makeTextSearchableHelp)
         } label: {
             // Words, not an icon: iOS 26 draws bottom bar labels as their icon only, and no
             // symbol says Merge, Split, Convert and Combine.

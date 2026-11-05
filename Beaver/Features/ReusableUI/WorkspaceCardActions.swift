@@ -34,6 +34,13 @@ struct WorkspaceCardActions {
         ) {
             reactor.action(.didChangeQuickLook(item.url))
         })
+        actions.append(CardAction(
+            title: DesignSystem.Scan.recognizedText,
+            systemImage: "text.viewfinder",
+            help: DesignSystem.Scan.recognizedTextHelp
+        ) {
+            Task { await reactor.action(.recognizeText(id: item.id)) }
+        })
         for direction in [RotationDirection.left, .right] {
             actions.append(CardAction(
                 title: direction == .left ? DesignSystem.Workspace.rotateLeft : DesignSystem.Workspace.rotateRight,

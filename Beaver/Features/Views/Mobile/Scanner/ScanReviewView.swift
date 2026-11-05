@@ -21,6 +21,7 @@ struct ScanReviewView: View {
     @State private var photoSelection: [PhotosPickerItem] = []
     @State private var isLoadingMorePhotos = false
     @State private var isRenamePresented = false
+    @State private var recognizedText: RecognizedTextSheet.Content?
     @State private var draftName = ""
 
     private var state: ScanReactor.State { reactor.state }
@@ -117,6 +118,9 @@ struct ScanReviewView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: state.currentPage?.rotation)
         .sensoryFeedback(.success, trigger: state.savedURL) { _, url in url != nil }
         .sensoryFeedback(.error, trigger: state.errorMessage) { _, message in message != nil }
+        .sheet(item: $recognizedText) { _ in
+            RecognizedTextSheet(content: $recognizedText)
+        }
     }
 
     // MARK: - Content
@@ -147,6 +151,7 @@ struct ScanReviewView: View {
                         reactor.action(.setFilter(filter))
                     }
                     applyToAllButton
+                    makeTextSearchableToggle
                 }
             }
             .padding(.bottom, DesignSystem.Spacing.small)
@@ -182,11 +187,34 @@ struct ScanReviewView: View {
         } label: {
             Label(DesignSystem.Scan.rotate, systemImage: DesignSystem.Scan.Icons.rotate)
         }
+        Button {
+            recognizeText(on: page)
+        } label: {
+            Label(DesignSystem.Scan.recognizedText, systemImage: "text.viewfinder")
+        }
+        .accessibilityHint(DesignSystem.Scan.recognizedTextHelp)
         Divider()
         Button(role: .destructive) {
             reactor.action(.delete([page.id]))
         } label: {
             Label(DesignSystem.Scan.deletePage, systemImage: DesignSystem.Scan.Icons.delete)
+        }
+    }
+
+    private func recognizeText(on page: ScanPage) {
+        recognizedText = .loading(pageTitle: DesignSystem.Scan.pageTitle(
+            (state.pages.firstIndex { $0.id == page.id } ?? 0) + 1
+        ))
+        Task {
+            let image = await Task.detached {
+                ScanDocumentBuilder().preview(page, maxPixelSize: DesignSystem.Scan.pagePreviewPixels)
+            }.value
+            guard let image else {
+                recognizedText = .empty
+                return
+            }
+            let text = (try? await TextRecognizer.recognize(in: image)) ?? RecognizedText(runs: [])
+            recognizedText = text.isEmpty ? .empty : .ready(text.string)
         }
     }
 
@@ -203,6 +231,27 @@ struct ScanReviewView: View {
             .disabled(!state.canApplyFilterToAll)
             .accessibilityHint(DesignSystem.Scan.applyToAllHelp)
         }
+    }
+
+    private var makeTextSearchableToggle: some View {
+        Toggle(isOn: makeTextSearchableBinding) {
+            Text(DesignSystem.Scan.makeTextSearchable)
+        }
+        .toggleStyle(.switch)
+        .controlSize(.small)
+        .disabled(!state.canEdit)
+        .accessibilityHint(DesignSystem.Scan.makeTextSearchableHelp)
+        .padding(.horizontal)
+    }
+
+    private var makeTextSearchableBinding: Binding<Bool> {
+        Binding(
+            get: { state.makeTextSearchable },
+            set: { value in
+                TextSearchablePreference.isEnabled = value
+                reactor.action(.setMakeTextSearchable(value))
+            }
+        )
     }
 
     @ViewBuilder

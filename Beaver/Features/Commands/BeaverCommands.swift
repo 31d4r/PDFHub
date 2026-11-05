@@ -9,6 +9,7 @@ import AppKit
 /// The Actions menu's items come from `ActionsMenu`.
 struct BeaverCommands: Commands {
     @FocusedObject private var reactor: BeaverReactor?
+    @AppStorage(TextSearchablePreference.key) private var makeTextSearchable = true
     #if os(macOS)
     @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
     @Environment(\.openWindow) private var openWindow

@@ -33,6 +33,17 @@ struct MainView: View {
     )
     private var quickLookURL: URL?
 
+    private var recognizedTextBinding: Binding<RecognizedTextSheet.Content?> {
+        Binding(
+            get: { reactor.state.recognizedText },
+            set: { value in
+                if value == nil {
+                    reactor.action(.dismissRecognizedText)
+                }
+            }
+        )
+    }
+
     var body: some View {
         presentations(window)
             .focusedSceneObject(reactor)
@@ -111,6 +122,9 @@ struct MainView: View {
             }
             .removeAllConfirmation(reactor: reactor)
             .exportAlert(reactor: reactor)
+            .sheet(item: recognizedTextBinding) { _ in
+                RecognizedTextSheet(content: recognizedTextBinding)
+            }
     }
 
     @ViewBuilder

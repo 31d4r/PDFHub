@@ -124,6 +124,36 @@ extension DesignSystem {
             String(localized: "scan.saved", defaultValue: "Saved “\(fileName)” in Beaver’s folder in Files", comment: "iOS banner after a scan is saved; the file name")
         }
 
+        // MARK: Text recognition
+
+        static var makeTextSearchable: String {
+            String(localized: "scan.makeTextSearchable", defaultValue: "Make Text Searchable", comment: "Toggle: add invisible OCR text so the PDF can be searched and copied")
+        }
+        static var makeTextSearchableHelp: String {
+            String(localized: "scan.makeTextSearchable.help", defaultValue: "Adds invisible text so you can search and copy from the PDF in Files and Preview.", comment: "Accessibility hint for Make Text Searchable")
+        }
+        static var copyText: String {
+            String(localized: "scan.copyText", defaultValue: "Copy Text", comment: "Copy the text Vision read from the page")
+        }
+        static var recognizedText: String {
+            String(localized: "scan.recognizedText", defaultValue: "Recognized Text", comment: "Sheet title: the text Vision read from the page")
+        }
+        static var recognizedTextHelp: String {
+            String(localized: "scan.recognizedText.help", defaultValue: "Shows the text Beaver read from this page.", comment: "Accessibility hint for Recognized Text")
+        }
+        static var recognizingText: String {
+            String(localized: "scan.recognizingText", defaultValue: "Reading Text…", comment: "Shown while Vision reads text from a page")
+        }
+        static var noTextFound: String {
+            String(localized: "scan.noTextFound", defaultValue: "No text found on this page.", comment: "When Vision finds no text on a scanned page")
+        }
+        static var shareText: String {
+            String(localized: "scan.shareText", defaultValue: "Share Text", comment: "Share the text Vision read from the page")
+        }
+        static var textCopied: String {
+            String(localized: "scan.textCopied", defaultValue: "Text Copied", comment: "VoiceOver / confirmation after copying recognized text")
+        }
+
         // MARK: Filters
 
         static var filter: String { String(localized: "scan.filter", defaultValue: "Filter", comment: "iOS: the row of looks for a scanned page") }
