@@ -42,6 +42,7 @@ struct PDFKitView: NSViewRepresentable {
         context.coordinator.apply(rotationAngle, to: nsView)
     }
 
+    @MainActor
     final class Coordinator {
         private(set) var loadedURL: URL?
         /// Rotation stored in each page when the document was opened.

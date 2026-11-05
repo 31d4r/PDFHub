@@ -2,12 +2,15 @@ import Foundation
 import AppKit
 import UniformTypeIdentifiers
 
+/// Open and save panels are AppKit UI, so they must run on the main actor.
+@MainActor
 protocol FilePanelServiceProtocol {
     func openFilePanel(contentTypes: [UTType], multipleSelection: Bool) -> [URL]
     func showSavePanel(defaultName: String, prompt: String, allowedTypes: [UTType]) -> URL?
     func showDirectoryPanel(prompt: String) -> URL?
 }
 
+@MainActor
 struct FilePanelService: FilePanelServiceProtocol {
     func openFilePanel(contentTypes: [UTType], multipleSelection: Bool) -> [URL] {
         let panel = NSOpenPanel()
