@@ -1,9 +1,12 @@
-import Foundation
 import AppKit
+import Foundation
+import ImageIO
 import PDFKit
 
 protocol ImageServiceProtocol: Sendable {
-    func loadImage(from url: URL) -> NSImage?
+    /// A preview no larger than `maxPixelSize` on its longest side, with EXIF
+    /// orientation applied. `nil` when the file is not a readable image.
+    func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage?
     func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult
 }
 
@@ -15,16 +18,28 @@ struct ImageConversionResult {
 }
 
 struct ImageService: ImageServiceProtocol {
-    func loadImage(from url: URL) -> NSImage? {
-        return NSImage(contentsOf: url)
+    func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage? {
+        let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, sourceOptions) else {
+            return nil
+        }
+
+        let thumbnailOptions = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ] as CFDictionary
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions)
     }
-    
+
+
     func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
         let pdfDocument = PDFDocument()
         var skippedURLs: [URL] = []
 
         for imageUrl in imageUrls {
-            if let image = loadImage(from: imageUrl),
+            if let image = NSImage(contentsOf: imageUrl),
                let pdfPage = PDFPage(image: image) {
                 pdfDocument.insert(pdfPage, at: pdfDocument.pageCount)
             } else {

@@ -224,7 +224,7 @@ struct ImageToPDFView: View {
                         }
                         .padding(DesignSystem.Spacing.contentPadding)
 
-                        Image(nsImage: item.image)
+                        Image(decorative: item.thumbnail, scale: 1)
                             .resizable()
                             .scaledToFit()
                             .frame(

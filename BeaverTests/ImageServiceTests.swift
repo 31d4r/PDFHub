@@ -4,8 +4,8 @@ import XCTest
 final class ImageServiceTests: XCTestCase {
     private let service = ImageService()
 
-    func testLoadImage() {
-        let image = service.loadImage(from: TestFixtures.samplePNG)
+    func testThumbnail() {
+        let image = service.thumbnail(for: TestFixtures.samplePNG, maxPixelSize: 800)
         XCTAssertNotNil(image)
     }
 

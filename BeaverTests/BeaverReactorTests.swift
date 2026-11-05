@@ -34,8 +34,7 @@ final class BeaverReactorTests: XCTestCase {
 
     func testAddImagesUsesImageServiceAndNavigates() async {
         let imageService = MockImageService()
-        let image = NSImage(size: NSSize(width: 10, height: 10))
-        imageService.imagesByURL[TestFixtures.samplePNG] = image
+        imageService.thumbnailsByURL[TestFixtures.samplePNG] = TestImages.solid(width: 10, height: 10)
 
         let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),
@@ -51,12 +50,12 @@ final class BeaverReactorTests: XCTestCase {
 
     func testDeleteImageByID() async {
         let imageService = MockImageService()
-        let first = NSImage(size: NSSize(width: 10, height: 10))
-        let second = NSImage(size: NSSize(width: 12, height: 12))
+        let first = TestImages.solid(width: 10, height: 10)
+        let second = TestImages.solid(width: 12, height: 12)
         let firstURL = TestFixtures.samplePNG
         let secondURL = URL(fileURLWithPath: "/tmp/second.png")
-        imageService.imagesByURL[firstURL] = first
-        imageService.imagesByURL[secondURL] = second
+        imageService.thumbnailsByURL[firstURL] = first
+        imageService.thumbnailsByURL[secondURL] = second
 
         let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),

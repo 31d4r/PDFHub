@@ -88,9 +88,9 @@ final class BeaverReactor: AsyncReactor {
         case .clearPDFs:
             clearPDFs()
         case .selectImages:
-            selectImages()
+            await selectImages()
         case .addImages(let urls):
-            addImages(urls)
+            await addImages(urls)
         case .convertImagesToPDF:
             await convertImagesToPDF()
         case .deleteImage(let id):
@@ -214,27 +214,33 @@ final class BeaverReactor: AsyncReactor {
         state.screen = .menu
     }
 
-    private func selectImages() {
+    private func selectImages() async {
         guard state.activity == nil else { return }
         let urls = filePanelService.openFilePanel(
             contentTypes: SupportedImageType.allUTTypes,
             multipleSelection: true
         )
-        addImages(urls)
+        await addImages(urls)
     }
 
-    private func addImages(_ urls: [URL]) {
+    private func addImages(_ urls: [URL]) async {
         guard state.activity == nil else { return }
         var seen = Set(state.selectedImages.map(\.url))
+        let candidates = urls.filter { seen.insert($0).inserted }
+        guard !candidates.isEmpty else { return }
+
+        let loaded = await Self.loadThumbnails(for: candidates, using: imageService)
+
+        // The list may have changed while thumbnails were loading.
+        var current = Set(state.selectedImages.map(\.url))
         var unreadableURLs: [URL] = []
-        let newItems = urls.compactMap { url -> ImageItem? in
-            guard !seen.contains(url) else { return nil }
-            guard let image = imageService.loadImage(from: url) else {
+        let newItems = loaded.compactMap { url, thumbnail -> ImageItem? in
+            guard let thumbnail else {
                 unreadableURLs.append(url)
                 return nil
             }
-            seen.insert(url)
-            return ImageItem(url: url, image: image)
+            guard current.insert(url).inserted else { return nil }
+            return ImageItem(url: url, thumbnail: thumbnail)
         }
 
         if !unreadableURLs.isEmpty {
@@ -276,6 +282,19 @@ final class BeaverReactor: AsyncReactor {
             await exportService.convertImages(urls: imageUrls, to: saveURL)
         }
     }
+
+    @concurrent
+    private nonisolated static func loadThumbnails(
+        for urls: [URL],
+        using imageService: any ImageServiceProtocol
+    ) async -> [(URL, CGImage?)] {
+        urls.map { url in
+            (url, imageService.thumbnail(for: url, maxPixelSize: thumbnailMaxPixelSize))
+        }
+    }
+
+    /// Twice the largest on-screen preview (400 pt), so previews stay sharp on Retina.
+    private nonisolated static let thumbnailMaxPixelSize = 800
 
     private func deleteImage(
         with id: UUID

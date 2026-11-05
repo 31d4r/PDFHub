@@ -56,15 +56,32 @@ final class MockFileIOService: FileIOServiceProtocol, @unchecked Sendable {
 
 // Tests drive this mock from one task at a time.
 final class MockImageService: ImageServiceProtocol, @unchecked Sendable {
-    var imagesByURL: [URL: NSImage] = [:]
+    var thumbnailsByURL: [URL: CGImage] = [:]
     var convertedDocument: PDFDocument?
 
-    func loadImage(from url: URL) -> NSImage? {
-        imagesByURL[url]
+    func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage? {
+        thumbnailsByURL[url]
     }
 
     func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
         ImageConversionResult(document: convertedDocument, skippedURLs: [])
+    }
+}
+
+enum TestImages {
+    static func solid(width: Int, height: Int) -> CGImage {
+        let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )!
+        context.setFillColor(CGColor(red: 1, green: 0, blue: 0, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage()!
     }
 }
 

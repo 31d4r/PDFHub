@@ -1,19 +1,20 @@
-import AppKit
+import CoreGraphics
 import Foundation
 
-struct ImageItem: Identifiable, Equatable {
+struct ImageItem: Identifiable, Equatable, Sendable {
     let id: UUID
     let url: URL
-    let image: NSImage
+    /// A downsampled preview. The full-size image is only read when converting.
+    let thumbnail: CGImage
 
     init(
         id: UUID = UUID(),
         url: URL,
-        image: NSImage
+        thumbnail: CGImage
     ) {
         self.id = id
         self.url = url
-        self.image = image
+        self.thumbnail = thumbnail
     }
 
     static func == (
