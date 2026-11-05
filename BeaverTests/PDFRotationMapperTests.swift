@@ -6,8 +6,8 @@ final class PDFRotationMapperTests: XCTestCase {
         let urlA = URL(fileURLWithPath: "/tmp/a.pdf")
         let urlB = URL(fileURLWithPath: "/tmp/b.pdf")
         let pdfs = [
-            PDF(pdfURL: urlA, rotationAngle: .ninety),
-            PDF(pdfURL: urlB, rotationAngle: .oneEighty)
+            PDFItem(url: urlA, rotationAngle: .ninety),
+            PDFItem(url: urlB, rotationAngle: .oneEighty)
         ]
 
         let mapped = PDFRotationMapper.mapRotationAngles(

@@ -1,17 +1,17 @@
 import Foundation
 
-struct PDF: Identifiable, Equatable {
+struct PDFItem: Identifiable, Equatable, Sendable {
     let id: UUID
-    var pdfURL: URL
+    var url: URL
     var rotationAngle: RotationAngle
 
     init(
         id: UUID = UUID(),
-        pdfURL: URL,
+        url: URL,
         rotationAngle: RotationAngle = .zero
     ) {
         self.id = id
-        self.pdfURL = pdfURL
+        self.url = url
         self.rotationAngle = rotationAngle
     }
 }

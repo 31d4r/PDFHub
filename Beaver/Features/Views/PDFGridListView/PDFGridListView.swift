@@ -9,7 +9,7 @@ struct PDFGridListView: View {
         keyPath: \.selectedPDFs,
         action: BeaverReactor.SyncAction.didUserSelectPDF
     )
-    private var selectedPDFs: [PDF]
+    private var selectedPDFs: [PDFItem]
 
     private let columns = [
         GridItem(.adaptive(minimum: 400))
@@ -83,7 +83,7 @@ struct PDFGridListView: View {
                         title: DesignSystem.ButtonLabels.splitPDFs,
                         color: DesignSystem.Colors.splitButtonColor
                     ) {
-                        reactor.send(.splitPDF(selectedPDFs.map(\.pdfURL)))
+                        reactor.send(.splitPDF(selectedPDFs.map(\.url)))
                     }
 
                     HeaderActionButton(
@@ -91,7 +91,7 @@ struct PDFGridListView: View {
                         title: DesignSystem.ButtonLabels.mergePDFs,
                         color: DesignSystem.Colors.mergeButtonColor
                     ) {
-                        reactor.send(.mergePDF(selectedPDFs.map(\.pdfURL)))
+                        reactor.send(.mergePDF(selectedPDFs.map(\.url)))
                     }
 
                     HeaderActionButton(
@@ -137,7 +137,7 @@ struct PDFGridListView: View {
                             Spacer()
 
                             DeleteIconButton(
-                                accessibilityLabel: DesignSystem.Accessibility.delete(pdf.pdfURL.lastPathComponent)
+                                accessibilityLabel: DesignSystem.Accessibility.delete(pdf.url.lastPathComponent)
                             ) {
                                 reactor.send(.deletePDF(pdf.id))
                             }
@@ -155,11 +155,11 @@ struct PDFGridListView: View {
                             .frame(height: Constants.pdfContainerHeight)
 
                             PDFKitView(
-                                url: pdf.pdfURL,
+                                url: pdf.url,
                                 rotationAngle: $pdf.rotationAngle
                             )
                             .frame(height: Constants.pdfViewHeight)
-                            .accessibilityLabel(DesignSystem.Accessibility.preview(pdf.pdfURL.lastPathComponent))
+                            .accessibilityLabel(DesignSystem.Accessibility.preview(pdf.url.lastPathComponent))
                             .clipShape(
                                 RoundedRectangle(
                                     cornerRadius: DesignSystem.CornerRadius.pdfView,
@@ -176,7 +176,7 @@ struct PDFGridListView: View {
                         .padding(.horizontal, Constants.cardHorizontalPadding)
 
                         VStack(spacing: Constants.textSpacing) {
-                            Text(pdf.pdfURL.lastPathComponent)
+                            Text(pdf.url.lastPathComponent)
                                 .scaledFont(size: DesignSystem.Typography.fileNameFontSize, weight: .semibold, design: .rounded)
                                 .foregroundColor(DesignSystem.Colors.titleColor)
                                 .lineLimit(2)

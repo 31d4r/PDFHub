@@ -8,8 +8,8 @@ struct RotationMapperDuplicateTests {
     func duplicateURLs() {
         let url = URL(fileURLWithPath: "/tmp/dup.pdf")
         let pdfs = [
-            PDF(pdfURL: url, rotationAngle: .ninety),
-            PDF(pdfURL: url, rotationAngle: .oneEighty),
+            PDFItem(url: url, rotationAngle: .ninety),
+            PDFItem(url: url, rotationAngle: .oneEighty),
         ]
 
         let mapped = PDFRotationMapper.mapRotationAngles(urls: [url, url], from: pdfs)

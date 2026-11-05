@@ -31,7 +31,7 @@ final class BeaverReactor: AsyncReactor {
     }
 
     enum SyncAction {
-        case didUserSelectPDF([PDF])
+        case didUserSelectPDF([PDFItem])
         case didUserSelectImages([ImageItem])
         case didChangeScreen(AppScreen)
         case didDismissAlert
@@ -61,7 +61,7 @@ final class BeaverReactor: AsyncReactor {
 
     struct State {
         var screen: AppScreen = .menu
-        var selectedPDFs: [PDF] = []
+        var selectedPDFs: [PDFItem] = []
         var selectedImages: [ImageItem] = []
         var exportAlert: ExportAlert?
         var activity: Activity?
@@ -160,11 +160,11 @@ final class BeaverReactor: AsyncReactor {
 
     private func addPDFs(_ urls: [URL]) {
         guard state.activity == nil else { return }
-        var seen = Set(state.selectedPDFs.map(\.pdfURL))
-        let newPDFs = urls.compactMap { url -> PDF? in
+        var seen = Set(state.selectedPDFs.map(\.url))
+        let newPDFs = urls.compactMap { url -> PDFItem? in
             guard !seen.contains(url) else { return nil }
             seen.insert(url)
-            return PDF(pdfURL: url)
+            return PDFItem(url: url)
         }
 
         guard !newPDFs.isEmpty else { return }

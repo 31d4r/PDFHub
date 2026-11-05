@@ -33,13 +33,14 @@ struct FilePanelService: FilePanelServiceProtocol {
     }
     
     func showDirectoryPanel(prompt: String) -> URL? {
-        let savePanel = NSOpenPanel()
-        savePanel.canChooseDirectories = true
-        savePanel.canChooseFiles = false
-        savePanel.allowsMultipleSelection = false
-        savePanel.prompt = prompt
+        let directoryPanel = NSOpenPanel()
+        directoryPanel.canChooseDirectories = true
+        directoryPanel.canChooseFiles = false
+        directoryPanel.allowsMultipleSelection = false
+        directoryPanel.canCreateDirectories = true
+        directoryPanel.prompt = prompt
         
-        return savePanel.runModal() == .OK ? savePanel.url : nil
+        return directoryPanel.runModal() == .OK ? directoryPanel.url : nil
     }
 }
 

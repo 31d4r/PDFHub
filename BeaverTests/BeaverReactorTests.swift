@@ -14,7 +14,7 @@ final class BeaverReactorTests: XCTestCase {
         await reactor.action(.addPDFs([url, url]))
 
         XCTAssertEqual(reactor.state.selectedPDFs.count, 1)
-        XCTAssertEqual(reactor.state.selectedPDFs.first?.pdfURL, url)
+        XCTAssertEqual(reactor.state.selectedPDFs.first?.url, url)
         XCTAssertEqual(reactor.state.screen, .pdfWorkflow)
     }
 

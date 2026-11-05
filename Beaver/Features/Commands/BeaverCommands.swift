@@ -23,14 +23,14 @@ struct BeaverCommands: Commands {
         CommandMenu(DesignSystem.Commands.menuTitle) {
             Button(DesignSystem.Commands.mergePDFs) {
                 guard let reactor else { return }
-                reactor.send(.mergePDF(reactor.state.selectedPDFs.map(\.pdfURL)))
+                reactor.send(.mergePDF(reactor.state.selectedPDFs.map(\.url)))
             }
             .keyboardShortcut("m", modifiers: [.command, .option])
             .disabled(!canExportPDFs)
 
             Button(DesignSystem.Commands.splitPDFs) {
                 guard let reactor else { return }
-                reactor.send(.splitPDF(reactor.state.selectedPDFs.map(\.pdfURL)))
+                reactor.send(.splitPDF(reactor.state.selectedPDFs.map(\.url)))
             }
             .keyboardShortcut("s", modifiers: [.command, .option])
             .disabled(!canExportPDFs)
