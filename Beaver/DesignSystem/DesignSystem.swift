@@ -1,23 +1,26 @@
 import SwiftUI
 
 enum DesignSystem {
+    /// Named colours from the asset catalog. Neutrals have Dark Mode variants;
+    /// brand and action colours are the same in both appearances.
     enum Colors {
-        static let backgroundGradientStart = "F7FAFC"
-        static let backgroundGradientEnd = "EDF2F7"
-        static let primaryGradientStart = "FF6B35"
-        static let primaryGradientMiddle = "F7931E"
-        static let primaryGradientEnd = "FFD23F"
-        static let titleColor = "2D3748"
-        static let subtitleColor = "4A5568"
+        static let backgroundGradientStart = Color(.backgroundStart)
+        static let backgroundGradientEnd = Color(.backgroundEnd)
+        static let primaryGradientStart = Color(.brandOrange)
+        static let primaryGradientMiddle = Color(.brandAmber)
+        static let primaryGradientEnd = Color(.brandYellow)
+        static let titleColor = Color(.titleText)
+        static let subtitleColor = Color(.subtitleText)
 
-        static let addButtonColor = "4299E1"
-        static let splitButtonColor = "48BB78"
-        static let mergeButtonColor = "F7931E"
-        static let convertButtonColor = "48BB78"
-        static let destructiveButtonColor = "F56565"
-        static let rotateButtonColor = "4299E1"
+        static let addButtonColor = Color(.actionBlue)
+        static let splitButtonColor = Color(.actionGreen)
+        static let mergeButtonColor = Color(.brandAmber)
+        static let convertButtonColor = Color(.actionGreen)
+        static let destructiveButtonColor = Color(.destructive)
+        static let rotateButtonColor = Color(.actionBlue)
 
-        static let pdfContainerBackgroundColor = "F7FAFC"
+        static let cardSurface = Color(.cardSurface)
+        static let pdfContainerBackgroundColor = Color(.pdfContainer)
     }
 
     enum Spacing {

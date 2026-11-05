@@ -22,8 +22,8 @@ struct PDFGridListView: View {
                     size: Constants.circleSize,
                     offset: Constants.circleOffset,
                     blurRadius: DesignSystem.Layout.decorativeCircleBlurRadius,
-                    startColorHex: DesignSystem.Colors.primaryGradientStart,
-                    endColorHex: DesignSystem.Colors.primaryGradientEnd,
+                    startColor: DesignSystem.Colors.primaryGradientStart,
+                    endColor: DesignSystem.Colors.primaryGradientEnd,
                     startOpacity: DesignSystem.Opacity.circleStart,
                     endOpacity: DesignSystem.Opacity.circleEnd,
                     startPoint: .center,
@@ -49,11 +49,11 @@ struct PDFGridListView: View {
                     Text(DesignSystem.Text.pdfDocumentsTitle)
                         .accessibilityAddTraits(.isHeader)
                         .scaledFont(size: DesignSystem.Typography.titleFontSize, weight: .bold, design: .rounded)
-                        .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
+                        .foregroundColor(DesignSystem.Colors.titleColor)
 
                     Text(DesignSystem.Text.pdfFilesLoadedCount(selectedPDFs.count))
                         .scaledFont(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded)
-                        .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
+                        .foregroundColor(DesignSystem.Colors.subtitleColor)
                 }
 
                 Spacer()
@@ -62,7 +62,7 @@ struct PDFGridListView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.backButtonIcon,
                         title: DesignSystem.ButtonLabels.back,
-                        color: Color(hex: DesignSystem.Colors.addButtonColor)
+                        color: DesignSystem.Colors.addButtonColor
                     ) {
                         reactor.send(.requestDiscard(.goBack))
                     }
@@ -70,7 +70,7 @@ struct PDFGridListView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.addButtonIcon,
                         title: DesignSystem.ButtonLabels.addPDF,
-                        color: Color(hex: DesignSystem.Colors.addButtonColor)
+                        color: DesignSystem.Colors.addButtonColor
                     ) {
                         reactor.send(.selectPDF)
                     }
@@ -78,7 +78,7 @@ struct PDFGridListView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.splitButtonIcon,
                         title: DesignSystem.ButtonLabels.splitPDFs,
-                        color: Color(hex: DesignSystem.Colors.splitButtonColor)
+                        color: DesignSystem.Colors.splitButtonColor
                     ) {
                         reactor.send(.splitPDF(selectedPDFs.map(\.pdfURL)))
                     }
@@ -86,7 +86,7 @@ struct PDFGridListView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.mergeButtonIcon,
                         title: DesignSystem.ButtonLabels.mergePDFs,
-                        color: Color(hex: DesignSystem.Colors.mergeButtonColor)
+                        color: DesignSystem.Colors.mergeButtonColor
                     ) {
                         reactor.send(.mergePDF(selectedPDFs.map(\.pdfURL)))
                     }
@@ -94,7 +94,7 @@ struct PDFGridListView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.clearButtonIcon,
                         title: DesignSystem.ButtonLabels.clearAll,
-                        color: Color(hex: DesignSystem.Colors.destructiveButtonColor)
+                        color: DesignSystem.Colors.destructiveButtonColor
                     ) {
                         reactor.send(.requestDiscard(.clearAll))
                     }
@@ -107,9 +107,9 @@ struct PDFGridListView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: DesignSystem.Colors.primaryGradientStart)
+                            DesignSystem.Colors.primaryGradientStart
                                 .opacity(DesignSystem.Opacity.separatorStart),
-                            Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                            DesignSystem.Colors.primaryGradientEnd
                                 .opacity(DesignSystem.Opacity.separatorEnd)
                         ],
                         startPoint: .leading,
@@ -148,7 +148,7 @@ struct PDFGridListView: View {
                                 cornerRadius: DesignSystem.CornerRadius.pdfContainer,
                                 style: .continuous
                             )
-                            .fill(Color(hex: DesignSystem.Colors.pdfContainerBackgroundColor))
+                            .fill(DesignSystem.Colors.pdfContainerBackgroundColor)
                             .frame(height: Constants.pdfContainerHeight)
 
                             PDFKitView(
@@ -175,13 +175,13 @@ struct PDFGridListView: View {
                         VStack(spacing: Constants.textSpacing) {
                             Text(pdf.pdfURL.lastPathComponent)
                                 .scaledFont(size: DesignSystem.Typography.fileNameFontSize, weight: .semibold, design: .rounded)
-                                .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
+                                .foregroundColor(DesignSystem.Colors.titleColor)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.center)
 
                             Text(DesignSystem.Text.pdfDocument)
                                 .scaledFont(size: DesignSystem.Typography.documentTypeFontSize, weight: .medium, design: .rounded)
-                                .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
+                                .foregroundColor(DesignSystem.Colors.subtitleColor)
                         }
                         .padding(.horizontal, Constants.cardHorizontalPadding)
                         .padding(.vertical, Constants.cardBottomPadding)
@@ -191,7 +191,7 @@ struct PDFGridListView: View {
                             cornerRadius: DesignSystem.CornerRadius.card,
                             style: .continuous
                         )
-                        .fill(.white)
+                        .fill(DesignSystem.Colors.cardSurface)
                     )
                 }
             }

@@ -15,9 +15,9 @@ struct GridMenuButtonView: View {
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: DesignSystem.Colors.primaryGradientStart),
-                                    Color(hex: DesignSystem.Colors.primaryGradientMiddle),
-                                    Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                                    DesignSystem.Colors.primaryGradientStart,
+                                    DesignSystem.Colors.primaryGradientMiddle,
+                                    DesignSystem.Colors.primaryGradientEnd
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -28,7 +28,7 @@ struct GridMenuButtonView: View {
                             height: Constants.circleSize
                         )
                         .shadow(
-                            color: Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(DesignSystem.Shadows.defaultOpacity),
+                            color: DesignSystem.Colors.primaryGradientStart.opacity(DesignSystem.Shadows.defaultOpacity),
                             radius: isPressed ? Constants.shadowRadiusPressed : Constants.shadowRadius,
                             x: 0,
                             y: isPressed ? Constants.shadowOffsetPressed : Constants.shadowOffset
@@ -44,7 +44,7 @@ struct GridMenuButtonView: View {
                 Text(description)
                     .scaledFont(size: Constants.fontSize, weight: .medium, design: .rounded)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
+                    .foregroundColor(DesignSystem.Colors.titleColor)
                     .lineLimit(Constants.lineLimit)
                     .padding(.horizontal, Constants.textHorizontalPadding)
             }
@@ -59,7 +59,7 @@ struct GridMenuButtonView: View {
                     cornerRadius: Constants.cornerRadius,
                     style: .continuous
                 )
-                .fill(.white)
+                .fill(DesignSystem.Colors.cardSurface)
                 .shadow(
                     color: .black.opacity(DesignSystem.Shadows.backgroundOpacity),
                     radius: isPressed ? Constants.backgroundShadowRadiusPressed : DesignSystem.Shadows.backgroundRadius,
@@ -75,8 +75,8 @@ struct GridMenuButtonView: View {
                 .stroke(
                     LinearGradient(
                         colors: [
-                            Color(hex: DesignSystem.Colors.primaryGradientStart).opacity(Constants.gradientBorderStartOpacity),
-                            Color(hex: DesignSystem.Colors.primaryGradientEnd).opacity(Constants.gradientBorderEndOpacity)
+                            DesignSystem.Colors.primaryGradientStart.opacity(Constants.gradientBorderStartOpacity),
+                            DesignSystem.Colors.primaryGradientEnd.opacity(Constants.gradientBorderEndOpacity)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing

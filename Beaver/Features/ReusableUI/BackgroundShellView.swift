@@ -5,8 +5,8 @@ struct BackgroundShellView<Content: View>: View {
         let size: CGFloat
         let offset: CGSize
         let blurRadius: CGFloat
-        let startColorHex: String
-        let endColorHex: String
+        let startColor: Color
+        let endColor: Color
         let startOpacity: Double
         let endOpacity: Double
         let startPoint: UnitPoint
@@ -22,8 +22,8 @@ struct BackgroundShellView<Content: View>: View {
                 size: 400,
                 offset: CGSize(width: -250, height: -200),
                 blurRadius: DesignSystem.Layout.decorativeCircleBlurRadius,
-                startColorHex: DesignSystem.Colors.primaryGradientStart,
-                endColorHex: DesignSystem.Colors.primaryGradientEnd,
+                startColor: DesignSystem.Colors.primaryGradientStart,
+                endColor: DesignSystem.Colors.primaryGradientEnd,
                 startOpacity: DesignSystem.Opacity.circleStart,
                 endOpacity: DesignSystem.Opacity.circleEnd,
                 startPoint: .center,
@@ -40,8 +40,8 @@ struct BackgroundShellView<Content: View>: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color(hex: DesignSystem.Colors.backgroundGradientStart),
-                    Color(hex: DesignSystem.Colors.backgroundGradientEnd)
+                    DesignSystem.Colors.backgroundGradientStart,
+                    DesignSystem.Colors.backgroundGradientEnd
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -53,8 +53,8 @@ struct BackgroundShellView<Content: View>: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color(hex: circle.startColorHex).opacity(circle.startOpacity),
-                                Color(hex: circle.endColorHex).opacity(circle.endOpacity)
+                                circle.startColor.opacity(circle.startOpacity),
+                                circle.endColor.opacity(circle.endOpacity)
                             ],
                             startPoint: circle.startPoint,
                             endPoint: circle.endPoint

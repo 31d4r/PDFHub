@@ -37,9 +37,9 @@ struct RotateControlsView: View {
                 )
                 .background(
                     Circle()
-                        .fill(Color(hex: DesignSystem.Colors.rotateButtonColor))
+                        .fill(DesignSystem.Colors.rotateButtonColor)
                         .shadow(
-                            color: Color(hex: DesignSystem.Colors.rotateButtonColor)
+                            color: DesignSystem.Colors.rotateButtonColor
                                 .opacity(DesignSystem.Shadows.iconButtonOpacity),
                             radius: DesignSystem.Shadows.iconButtonRadius,
                             x: 0,

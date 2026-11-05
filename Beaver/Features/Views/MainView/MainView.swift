@@ -31,8 +31,8 @@ struct MainView: View {
                     size: Constants.leftCircleSize,
                     offset: Constants.leftCircleOffset,
                     blurRadius: Constants.circleBlurRadius,
-                    startColorHex: DesignSystem.Colors.primaryGradientStart,
-                    endColorHex: DesignSystem.Colors.primaryGradientEnd,
+                    startColor: DesignSystem.Colors.primaryGradientStart,
+                    endColor: DesignSystem.Colors.primaryGradientEnd,
                     startOpacity: Constants.leftCircleStartOpacity,
                     endOpacity: Constants.leftCircleEndOpacity,
                     startPoint: .center,
@@ -42,8 +42,8 @@ struct MainView: View {
                     size: Constants.rightCircleSize,
                     offset: Constants.rightCircleOffset,
                     blurRadius: Constants.circleBlurRadius,
-                    startColorHex: DesignSystem.Colors.primaryGradientMiddle,
-                    endColorHex: DesignSystem.Colors.primaryGradientStart,
+                    startColor: DesignSystem.Colors.primaryGradientMiddle,
+                    endColor: DesignSystem.Colors.primaryGradientStart,
                     startOpacity: Constants.rightCircleStartOpacity,
                     endOpacity: Constants.rightCircleEndOpacity,
                     startPoint: .center,
@@ -58,9 +58,9 @@ struct MainView: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color(hex: DesignSystem.Colors.primaryGradientStart),
-                                        Color(hex: DesignSystem.Colors.primaryGradientMiddle),
-                                        Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                                        DesignSystem.Colors.primaryGradientStart,
+                                        DesignSystem.Colors.primaryGradientMiddle,
+                                        DesignSystem.Colors.primaryGradientEnd
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -71,7 +71,7 @@ struct MainView: View {
                                 height: Constants.iconCircleSize
                             )
                             .shadow(
-                                color: Color(hex: DesignSystem.Colors.primaryGradientStart)
+                                color: DesignSystem.Colors.primaryGradientStart
                                     .opacity(Constants.iconShadowOpacity),
                                 radius: Constants.iconShadowRadius,
                                 x: Constants.iconShadowOffset.width,
@@ -93,11 +93,11 @@ struct MainView: View {
                         Text(DesignSystem.Text.beaverTitle)
                             .accessibilityAddTraits(.isHeader)
                             .scaledFont(size: Constants.titleFontSize, weight: .bold, design: .rounded)
-                            .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
+                            .foregroundColor(DesignSystem.Colors.titleColor)
 
                         Text(DesignSystem.Text.beaverSubtitle)
                             .scaledFont(size: Constants.subtitleFontSize, weight: .medium, design: .rounded)
-                            .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
+                            .foregroundColor(DesignSystem.Colors.subtitleColor)
                     }
                 }
                 .padding(.top, Constants.topPadding)

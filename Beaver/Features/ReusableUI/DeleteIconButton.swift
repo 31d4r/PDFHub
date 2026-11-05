@@ -17,9 +17,9 @@ struct DeleteIconButton: View {
                 )
                 .background(
                     Circle()
-                        .fill(Color(hex: DesignSystem.Colors.destructiveButtonColor))
+                        .fill(DesignSystem.Colors.destructiveButtonColor)
                         .shadow(
-                            color: Color(hex: DesignSystem.Colors.destructiveButtonColor)
+                            color: DesignSystem.Colors.destructiveButtonColor
                                 .opacity(DesignSystem.Shadows.iconButtonOpacity),
                             radius: DesignSystem.Shadows.iconButtonRadius,
                             x: 0,

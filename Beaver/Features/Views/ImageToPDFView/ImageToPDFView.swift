@@ -25,8 +25,8 @@ struct ImageToPDFView: View {
                     size: Constants.circleSize,
                     offset: Constants.circleOffset,
                     blurRadius: DesignSystem.Layout.decorativeCircleBlurRadius,
-                    startColorHex: DesignSystem.Colors.primaryGradientStart,
-                    endColorHex: DesignSystem.Colors.primaryGradientEnd,
+                    startColor: DesignSystem.Colors.primaryGradientStart,
+                    endColor: DesignSystem.Colors.primaryGradientEnd,
                     startOpacity: DesignSystem.Opacity.circleStart,
                     endOpacity: DesignSystem.Opacity.circleEnd,
                     startPoint: .center,
@@ -57,8 +57,8 @@ struct ImageToPDFView: View {
                                 .fill(
                                     LinearGradient(
                                         colors: [
-                                            Color(hex: DesignSystem.Colors.primaryGradientStart),
-                                            Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                                            DesignSystem.Colors.primaryGradientStart,
+                                            DesignSystem.Colors.primaryGradientEnd
                                         ],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
@@ -82,11 +82,11 @@ struct ImageToPDFView: View {
                             Text(DesignSystem.Text.imagesToPDFTitle)
                                 .accessibilityAddTraits(.isHeader)
                                 .scaledFont(size: DesignSystem.Typography.titleFontSize, weight: .bold, design: .rounded)
-                                .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
+                                .foregroundColor(DesignSystem.Colors.titleColor)
 
                             Text(DesignSystem.Text.imagesReadyCount(selectedImages.count))
                                 .scaledFont(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded)
-                                .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
+                                .foregroundColor(DesignSystem.Colors.subtitleColor)
                         }
                     }
                 }
@@ -97,7 +97,7 @@ struct ImageToPDFView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.backButtonIcon,
                         title: DesignSystem.ButtonLabels.back,
-                        color: Color(hex: DesignSystem.Colors.addButtonColor)
+                        color: DesignSystem.Colors.addButtonColor
                     ) {
                         reactor.send(.requestDiscard(.goBack))
                     }
@@ -105,7 +105,7 @@ struct ImageToPDFView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.addButtonIcon,
                         title: DesignSystem.ButtonLabels.addImages,
-                        color: Color(hex: DesignSystem.Colors.addButtonColor)
+                        color: DesignSystem.Colors.addButtonColor
                     ) {
                         reactor.send(.selectImages)
                     }
@@ -113,7 +113,7 @@ struct ImageToPDFView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.convertButtonIcon,
                         title: DesignSystem.ButtonLabels.convertToPDF,
-                        color: Color(hex: DesignSystem.Colors.convertButtonColor),
+                        color: DesignSystem.Colors.convertButtonColor,
                         isDisabled: selectedImages.isEmpty
                     ) {
                         reactor.send(.convertImagesToPDF)
@@ -122,7 +122,7 @@ struct ImageToPDFView: View {
                     HeaderActionButton(
                         icon: DesignSystem.Icons.clearButtonIcon,
                         title: DesignSystem.ButtonLabels.clearAll,
-                        color: Color(hex: DesignSystem.Colors.destructiveButtonColor)
+                        color: DesignSystem.Colors.destructiveButtonColor
                     ) {
                         reactor.send(.requestDiscard(.clearAll))
                     }
@@ -140,8 +140,8 @@ struct ImageToPDFView: View {
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: DesignSystem.Colors.primaryGradientStart),
-                                    Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                                    DesignSystem.Colors.primaryGradientStart,
+                                    DesignSystem.Colors.primaryGradientEnd
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -166,7 +166,7 @@ struct ImageToPDFView: View {
                 if selectedImages.count > Constants.maxVisibleDots {
                     Text("+\(selectedImages.count - Constants.maxVisibleDots)")
                         .scaledFont(size: DesignSystem.Typography.counterFontSize, weight: .semibold, design: .rounded)
-                        .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
+                        .foregroundColor(DesignSystem.Colors.subtitleColor)
                 }
             }
             .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
@@ -176,9 +176,9 @@ struct ImageToPDFView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(hex: DesignSystem.Colors.primaryGradientStart)
+                            DesignSystem.Colors.primaryGradientStart
                                 .opacity(DesignSystem.Opacity.separatorStart),
-                            Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                            DesignSystem.Colors.primaryGradientEnd
                                 .opacity(DesignSystem.Opacity.separatorEnd)
                         ],
                         startPoint: .leading,
@@ -223,7 +223,7 @@ struct ImageToPDFView: View {
                             cornerRadius: DesignSystem.CornerRadius.cardSmall,
                             style: .continuous
                         )
-                        .fill(.white)
+                        .fill(DesignSystem.Colors.cardSurface)
                         .shadow(
                             color: .black.opacity(Constants.cardShadowOpacity),
                             radius: Constants.cardShadowRadius,
@@ -239,9 +239,9 @@ struct ImageToPDFView: View {
                         .stroke(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: DesignSystem.Colors.primaryGradientStart)
+                                    DesignSystem.Colors.primaryGradientStart
                                         .opacity(DesignSystem.Opacity.cardBorderStart),
-                                    Color(hex: DesignSystem.Colors.primaryGradientEnd)
+                                    DesignSystem.Colors.primaryGradientEnd
                                         .opacity(DesignSystem.Opacity.cardBorderEnd)
                                 ],
                                 startPoint: .topLeading,
