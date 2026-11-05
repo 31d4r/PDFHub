@@ -37,6 +37,7 @@ struct PDFGridListView: View {
             }
         }
         .processingOverlay(reactor.state.activity)
+        .discardConfirmation(reactor: reactor)
         .exportAlert(reactor: reactor)
     }
 
@@ -74,7 +75,7 @@ struct PDFGridListView: View {
                         title: DesignSystem.ButtonLabels.back,
                         color: Color(hex: DesignSystem.Colors.addButtonColor)
                     ) {
-                        reactor.send(.goBack)
+                        reactor.send(.requestDiscard(.goBack))
                     }
 
                     HeaderActionButton(
@@ -106,7 +107,7 @@ struct PDFGridListView: View {
                         title: DesignSystem.ButtonLabels.clearAll,
                         color: Color(hex: DesignSystem.Colors.destructiveButtonColor)
                     ) {
-                        reactor.send(.clearPDFs)
+                        reactor.send(.requestDiscard(.clearAll))
                     }
                 }
             }

@@ -20,6 +20,10 @@ final class BeaverReactor: AsyncReactor {
         case goBack
         case navigate(AppScreen)
 
+        /// Asks before discarding the current list; runs immediately when there is nothing to lose.
+        case requestDiscard(DiscardRequest)
+        case confirmDiscard
+
         case showAlert(
             message: String,
             success: Bool
@@ -31,6 +35,13 @@ final class BeaverReactor: AsyncReactor {
         case didUserSelectImages([ImageItem])
         case didChangeScreen(AppScreen)
         case didDismissAlert
+        case didCancelDiscard
+    }
+
+    /// Something that would throw away the files the user has added.
+    enum DiscardRequest: Equatable {
+        case goBack
+        case clearAll
     }
 
     /// Long-running work in progress. While set, exports are ignored and the UI is disabled.
@@ -54,6 +65,16 @@ final class BeaverReactor: AsyncReactor {
         var selectedImages: [ImageItem] = []
         var exportAlert: ExportAlert?
         var activity: Activity?
+        var pendingDiscard: DiscardRequest?
+
+        /// Files on the current screen that a discard would remove.
+        var discardableCount: Int {
+            switch screen {
+            case .pdfWorkflow: return selectedPDFs.count
+            case .imageWorkflow: return selectedImages.count
+            case .menu: return 0
+            }
+        }
     }
 
     @Published private(set) var state: State
@@ -101,6 +122,10 @@ final class BeaverReactor: AsyncReactor {
             goBack()
         case .navigate(let screen):
             state.screen = screen
+        case .requestDiscard(let request):
+            requestDiscard(request)
+        case .confirmDiscard:
+            confirmDiscard()
         case .showAlert(let message, let success):
             state.exportAlert = ExportAlert(
                 message: message,
@@ -119,6 +144,8 @@ final class BeaverReactor: AsyncReactor {
             state.screen = screen
         case .didDismissAlert:
             state.exportAlert = nil
+        case .didCancelDiscard:
+            state.pendingDiscard = nil
         }
     }
 
@@ -308,6 +335,34 @@ final class BeaverReactor: AsyncReactor {
     private func clearImages() {
         state.selectedImages.removeAll()
         state.screen = .menu
+    }
+
+    private func requestDiscard(_ request: DiscardRequest) {
+        guard state.activity == nil, state.screen != .menu else { return }
+        if state.discardableCount == 0 {
+            perform(request)
+        } else {
+            state.pendingDiscard = request
+        }
+    }
+
+    private func confirmDiscard() {
+        guard let request = state.pendingDiscard else { return }
+        state.pendingDiscard = nil
+        perform(request)
+    }
+
+    private func perform(_ request: DiscardRequest) {
+        switch request {
+        case .goBack:
+            goBack()
+        case .clearAll:
+            switch state.screen {
+            case .pdfWorkflow: clearPDFs()
+            case .imageWorkflow: clearImages()
+            case .menu: break
+            }
+        }
     }
 
     private func goBack() {

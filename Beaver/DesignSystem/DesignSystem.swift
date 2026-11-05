@@ -136,6 +136,16 @@ enum DesignSystem {
         static let converting = "Converting images…"
     }
 
+    enum Confirmations {
+        static func discardTitle(count: Int) -> String {
+            count == 1 ? "Remove 1 file from Beaver?" : "Remove \(count) files from Beaver?"
+        }
+        static let discardMessage = "The original files on disk are not changed. Rotations you made here will be lost."
+        static let goBack = "Go Back"
+        static let clearAll = "Clear All"
+        static let cancel = "Cancel"
+    }
+
     enum Alerts {
         static let success = "Success"
         static let error = "Error"
