@@ -70,37 +70,22 @@ struct ImageToPDFView: View {
                                 )
 
                             Image(systemName: DesignSystem.Icons.headerIcon)
-                                .font(
-                                    .system(
-                                        size: Constants.headerIconImageSize,
-                                        weight: .semibold
-                                    )
-                                )
+                                .scaledFont(size: Constants.headerIconImageSize, weight: .semibold)
                                 .foregroundColor(.white)
                         }
+                        .accessibilityHidden(true)
 
                         VStack(
                             alignment: .leading,
                             spacing: Constants.headerTextSpacing
                         ) {
                             Text(DesignSystem.Text.imagesToPDFTitle)
-                                .font(
-                                    .system(
-                                        size: DesignSystem.Typography.titleFontSize,
-                                        weight: .bold,
-                                        design: .rounded
-                                    )
-                                )
+                                .accessibilityAddTraits(.isHeader)
+                                .scaledFont(size: DesignSystem.Typography.titleFontSize, weight: .bold, design: .rounded)
                                 .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
 
                             Text(DesignSystem.Text.imagesReadyCount(selectedImages.count))
-                                .font(
-                                    .system(
-                                        size: DesignSystem.Typography.subtitleFontSize,
-                                        weight: .medium,
-                                        design: .rounded
-                                    )
-                                )
+                                .scaledFont(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded)
                                 .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                         }
                     }
@@ -180,17 +165,12 @@ struct ImageToPDFView: View {
 
                 if selectedImages.count > Constants.maxVisibleDots {
                     Text("+\(selectedImages.count - Constants.maxVisibleDots)")
-                        .font(
-                            .system(
-                                size: DesignSystem.Typography.counterFontSize,
-                                weight: .semibold,
-                                design: .rounded
-                            )
-                        )
+                        .scaledFont(size: DesignSystem.Typography.counterFontSize, weight: .semibold, design: .rounded)
                         .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                 }
             }
             .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
+            .accessibilityHidden(true)
 
             Rectangle()
                 .fill(
@@ -206,6 +186,7 @@ struct ImageToPDFView: View {
                     )
                 )
                 .frame(height: DesignSystem.Layout.separatorHeight)
+                .accessibilityHidden(true)
                 .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
         }
         .padding(.bottom, DesignSystem.Spacing.headerBottomPadding)
@@ -219,13 +200,16 @@ struct ImageToPDFView: View {
                         HStack {
                             Spacer()
 
-                            DeleteIconButton(helpText: "Delete This Image") {
+                            DeleteIconButton(
+                                helpText: "Delete This Image",
+                                accessibilityLabel: DesignSystem.Accessibility.delete(item.url.lastPathComponent)
+                            ) {
                                 reactor.send(.deleteImage(item.id))
                             }
                         }
                         .padding(DesignSystem.Spacing.contentPadding)
 
-                        Image(decorative: item.thumbnail, scale: 1)
+                        Image(item.thumbnail, scale: 1, label: Text(item.url.lastPathComponent))
                             .resizable()
                             .scaledToFit()
                             .frame(

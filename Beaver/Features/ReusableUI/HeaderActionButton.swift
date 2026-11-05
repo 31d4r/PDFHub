@@ -11,16 +11,10 @@ struct HeaderActionButton: View {
         Button(action: action) {
             HStack(spacing: DesignSystem.Spacing.small) {
                 Image(systemName: icon)
-                    .font(.system(size: DesignSystem.Layout.buttonIconSize, weight: .semibold))
+                    .scaledFont(size: DesignSystem.Layout.buttonIconSize, weight: .semibold)
 
                 Text(title)
-                    .font(
-                        .system(
-                            size: DesignSystem.Typography.buttonFontSize,
-                            weight: .semibold,
-                            design: .rounded
-                        )
-                    )
+                    .scaledFont(size: DesignSystem.Typography.buttonFontSize, weight: .semibold, design: .rounded)
             }
             .foregroundColor(isDisabled ? .gray : .white)
             .padding(.horizontal, DesignSystem.Spacing.buttonHorizontalPadding)

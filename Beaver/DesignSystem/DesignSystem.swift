@@ -130,6 +130,20 @@ enum DesignSystem {
         }
     }
 
+    enum Accessibility {
+        static let rotateLeft = "Rotate left"
+        static let rotateRight = "Rotate right"
+        static let remove = "Remove"
+
+        static func delete(_ fileName: String) -> String {
+            "Remove \(fileName)"
+        }
+
+        static func preview(_ fileName: String) -> String {
+            "Preview of \(fileName)"
+        }
+    }
+
     enum Progress {
         static let merging = "Merging PDFs…"
         static let splitting = "Splitting PDFs…"

@@ -2,12 +2,14 @@ import SwiftUI
 
 struct DeleteIconButton: View {
     var helpText: String?
+    /// What VoiceOver announces, e.g. "Remove report.pdf".
+    var accessibilityLabel: String = DesignSystem.Accessibility.remove
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: DesignSystem.Icons.deleteIconFill)
-                .font(.system(size: DesignSystem.Layout.deleteIconSize, weight: .semibold))
+                .scaledFont(size: DesignSystem.Layout.deleteIconSize, weight: .semibold)
                 .foregroundColor(.white)
                 .frame(
                     width: DesignSystem.Layout.deleteButtonSize,
@@ -26,6 +28,7 @@ struct DeleteIconButton: View {
                 )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
         .modifier(OptionalHelpModifier(helpText: helpText))
     }
 }

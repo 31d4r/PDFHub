@@ -35,24 +35,14 @@ struct GridMenuButtonView: View {
                         )
 
                     Image(systemName: icon)
-                        .font(
-                            .system(
-                                size: Constants.iconSize,
-                                weight: .medium
-                            )
-                        )
+                        .scaledFont(size: Constants.iconSize, weight: .medium)
                         .foregroundColor(.white)
                 }
                 .scaleEffect(isPressed ? Constants.pressedScale : (isHovered ? Constants.hoveredScale : Constants.normalScale))
+                .accessibilityHidden(true)
 
                 Text(description)
-                    .font(
-                        .system(
-                            size: Constants.fontSize,
-                            weight: .medium,
-                            design: .rounded
-                        )
-                    )
+                    .scaledFont(size: Constants.fontSize, weight: .medium, design: .rounded)
                     .multilineTextAlignment(.center)
                     .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
                     .lineLimit(Constants.lineLimit)
@@ -97,6 +87,7 @@ struct GridMenuButtonView: View {
             .scaleEffect(isPressed ? Constants.buttonPressedScale : Constants.normalScale)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(description.replacingOccurrences(of: "\n", with: " "))
         .onHover { hovering in
             withAnimation(.easeInOut(duration: Constants.hoverAnimationDuration)) {
                 isHovered = hovering

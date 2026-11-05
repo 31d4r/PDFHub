@@ -63,6 +63,7 @@ struct BackgroundShellView<Content: View>: View {
                     .frame(width: circle.size, height: circle.size)
                     .offset(circle.offset)
                     .blur(radius: circle.blurRadius)
+                    .accessibilityHidden(true)
             }
 
             content

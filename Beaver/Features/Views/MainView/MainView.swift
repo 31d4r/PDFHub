@@ -87,26 +87,16 @@ struct MainView: View {
                             )
                             .foregroundColor(.white)
                     }
+                    .accessibilityHidden(true)
 
                     VStack(spacing: Constants.titleSubtitleSpacing) {
                         Text(DesignSystem.Text.beaverTitle)
-                            .font(
-                                .system(
-                                    size: Constants.titleFontSize,
-                                    weight: .bold,
-                                    design: .rounded
-                                )
-                            )
+                            .accessibilityAddTraits(.isHeader)
+                            .scaledFont(size: Constants.titleFontSize, weight: .bold, design: .rounded)
                             .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
 
                         Text(DesignSystem.Text.beaverSubtitle)
-                            .font(
-                                .system(
-                                    size: Constants.subtitleFontSize,
-                                    weight: .medium,
-                                    design: .rounded
-                                )
-                            )
+                            .scaledFont(size: Constants.subtitleFontSize, weight: .medium, design: .rounded)
                             .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                     }
                 }

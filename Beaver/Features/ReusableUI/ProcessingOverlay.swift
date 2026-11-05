@@ -17,7 +17,7 @@ struct ProcessingOverlay: ViewModifier {
                             ProgressView()
                                 .controlSize(.large)
                             Text(activity.title)
-                                .font(.system(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded))
+                                .scaledFont(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded)
                         }
                         .padding(DesignSystem.Spacing.large)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.card, style: .continuous))

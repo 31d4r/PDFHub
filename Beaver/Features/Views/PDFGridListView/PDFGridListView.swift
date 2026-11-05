@@ -47,23 +47,12 @@ struct PDFGridListView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(DesignSystem.Text.pdfDocumentsTitle)
-                        .font(
-                            .system(
-                                size: DesignSystem.Typography.titleFontSize,
-                                weight: .bold,
-                                design: .rounded
-                            )
-                        )
+                        .accessibilityAddTraits(.isHeader)
+                        .scaledFont(size: DesignSystem.Typography.titleFontSize, weight: .bold, design: .rounded)
                         .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
 
                     Text(DesignSystem.Text.pdfFilesLoadedCount(selectedPDFs.count))
-                        .font(
-                            .system(
-                                size: DesignSystem.Typography.subtitleFontSize,
-                                weight: .medium,
-                                design: .rounded
-                            )
-                        )
+                        .scaledFont(size: DesignSystem.Typography.subtitleFontSize, weight: .medium, design: .rounded)
                         .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                 }
 
@@ -128,6 +117,7 @@ struct PDFGridListView: View {
                     )
                 )
                 .frame(height: DesignSystem.Layout.separatorHeight)
+                .accessibilityHidden(true)
                 .padding(.horizontal, DesignSystem.Spacing.headerHorizontalPadding)
         }
         .padding(.bottom, DesignSystem.Spacing.headerBottomPadding)
@@ -143,7 +133,9 @@ struct PDFGridListView: View {
 
                             Spacer()
 
-                            DeleteIconButton {
+                            DeleteIconButton(
+                                accessibilityLabel: DesignSystem.Accessibility.delete(pdf.pdfURL.lastPathComponent)
+                            ) {
                                 reactor.send(.deletePDF(pdf.id))
                             }
                         }
@@ -164,6 +156,7 @@ struct PDFGridListView: View {
                                 rotationAngle: $pdf.rotationAngle
                             )
                             .frame(height: Constants.pdfViewHeight)
+                            .accessibilityLabel(DesignSystem.Accessibility.preview(pdf.pdfURL.lastPathComponent))
                             .clipShape(
                                 RoundedRectangle(
                                     cornerRadius: DesignSystem.CornerRadius.pdfView,
@@ -181,25 +174,13 @@ struct PDFGridListView: View {
 
                         VStack(spacing: Constants.textSpacing) {
                             Text(pdf.pdfURL.lastPathComponent)
-                                .font(
-                                    .system(
-                                        size: DesignSystem.Typography.fileNameFontSize,
-                                        weight: .semibold,
-                                        design: .rounded
-                                    )
-                                )
+                                .scaledFont(size: DesignSystem.Typography.fileNameFontSize, weight: .semibold, design: .rounded)
                                 .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
                                 .lineLimit(2)
                                 .multilineTextAlignment(.center)
 
                             Text(DesignSystem.Text.pdfDocument)
-                                .font(
-                                    .system(
-                                        size: DesignSystem.Typography.documentTypeFontSize,
-                                        weight: .medium,
-                                        design: .rounded
-                                    )
-                                )
+                                .scaledFont(size: DesignSystem.Typography.documentTypeFontSize, weight: .medium, design: .rounded)
                                 .foregroundColor(Color(hex: DesignSystem.Colors.subtitleColor))
                         }
                         .padding(.horizontal, Constants.cardHorizontalPadding)

@@ -7,18 +7,21 @@ struct RotateControlsView: View {
         HStack(spacing: DesignSystem.Layout.rotateButtonSpacing) {
             rotateButton(
                 direction: .left,
-                icon: DesignSystem.Icons.rotateLeftIconFill
+                icon: DesignSystem.Icons.rotateLeftIconFill,
+                label: DesignSystem.Accessibility.rotateLeft
             )
             rotateButton(
                 direction: .right,
-                icon: DesignSystem.Icons.rotateRightIconFill
+                icon: DesignSystem.Icons.rotateRightIconFill,
+                label: DesignSystem.Accessibility.rotateRight
             )
         }
     }
 
     private func rotateButton(
         direction: RotationDirection,
-        icon: String
+        icon: String,
+        label: String
     ) -> some View {
         Button {
             withAnimation(.easeInOut(duration: DesignSystem.Layout.rotateAnimationDuration)) {
@@ -26,7 +29,7 @@ struct RotateControlsView: View {
             }
         } label: {
             Image(systemName: icon)
-                .font(.system(size: DesignSystem.Layout.rotateIconSize, weight: .semibold))
+                .scaledFont(size: DesignSystem.Layout.rotateIconSize, weight: .semibold)
                 .foregroundColor(.white)
                 .frame(
                     width: DesignSystem.Layout.rotateButtonSize,
@@ -45,5 +48,7 @@ struct RotateControlsView: View {
                 )
         }
         .buttonStyle(.plain)
+        .help(label)
+        .accessibilityLabel(label)
     }
 }
