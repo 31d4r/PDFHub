@@ -1,0 +1,30 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Beaver"
+          }
+        }
+      }
+    },
+    "NSCameraUsageDescription" : {
+      "comment" : "iOS: why Beaver asks for the camera",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beaver uses the camera to scan paper documents into PDFs."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
