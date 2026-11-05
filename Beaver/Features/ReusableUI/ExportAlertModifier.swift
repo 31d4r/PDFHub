@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ExportAlertModifier: ViewModifier {
-    @ObservedObject var reactor: PDFHubReactor
+    @ObservedObject var reactor: BeaverReactor
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var alertSuccess = false
@@ -29,7 +29,7 @@ struct ExportAlertModifier: ViewModifier {
 }
 
 extension View {
-    func exportAlert(reactor: PDFHubReactor) -> some View {
+    func exportAlert(reactor: BeaverReactor) -> some View {
         modifier(ExportAlertModifier(reactor: reactor))
     }
 }

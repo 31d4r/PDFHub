@@ -2,12 +2,12 @@ import AsyncReactor
 import SwiftUI
 
 struct MainView: View {
-    @EnvironmentObject private var reactor: PDFHubReactor
+    @EnvironmentObject private var reactor: BeaverReactor
 
     @ActionBinding(
-        PDFHubReactor.self,
+        BeaverReactor.self,
         keyPath: \.screen,
-        action: PDFHubReactor.SyncAction.didChangeScreen
+        action: BeaverReactor.SyncAction.didChangeScreen
     )
     private var screen: AppScreen
 
@@ -89,7 +89,7 @@ struct MainView: View {
                     }
 
                     VStack(spacing: Constants.titleSubtitleSpacing) {
-                        Text(DesignSystem.Text.pdfHubTitle)
+                        Text(DesignSystem.Text.beaverTitle)
                             .font(
                                 .system(
                                     size: Constants.titleFontSize,
@@ -99,7 +99,7 @@ struct MainView: View {
                             )
                             .foregroundColor(Color(hex: DesignSystem.Colors.titleColor))
 
-                        Text(DesignSystem.Text.pdfHubSubtitle)
+                        Text(DesignSystem.Text.beaverSubtitle)
                             .font(
                                 .system(
                                     size: Constants.subtitleFontSize,

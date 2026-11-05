@@ -2,12 +2,12 @@ import AsyncReactor
 import SwiftUI
 
 struct ImageToPDFView: View {
-    @EnvironmentObject private var reactor: PDFHubReactor
+    @EnvironmentObject private var reactor: BeaverReactor
 
     @ActionBinding(
-        PDFHubReactor.self,
+        BeaverReactor.self,
         keyPath: \.selectedImages,
-        action: PDFHubReactor.SyncAction.didUserSelectImages
+        action: BeaverReactor.SyncAction.didUserSelectImages
     )
     private var selectedImages: [ImageItem]
 

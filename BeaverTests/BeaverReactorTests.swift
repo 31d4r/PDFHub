@@ -1,11 +1,11 @@
 import AppKit
 import XCTest
-@testable import PDFHub
+@testable import Beaver
 
 @MainActor
-final class PDFHubReactorTests: XCTestCase {
+final class BeaverReactorTests: XCTestCase {
     func testAddPDFsDeduplicatesAndNavigates() async {
-        let reactor = PDFHubReactor(
+        let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),
             imageService: MockImageService()
         )
@@ -19,7 +19,7 @@ final class PDFHubReactorTests: XCTestCase {
     }
 
     func testDeletePDFReturnsToMenuWhenEmpty() async {
-        let reactor = PDFHubReactor(
+        let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),
             imageService: MockImageService()
         )
@@ -37,7 +37,7 @@ final class PDFHubReactorTests: XCTestCase {
         let image = NSImage(size: NSSize(width: 10, height: 10))
         imageService.imagesByURL[TestFixtures.samplePNG] = image
 
-        let reactor = PDFHubReactor(
+        let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),
             imageService: imageService
         )
@@ -58,7 +58,7 @@ final class PDFHubReactorTests: XCTestCase {
         imageService.imagesByURL[firstURL] = first
         imageService.imagesByURL[secondURL] = second
 
-        let reactor = PDFHubReactor(
+        let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),
             imageService: imageService
         )
@@ -73,7 +73,7 @@ final class PDFHubReactorTests: XCTestCase {
     }
 
     func testGoBackClearsPDFWorkflow() async {
-        let reactor = PDFHubReactor(
+        let reactor = BeaverReactor(
             filePanelService: MockFilePanelService(),
             imageService: MockImageService()
         )

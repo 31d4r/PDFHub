@@ -2,12 +2,12 @@ import AsyncReactor
 import SwiftUI
 
 struct PDFGridListView: View {
-    @EnvironmentObject private var reactor: PDFHubReactor
+    @EnvironmentObject private var reactor: BeaverReactor
 
     @ActionBinding(
-        PDFHubReactor.self,
+        BeaverReactor.self,
         keyPath: \.selectedPDFs,
-        action: PDFHubReactor.SyncAction.didUserSelectPDF
+        action: BeaverReactor.SyncAction.didUserSelectPDF
     )
     private var selectedPDFs: [PDF]
 

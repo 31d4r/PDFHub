@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CE2251872D848628003F6736"
-               BuildableName = "PDFHub.app"
-               BlueprintName = "PDFHub"
-               ReferencedContainer = "container:PDFHub.xcodeproj">
+               BuildableName = "Beaver.app"
+               BlueprintName = "Beaver"
+               ReferencedContainer = "container:Beaver.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -36,9 +36,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A1B2C3D42D848628003F6702"
-               BuildableName = "PDFHubTests.xctest"
-               BlueprintName = "PDFHubTests"
-               ReferencedContainer = "container:PDFHub.xcodeproj">
+               BuildableName = "BeaverTests.xctest"
+               BlueprintName = "BeaverTests"
+               ReferencedContainer = "container:Beaver.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,9 +58,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CE2251872D848628003F6736"
-            BuildableName = "PDFHub.app"
-            BlueprintName = "PDFHub"
-            ReferencedContainer = "container:PDFHub.xcodeproj">
+            BuildableName = "Beaver.app"
+            BlueprintName = "Beaver"
+            ReferencedContainer = "container:Beaver.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -75,9 +75,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CE2251872D848628003F6736"
-            BuildableName = "PDFHub.app"
-            BlueprintName = "PDFHub"
-            ReferencedContainer = "container:PDFHub.xcodeproj">
+            BuildableName = "Beaver.app"
+            BlueprintName = "Beaver"
+            ReferencedContainer = "container:Beaver.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

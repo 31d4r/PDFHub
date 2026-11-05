@@ -1,5 +1,5 @@
 import XCTest
-@testable import PDFHub
+@testable import Beaver
 
 final class RotationAngleTests: XCTestCase {
     func testRotatedRightCycles() {

@@ -17,37 +17,37 @@
 			containerPortal = CE2251802D848628003F6736 /* Project object */;
 			tproxyType = 1;
 			remoteGlobalIDString = CE2251872D848628003F6736;
-			remoteInfo = PDFHub;
+			remoteInfo = Beaver;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		CE2251882D848628003F6736 /* PDFHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1B2C3D42D848628003F6701 /* PDFHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE2251882D848628003F6736 /* Beaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D42D848628003F6701 /* BeaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CE9EAAE22ECA16E900F8E967 /* Exceptions for "PDFHub" folder in "PDFHub" target */ = {
+		CE9EAAE22ECA16E900F8E967 /* Exceptions for "Beaver" folder in "Beaver" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = CE2251872D848628003F6736 /* PDFHub */;
+			target = CE2251872D848628003F6736 /* Beaver */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		CECDD78E2D8AE8F700FE7AD7 /* PDFHub */ = {
+		CECDD78E2D8AE8F700FE7AD7 /* Beaver */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				CE9EAAE22ECA16E900F8E967 /* Exceptions for "PDFHub" folder in "PDFHub" target */,
+				CE9EAAE22ECA16E900F8E967 /* Exceptions for "Beaver" folder in "Beaver" target */,
 			);
-			path = PDFHub;
+			path = Beaver;
 			sourceTree = "<group>";
 		};
-		A1B2C3D42D848628003F6706 /* PDFHubTests */ = {
+		A1B2C3D42D848628003F6706 /* BeaverTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PDFHubTests;
+			path = BeaverTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -74,8 +74,8 @@
 		CE22517F2D848628003F6736 = {
 			isa = PBXGroup;
 			children = (
-				CECDD78E2D8AE8F700FE7AD7 /* PDFHub */,
-				A1B2C3D42D848628003F6706 /* PDFHubTests */,
+				CECDD78E2D8AE8F700FE7AD7 /* Beaver */,
+				A1B2C3D42D848628003F6706 /* BeaverTests */,
 				CE2251892D848628003F6736 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,8 +83,8 @@
 		CE2251892D848628003F6736 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CE2251882D848628003F6736 /* PDFHub.app */,
-				A1B2C3D42D848628003F6701 /* PDFHubTests.xctest */,
+				CE2251882D848628003F6736 /* Beaver.app */,
+				A1B2C3D42D848628003F6701 /* BeaverTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,9 +92,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		CE2251872D848628003F6736 /* PDFHub */ = {
+		CE2251872D848628003F6736 /* Beaver */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CE2251972D848629003F6736 /* Build configuration list for PBXNativeTarget "PDFHub" */;
+			buildConfigurationList = CE2251972D848629003F6736 /* Build configuration list for PBXNativeTarget "Beaver" */;
 			buildPhases = (
 				CE2251842D848628003F6736 /* Sources */,
 				CE2251852D848628003F6736 /* Frameworks */,
@@ -105,19 +105,19 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				CECDD78E2D8AE8F700FE7AD7 /* PDFHub */,
+				CECDD78E2D8AE8F700FE7AD7 /* Beaver */,
 			);
-			name = PDFHub;
+			name = Beaver;
 			packageProductDependencies = (
 				CE22519B2D848668003F6736 /* AsyncReactor */,
 			);
-			productName = PDFHub;
-			productReference = CE2251882D848628003F6736 /* PDFHub.app */;
+			productName = Beaver;
+			productReference = CE2251882D848628003F6736 /* Beaver.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A1B2C3D42D848628003F6702 /* PDFHubTests */ = {
+		A1B2C3D42D848628003F6702 /* BeaverTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "PDFHubTests" */;
+			buildConfigurationList = A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "BeaverTests" */;
 			buildPhases = (
 				A1B2C3D42D848628003F6703 /* Sources */,
 				A1B2C3D42D848628003F6704 /* Frameworks */,
@@ -129,13 +129,13 @@
 				A1B2C3D42D848628003F6707 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A1B2C3D42D848628003F6706 /* PDFHubTests */,
+				A1B2C3D42D848628003F6706 /* BeaverTests */,
 			);
-			name = PDFHubTests;
+			name = BeaverTests;
 			packageProductDependencies = (
 			);
-			productName = PDFHubTests;
-			productReference = A1B2C3D42D848628003F6701 /* PDFHubTests.xctest */;
+			productName = BeaverTests;
+			productReference = A1B2C3D42D848628003F6701 /* BeaverTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -157,7 +157,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CE2251832D848628003F6736 /* Build configuration list for PBXProject "PDFHub" */;
+			buildConfigurationList = CE2251832D848628003F6736 /* Build configuration list for PBXProject "Beaver" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -174,8 +174,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				CE2251872D848628003F6736 /* PDFHub */,
-				A1B2C3D42D848628003F6702 /* PDFHubTests */,
+				CE2251872D848628003F6736 /* Beaver */,
+				A1B2C3D42D848628003F6702 /* BeaverTests */,
 			);
 		};
 /* End PBXProject section */
@@ -218,7 +218,7 @@
 /* Begin PBXTargetDependency section */
 		A1B2C3D42D848628003F6707 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = CE2251872D848628003F6736 /* PDFHub */;
+			target = CE2251872D848628003F6736 /* Beaver */;
 			targetProxy = A1B2C3D42D848628003F6708 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -353,12 +353,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = PDFHub/PDFHub.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Beaver/Beaver.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"PDFHub/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Beaver/Preview Content\"";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
 				ENABLE_FILE_ACCESS_MOVIES_FOLDER = readwrite;
@@ -368,7 +368,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PDFHub/Info.plist;
+				INFOPLIST_FILE = Beaver/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Beaver;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -378,7 +378,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.PDFHub;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.Beaver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -390,12 +390,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = PDFHub/PDFHub.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Beaver/Beaver.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"PDFHub/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Beaver/Preview Content\"";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
 				ENABLE_FILE_ACCESS_MOVIES_FOLDER = readwrite;
@@ -405,7 +405,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PDFHub/Info.plist;
+				INFOPLIST_FILE = Beaver/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Beaver;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -415,7 +415,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.PDFHub;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.Beaver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -434,11 +434,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.PDFHubTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDFHub.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PDFHub";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beaver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beaver";
 			};
 			name = Debug;
 		};
@@ -453,18 +453,18 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.PDFHubTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDFHub.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PDFHub";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beaver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beaver";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CE2251832D848628003F6736 /* Build configuration list for PBXProject "PDFHub" */ = {
+		CE2251832D848628003F6736 /* Build configuration list for PBXProject "Beaver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CE2251952D848629003F6736 /* Debug */,
@@ -473,7 +473,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CE2251972D848629003F6736 /* Build configuration list for PBXNativeTarget "PDFHub" */ = {
+		CE2251972D848629003F6736 /* Build configuration list for PBXNativeTarget "Beaver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CE2251982D848629003F6736 /* Debug */,
@@ -482,7 +482,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "PDFHubTests" */ = {
+		A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "BeaverTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1B2C3D42D848628003F670A /* Debug */,
