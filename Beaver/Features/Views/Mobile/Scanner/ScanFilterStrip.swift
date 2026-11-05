@@ -43,14 +43,17 @@ struct ScanFilterStrip: View {
                         RoundedRectangle(cornerRadius: DesignSystem.Layout.thumbnailRadius, style: .continuous)
                             .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2.5)
                     }
+                    .accessibilityHidden(true)
                 Text(DesignSystem.Scan.filterName(filter))
                     .font(.caption.weight(isSelected ? .semibold : .regular))
-                    .foregroundStyle(isSelected ? Color.accentColor : .primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
             }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .frame(minWidth: DesignSystem.Layout.minTouchTarget, minHeight: DesignSystem.Layout.minTouchTarget)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(DesignSystem.Scan.filterName(filter))
         .accessibilityHint(DesignSystem.Scan.filterHelp(filter))

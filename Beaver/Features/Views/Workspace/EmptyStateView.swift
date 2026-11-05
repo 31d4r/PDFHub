@@ -24,7 +24,7 @@ struct EmptyStateView: View {
                     .accessibilityAddTraits(.isHeader)
                 Text(DesignSystem.EmptyState.message)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.Colors.supporting)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: Constants.messageWidth)
                     .fixedSize(horizontal: false, vertical: true)
@@ -58,6 +58,8 @@ struct EmptyStateView: View {
         }
         .padding(DesignSystem.Spacing.large)
         .animation(reduceMotion ? nil : .snappy(duration: Constants.animationDuration), value: isTargeted)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(UITestID.emptyState)
     }
 
     private var borderColor: Color {
@@ -81,7 +83,7 @@ private struct ShortcutHint: View {
             Text(title)
                 .font(.callout)
         }
-        .foregroundStyle(.secondary)
+        .foregroundStyle(DesignSystem.Colors.supporting)
         .accessibilityElement(children: .combine)
     }
 }

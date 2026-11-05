@@ -5,7 +5,7 @@ import SwiftUI
 /// build keeps them in the String Catalog too.
 extension DesignSystem {
     enum Scan {
-        static let filterThumbnailSize: CGFloat = 56
+        static let filterThumbnailSize: CGFloat = 60
         static let filterPreviewPixels = 160
         static let pagePreviewPixels = 1600
         static let cropImagePixels = 2000

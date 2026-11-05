@@ -67,6 +67,7 @@ struct WorkspaceGridView: View {
                 )
                 .onAppear { isFocused = true }
                 .accessibilityLabel(DesignSystem.Accessibility.fileList)
+                .accessibilityIdentifier(UITestID.workspaceGrid)
             }
         }
     }
@@ -101,6 +102,10 @@ struct WorkspaceGridView: View {
             isFocused = true
             reactor.action(.select(item.id, Self.currentModifier))
         })
+        .accessibilityAction(.default) {
+            isFocused = true
+            reactor.action(.select(item.id, Self.currentModifier))
+        }
         .reorderableCard(
             id: item.id,
             index: index,

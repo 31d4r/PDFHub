@@ -27,10 +27,11 @@ struct MobileEmptyStateView: View {
                     Text(isTargeted ? DesignSystem.EmptyState.dropToAdd : DesignSystem.Mobile.emptyTitle)
                         .font(.title2.weight(.semibold))
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                         .accessibilityAddTraits(.isHeader)
                     Text(DesignSystem.Mobile.emptyMessage)
                         .font(.body)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.Colors.supporting)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -41,6 +42,8 @@ struct MobileEmptyStateView: View {
                     Button(action: onAddPhotos) {
                         Label(DesignSystem.Mobile.choosePhotos, systemImage: DesignSystem.Icons.photos)
                             .frame(maxWidth: .infinity)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
                     }
                     .buttonStyle(.bordered)
                     .accessibilityHint(DesignSystem.Mobile.photosHelp)
@@ -48,12 +51,15 @@ struct MobileEmptyStateView: View {
                     Button(action: onAddFiles) {
                         Label(DesignSystem.Mobile.browseFiles, systemImage: DesignSystem.Icons.folder)
                             .frame(maxWidth: .infinity)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
                     }
                     .buttonStyle(.bordered)
                     .accessibilityHint(DesignSystem.Mobile.filesHelp)
                 }
                 .controlSize(.large)
                 .frame(maxWidth: Constants.buttonWidth)
+                .frame(minHeight: DesignSystem.Layout.minTouchTarget)
             }
             .padding(DesignSystem.Spacing.large)
             .frame(maxWidth: .infinity)
@@ -70,6 +76,8 @@ struct MobileEmptyStateView: View {
             }
         }
         .animation(reduceMotion ? nil : .snappy(duration: Constants.animationDuration), value: isTargeted)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(UITestID.emptyState)
     }
 
     /// Scan Document where there's a camera. Without one, Scan from Photo takes its place
@@ -85,7 +93,7 @@ struct MobileEmptyStateView: View {
             .accessibilityHint(DesignSystem.Scan.scanFromPhotoHelp)
             Text(reason)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.Colors.supporting)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, DesignSystem.Spacing.small)

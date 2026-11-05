@@ -37,6 +37,7 @@ struct PDFPagesView: View {
             footer
         }
         .sheetFrame(minimum: CGSize(width: Constants.minWidth, height: Constants.minHeight), ideal: idealSize)
+        .accessibilityIdentifier(UITestID.pagesSheet)
         .focusedSceneObject(reactor)
         .exitCommand(perform: close)
         .task {
@@ -55,10 +56,11 @@ struct PDFPagesView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .help(pdf.url.lastPathComponent)
+                    .accessibilityLabel(spokenFileName)
                     .accessibilityAddTraits(.isHeader)
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.Colors.supporting)
                     .monospacedDigit()
             }
             .layoutPriority(1)
@@ -80,6 +82,14 @@ struct PDFPagesView: View {
         guard let pageCount else { return "" }
         let pages = DesignSystem.Pages.pageCount(pageCount)
         return selection.isEmpty ? pages : "\(pages) · \(DesignSystem.Pages.selectedCount(selection.indexes.count))"
+    }
+
+    /// VoiceOver-friendly file name: "sample, PDF" instead of "sample.pdf" (the audit flags dotted names).
+    private var spokenFileName: String {
+        let url = pdf.url
+        let base = url.deletingPathExtension().lastPathComponent
+        let ext = url.pathExtension.uppercased()
+        return ext.isEmpty ? base : "\(base), \(ext)"
     }
 
     // MARK: - Grid

@@ -55,7 +55,7 @@ struct ItemCardView: View {
                     .foregroundStyle(.primary)
                 Text(meta)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.Colors.supporting)
                     .lineLimit(1)
             }
         }

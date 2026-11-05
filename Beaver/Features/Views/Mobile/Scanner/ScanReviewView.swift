@@ -40,6 +40,7 @@ struct ScanReviewView: View {
                 .overlay { progress }
                 .animation(reduceMotion ? nil : .snappy, value: state.pages.map(\.id))
         }
+        .accessibilityIdentifier(UITestID.scanReview)
         .interactiveDismissDisabled(state.needsDiscardConfirmation)
         .alert(DesignSystem.Scan.renameTitle, isPresented: $isRenamePresented) {
             TextField(DesignSystem.Scan.namePlaceholder, text: $draftName)
@@ -145,7 +146,7 @@ struct ScanReviewView: View {
                     Text(DesignSystem.Scan.pageCounter(index + 1, of: state.pages.count))
                         .font(.footnote)
                         .monospacedDigit()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.Colors.supporting)
                         .accessibilityHidden(true)
                     ScanFilterStrip(page: page, isEnabled: state.canEdit) { filter in
                         reactor.action(.setFilter(filter))
@@ -227,7 +228,8 @@ struct ScanReviewView: View {
                 Label(DesignSystem.Scan.applyToAll, systemImage: DesignSystem.Scan.Icons.applyToAll)
             }
             .buttonStyle(.bordered)
-            .controlSize(.small)
+            .controlSize(.regular)
+            .frame(minHeight: DesignSystem.Layout.minTouchTarget)
             .disabled(!state.canApplyFilterToAll)
             .accessibilityHint(DesignSystem.Scan.applyToAllHelp)
         }
@@ -238,7 +240,8 @@ struct ScanReviewView: View {
             Text(DesignSystem.Scan.makeTextSearchable)
         }
         .toggleStyle(.switch)
-        .controlSize(.small)
+        .controlSize(.regular)
+        .frame(minHeight: DesignSystem.Layout.minTouchTarget)
         .disabled(!state.canEdit)
         .accessibilityHint(DesignSystem.Scan.makeTextSearchableHelp)
         .padding(.horizontal)
@@ -351,10 +354,13 @@ struct ScanReviewView: View {
                     .minimumScaleFactor(0.8)
                 Image(systemName: DesignSystem.Scan.Icons.titleMenu)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.Colors.supporting)
                     .accessibilityHidden(true)
             }
             .foregroundStyle(.primary)
+            .padding(.horizontal, DesignSystem.Spacing.small)
+            .frame(minHeight: DesignSystem.Layout.minTouchTarget)
+            .contentShape(Rectangle())
         }
         .disabled(!state.canEdit || isBusy)
         .accessibilityLabel(state.name)

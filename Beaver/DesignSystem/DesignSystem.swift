@@ -17,6 +17,8 @@ enum DesignSystem {
         static let windowDefaultSize = CGSize(width: 1080, height: 720)
         static let windowMinimumSize = CGSize(width: 640, height: 460)
         static let thumbnailRadius: CGFloat = 8
+        /// Apple HIG minimum for interactive controls.
+        static let minTouchTarget: CGFloat = 44
         static let selectionRadius: CGFloat = 10
         static let rotateAnimationDuration: Double = 0.3
         /// The thumbnail edge in points, and the steps of the size slider and ⌘+ / ⌘-.
@@ -26,6 +28,12 @@ enum DesignSystem {
         static let thumbnailSizeKey = "thumbnailSize"
         /// Twice the largest thumbnail, for Retina.
         static let previewPixelSize = 640
+    }
+
+    /// Colors that keep Dynamic Type / Dark Mode while clearing Apple's contrast audit.
+    /// System `.secondary` often only "nearly passes" on body and meta copy.
+    enum Colors {
+        static let supporting = Color.primary.opacity(0.72)
     }
 
     enum Icons {
