@@ -3,7 +3,7 @@ import PDFKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-class BeaverReactor: AsyncReactor {
+final class BeaverReactor: AsyncReactor {
     enum Action {
         case selectPDF
         case addPDFs([URL])
@@ -30,18 +30,13 @@ class BeaverReactor: AsyncReactor {
 
     enum SyncAction {
         case didUserSelectPDF([PDF])
-        case didMergePDF(PDFDocument?)
-        case didSplitPDFs([PDFDocument])
         case didUserSelectImages([ImageItem])
         case didChangeScreen(AppScreen)
-        case didSetExportAlert(ExportAlert?)
     }
 
     struct State {
         var screen: AppScreen = .menu
         var selectedPDFs: [PDF] = []
-        var mergedPDF: PDFDocument?
-        var splitPDFs: [PDFDocument] = []
         var selectedImages: [ImageItem] = []
         var exportAlert: ExportAlert?
     }
@@ -73,9 +68,9 @@ class BeaverReactor: AsyncReactor {
         case .addPDFs(let urls):
             addPDFs(urls)
         case .mergePDF(let urls):
-            state.mergedPDF = mergePDFs(urls: urls)
+            mergePDFs(urls: urls)
         case .splitPDF(let urls):
-            state.splitPDFs = splitPDF(urls: urls).map(\.document)
+            splitPDF(urls: urls)
         case .deletePDF(let id):
             deletePDF(with: id)
         case .clearPDFs:
@@ -108,16 +103,10 @@ class BeaverReactor: AsyncReactor {
         switch action {
         case .didUserSelectPDF(let pdfs):
             state.selectedPDFs = pdfs
-        case .didMergePDF(let pdfDocument):
-            state.mergedPDF = pdfDocument
-        case .didSplitPDFs(let pdfDocuments):
-            state.splitPDFs = pdfDocuments
         case .didUserSelectImages(let images):
             state.selectedImages = images
         case .didChangeScreen(let screen):
             state.screen = screen
-        case .didSetExportAlert(let alert):
-            state.exportAlert = alert
         }
     }
 
@@ -145,8 +134,8 @@ class BeaverReactor: AsyncReactor {
 
     private func mergePDFs(
         urls: [URL]
-    ) -> PDFDocument? {
-        guard !urls.isEmpty else { return nil }
+    ) {
+        guard !urls.isEmpty else { return }
 
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
             urls: urls,
@@ -166,11 +155,10 @@ class BeaverReactor: AsyncReactor {
                 ),
                 success: false
             ))
-            return nil
+            return
         }
 
         saveMergedPDF(mergedPDF, skippedURLs: result.skippedURLs)
-        return mergedPDF
     }
 
     private func saveMergedPDF(_ mergedPDF: PDFDocument, skippedURLs: [URL]) {
@@ -203,8 +191,8 @@ class BeaverReactor: AsyncReactor {
 
     private func splitPDF(
         urls: [URL]
-    ) -> [SplitPage] {
-        guard !urls.isEmpty else { return [] }
+    ) {
+        guard !urls.isEmpty else { return }
 
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
             urls: urls,
@@ -224,11 +212,10 @@ class BeaverReactor: AsyncReactor {
                 ),
                 success: false
             ))
-            return []
+            return
         }
 
         saveSplitPDFs(result.pages, skippedURLs: result.skippedURLs)
-        return result.pages
     }
 
     private func saveSplitPDFs(_ splitPDFs: [SplitPage], skippedURLs: [URL]) {
@@ -258,15 +245,11 @@ class BeaverReactor: AsyncReactor {
         state.selectedPDFs.removeAll { $0.id == id }
         if state.selectedPDFs.isEmpty {
             state.screen = .menu
-            state.mergedPDF = nil
-            state.splitPDFs.removeAll()
         }
     }
 
     private func clearPDFs() {
         state.selectedPDFs.removeAll()
-        state.mergedPDF = nil
-        state.splitPDFs.removeAll()
         state.screen = .menu
     }
 
