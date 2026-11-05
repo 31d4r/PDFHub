@@ -201,7 +201,7 @@ struct ImageToPDFView: View {
                             Spacer()
 
                             DeleteIconButton(
-                                helpText: "Delete This Image",
+                                helpText: DesignSystem.Accessibility.deleteImageHelp,
                                 accessibilityLabel: DesignSystem.Accessibility.delete(item.url.lastPathComponent)
                             ) {
                                 reactor.send(.deleteImage(item.id))

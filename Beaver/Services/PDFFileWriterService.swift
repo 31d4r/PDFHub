@@ -111,7 +111,7 @@ enum PDFFileWriterError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .failedToCreateData:
-            return "The PDF data could not be created."
+            return String(localized: "The PDF data could not be created.")
         }
     }
 }

@@ -106,101 +106,102 @@ enum DesignSystem {
     }
 
     enum ButtonLabels {
-        static let addPDF = "Add PDF"
-        static let addImages = "Add Images"
-        static let splitPDFs = "Split PDFs"
-        static let mergePDFs = "Merge PDFs"
-        static let convertToPDF = "Convert to PDF"
-        static let clearAll = "Clear All"
-        static let back = "Back"
+        static var addPDF: String { String(localized: "Add PDF") }
+        static var addImages: String { String(localized: "Add Images") }
+        static var splitPDFs: String { String(localized: "Split PDFs") }
+        static var mergePDFs: String { String(localized: "Merge PDFs") }
+        static var convertToPDF: String { String(localized: "Convert to PDF") }
+        static var clearAll: String { String(localized: "Clear All") }
+        static var back: String { String(localized: "Back") }
     }
 
     enum Text {
-        static let pdfDocument = "PDF Document"
-        static let beaverTitle = "Beaver"
-        static let beaverSubtitle = "Your PDF workflow companion"
-        static let pdfDocumentsTitle = "PDF Documents"
-        static let imagesToPDFTitle = "Images to PDF"
-        static let pdfButtonDescription = "Split & Merge\nPDF Files"
-        static let imageButtonDescription = "Convert Images\nto PDF"
+        static var pdfDocument: String { String(localized: "PDF Document") }
+        static var beaverTitle: String { String(localized: "Beaver") }
+        static var beaverSubtitle: String { String(localized: "Your PDF workflow companion") }
+        static var pdfDocumentsTitle: String { String(localized: "PDF Documents") }
+        static var imagesToPDFTitle: String { String(localized: "Images to PDF") }
+        static var pdfButtonDescription: String { String(localized: "Split & Merge\nPDF Files") }
+        static var imageButtonDescription: String { String(localized: "Convert Images\nto PDF") }
 
         static func pdfFilesLoadedCount(_ count: Int) -> String {
-            "\(count) file\(count == 1 ? "" : "s") loaded"
+            String(localized: "\(count) files loaded")
         }
 
         static func imagesReadyCount(_ count: Int) -> String {
-            "\(count) image\(count == 1 ? "" : "s") ready to convert"
+            String(localized: "\(count) images ready to convert")
         }
     }
 
     enum Accessibility {
-        static let rotateLeft = "Rotate left"
-        static let rotateRight = "Rotate right"
-        static let remove = "Remove"
+        static var rotateLeft: String { String(localized: "Rotate left") }
+        static var rotateRight: String { String(localized: "Rotate right") }
+        static var remove: String { String(localized: "Remove") }
+        static var deleteImageHelp: String { String(localized: "Delete This Image") }
 
         static func delete(_ fileName: String) -> String {
-            "Remove \(fileName)"
+            String(localized: "Remove \(fileName)")
         }
 
         static func preview(_ fileName: String) -> String {
-            "Preview of \(fileName)"
+            String(localized: "Preview of \(fileName)")
         }
     }
 
     enum Progress {
-        static let merging = "Merging PDFs…"
-        static let splitting = "Splitting PDFs…"
-        static let converting = "Converting images…"
+        static var merging: String { String(localized: "Merging PDFs…") }
+        static var splitting: String { String(localized: "Splitting PDFs…") }
+        static var converting: String { String(localized: "Converting images…") }
     }
 
     enum Confirmations {
         static func discardTitle(count: Int) -> String {
-            count == 1 ? "Remove 1 file from Beaver?" : "Remove \(count) files from Beaver?"
+            String(localized: "Remove \(count) files from Beaver?")
         }
-        static let discardMessage = "The original files on disk are not changed. Rotations you made here will be lost."
-        static let goBack = "Go Back"
-        static let clearAll = "Clear All"
-        static let cancel = "Cancel"
+        static var discardMessage: String { String(localized: "The original files on disk are not changed. Rotations you made here will be lost.") }
+        static var goBack: String { String(localized: "Go Back") }
+        static var clearAll: String { String(localized: "Clear All") }
+        static var cancel: String { String(localized: "Cancel") }
     }
 
     enum Alerts {
-        static let success = "Success"
-        static let error = "Error"
-        static let ok = "OK"
+        static var success: String { String(localized: "Success") }
+        static var error: String { String(localized: "Error") }
+        static var ok: String { String(localized: "OK") }
 
-        static let failedToMergePDFs = "Failed to merge PDFs"
-        static let noPagesFoundToSplit = "No pages found to split"
-        static let noImagesSelected = "No images selected"
-        static let failedToConvertImages = "Failed to convert images to PDF"
-        static let convertedImagesSuccess = "Successfully converted images to PDF file"
-        static let failedToSaveAnyPDFs = "Failed to save any PDF files"
+        static var failedToMergePDFs: String { String(localized: "Failed to merge PDFs") }
+        static var noPagesFoundToSplit: String { String(localized: "No pages found to split") }
+        static var noImagesSelected: String { String(localized: "No images selected") }
+        static var failedToConvertImages: String { String(localized: "Failed to convert images to PDF") }
+        static var convertedImagesSuccess: String { String(localized: "Successfully converted images to PDF file") }
+        static var failedToSaveAnyPDFs: String { String(localized: "Failed to save any PDF files") }
 
         static func mergedPDFSaved(fileName: String) -> String {
-            "Merged PDF successfully saved at \(fileName)"
+            String(localized: "Merged PDF successfully saved at \(fileName)")
         }
 
         static func failedToSaveMergedPDF(_ errorDescription: String) -> String {
-            "Failed to save merged PDF: \(errorDescription)"
+            String(localized: "Failed to save merged PDF: \(errorDescription)")
         }
 
         static func failedToSaveConvertedPDF(_ errorDescription: String) -> String {
-            "Failed to save converted PDF: \(errorDescription)"
+            String(localized: "Failed to save converted PDF: \(errorDescription)")
         }
 
         static func savedPDFFilesCount(_ count: Int) -> String {
-            "Successfully saved \(count) PDF file\(count == 1 ? "" : "s")"
+            String(localized: "Successfully saved \(count) PDF files")
         }
 
         static func partialSaveSuccess(
             successCount: Int,
             failureCount: Int
         ) -> String {
-            "Partially successful: Saved \(successCount) file\(successCount == 1 ? "" : "s"), failed to save \(failureCount) file\(failureCount == 1 ? "" : "s")"
+            String(localized: "Partially successful: Saved \(successCount) files, failed to save \(failureCount) files")
         }
 
         static func skippedFiles(_ urls: [URL]) -> String {
-            let names = urls.map(\.lastPathComponent).joined(separator: ", ")
-            return "Skipped \(urls.count) file\(urls.count == 1 ? "" : "s") that could not be read: \(names)"
+            let names = urls.map(\.lastPathComponent).formatted(.list(type: .and))
+            return String(localized: "Skipped \(urls.count) files that could not be read: \(names)")
         }
 
         /// Appends a note about unreadable files to `message`, if there are any.
@@ -225,9 +226,9 @@ enum DesignSystem {
     enum FileNames {
         static let mergedPDF = "merged.pdf"
         static let convertedImagesPDF = "ConvertedImages.pdf"
-        static let saveMergedPDFPrompt = "Save Merged PDF"
-        static let saveSplitPDFsPrompt = "Save Split PDFs"
-        static let saveConvertedPDFPrompt = "Save Converted PDF"
+        static var saveMergedPDFPrompt: String { String(localized: "Save Merged PDF") }
+        static var saveSplitPDFsPrompt: String { String(localized: "Save Split PDFs") }
+        static var saveConvertedPDFPrompt: String { String(localized: "Save Converted PDF") }
     }
 
     enum FileTypes {
