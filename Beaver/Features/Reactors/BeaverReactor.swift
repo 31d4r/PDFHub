@@ -153,22 +153,27 @@ class BeaverReactor: AsyncReactor {
             from: state.selectedPDFs
         )
 
-        guard let mergedPDF = pdfService.mergePDFs(
+        let result = pdfService.mergePDFs(
             urls: urls,
             rotationAngles: rotationAngles
-        ) else {
+        )
+
+        guard let mergedPDF = result.document else {
             send(.showAlert(
-                message: DesignSystem.Alerts.failedToMergePDFs,
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.failedToMergePDFs,
+                    skipped: result.skippedURLs
+                ),
                 success: false
             ))
             return nil
         }
 
-        saveMergedPDF(mergedPDF)
+        saveMergedPDF(mergedPDF, skippedURLs: result.skippedURLs)
         return mergedPDF
     }
 
-    private func saveMergedPDF(_ mergedPDF: PDFDocument) {
+    private func saveMergedPDF(_ mergedPDF: PDFDocument, skippedURLs: [URL]) {
         guard let saveURL = filePanelService.showSavePanel(
             defaultName: DesignSystem.FileNames.mergedPDF,
             prompt: DesignSystem.FileNames.saveMergedPDFPrompt,
@@ -180,8 +185,9 @@ class BeaverReactor: AsyncReactor {
         do {
             try pdfFileWriterService.savePDFDocument(mergedPDF, to: saveURL)
             send(.showAlert(
-                message: DesignSystem.Alerts.mergedPDFSaved(
-                    fileName: saveURL.lastPathComponent
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.mergedPDFSaved(fileName: saveURL.lastPathComponent),
+                    skipped: skippedURLs
                 ),
                 success: true
             ))
@@ -205,24 +211,27 @@ class BeaverReactor: AsyncReactor {
             from: state.selectedPDFs
         )
 
-        let allSplitPDFs = pdfService.splitPDF(
+        let result = pdfService.splitPDF(
             urls: urls,
             rotationAngles: rotationAngles
         )
 
-        guard !allSplitPDFs.isEmpty else {
+        guard !result.pages.isEmpty else {
             send(.showAlert(
-                message: DesignSystem.Alerts.noPagesFoundToSplit,
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.noPagesFoundToSplit,
+                    skipped: result.skippedURLs
+                ),
                 success: false
             ))
             return []
         }
 
-        saveSplitPDFs(allSplitPDFs)
-        return allSplitPDFs
+        saveSplitPDFs(result.pages, skippedURLs: result.skippedURLs)
+        return result.pages
     }
 
-    private func saveSplitPDFs(_ splitPDFs: [SplitPage]) {
+    private func saveSplitPDFs(_ splitPDFs: [SplitPage], skippedURLs: [URL]) {
         guard let selectedURL = filePanelService.showDirectoryPanel(
             prompt: DesignSystem.FileNames.saveSplitPDFsPrompt
         ) else {
@@ -235,7 +244,10 @@ class BeaverReactor: AsyncReactor {
         )
 
         send(.showAlert(
-            message: DesignSystem.Alerts.message(for: result),
+            message: DesignSystem.Alerts.message(
+                DesignSystem.Alerts.message(for: result),
+                skipped: skippedURLs
+            ),
             success: !result.isCompleteFailure
         ))
     }
@@ -268,13 +280,22 @@ class BeaverReactor: AsyncReactor {
 
     private func addImages(_ urls: [URL]) {
         var seen = Set(state.selectedImages.map(\.url))
+        var unreadableURLs: [URL] = []
         let newItems = urls.compactMap { url -> ImageItem? in
             guard !seen.contains(url) else { return nil }
             guard let image = imageService.loadImage(from: url) else {
+                unreadableURLs.append(url)
                 return nil
             }
             seen.insert(url)
             return ImageItem(url: url, image: image)
+        }
+
+        if !unreadableURLs.isEmpty {
+            send(.showAlert(
+                message: DesignSystem.Alerts.skippedFiles(unreadableURLs),
+                success: false
+            ))
         }
 
         guard !newItems.isEmpty else { return }
@@ -294,18 +315,23 @@ class BeaverReactor: AsyncReactor {
             return
         }
 
-        guard let pdfDocument = imageService.convertImagesToPDF(imageUrls: imageUrls) else {
+        let result = imageService.convertImagesToPDF(imageUrls: imageUrls)
+
+        guard let pdfDocument = result.document else {
             send(.showAlert(
-                message: DesignSystem.Alerts.failedToConvertImages,
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.failedToConvertImages,
+                    skipped: result.skippedURLs
+                ),
                 success: false
             ))
             return
         }
 
-        saveConvertedPDF(pdfDocument)
+        saveConvertedPDF(pdfDocument, skippedURLs: result.skippedURLs)
     }
 
-    private func saveConvertedPDF(_ pdfDocument: PDFDocument) {
+    private func saveConvertedPDF(_ pdfDocument: PDFDocument, skippedURLs: [URL]) {
         guard let saveURL = filePanelService.showSavePanel(
             defaultName: DesignSystem.FileNames.convertedImagesPDF,
             prompt: DesignSystem.FileNames.saveConvertedPDFPrompt,
@@ -317,7 +343,10 @@ class BeaverReactor: AsyncReactor {
         do {
             try pdfFileWriterService.savePDFDocument(pdfDocument, to: saveURL)
             send(.showAlert(
-                message: DesignSystem.Alerts.convertedImagesSuccess,
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.convertedImagesSuccess,
+                    skipped: skippedURLs
+                ),
                 success: true
             ))
         } catch {

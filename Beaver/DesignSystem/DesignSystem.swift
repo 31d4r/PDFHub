@@ -165,6 +165,16 @@ enum DesignSystem {
             "Partially successful: Saved \(successCount) file\(successCount == 1 ? "" : "s"), failed to save \(failureCount) file\(failureCount == 1 ? "" : "s")"
         }
 
+        static func skippedFiles(_ urls: [URL]) -> String {
+            let names = urls.map(\.lastPathComponent).joined(separator: ", ")
+            return "Skipped \(urls.count) file\(urls.count == 1 ? "" : "s") that could not be read: \(names)"
+        }
+
+        /// Appends a note about unreadable files to `message`, if there are any.
+        static func message(_ message: String, skipped urls: [URL]) -> String {
+            urls.isEmpty ? message : message + "\n\n" + skippedFiles(urls)
+        }
+
         static func message(for result: SaveResult) -> String {
             if result.isCompleteSuccess {
                 return savedPDFFilesCount(result.successCount)

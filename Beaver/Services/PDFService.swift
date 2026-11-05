@@ -3,8 +3,21 @@ import PDFKit
 
 protocol PDFServiceProtocol {
     func loadPDF(from url: URL) -> PDFDocument?
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFDocument?
-    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> [SplitPage]
+    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult
+    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult
+}
+
+struct PDFMergeResult {
+    /// `nil` when no pages could be read.
+    let document: PDFDocument?
+    /// Files that could not be opened as PDFs and were left out.
+    let skippedURLs: [URL]
+}
+
+struct PDFSplitResult {
+    let pages: [SplitPage]
+    /// Files that could not be opened as PDFs and were left out.
+    let skippedURLs: [URL]
 }
 
 /// One page split out of a source PDF, with the file name it should be saved under.
@@ -24,26 +37,37 @@ struct PDFService: PDFServiceProtocol {
         return PDFDocument(url: url)
     }
     
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFDocument? {
-        guard !urls.isEmpty else { return nil }
-        
+    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult {
+        guard !urls.isEmpty else { return PDFMergeResult(document: nil, skippedURLs: []) }
+
         let mergedPDF = PDFDocument()
-        
+        var skippedURLs: [URL] = []
+
         for url in urls {
-            guard let pdf = loadPDF(from: url) else { continue }
+            guard let pdf = loadPDF(from: url) else {
+                skippedURLs.append(url)
+                continue
+            }
             let rotationAngle = rotationAngles[url] ?? 0
             
             addPages(from: pdf, to: mergedPDF, withRotation: rotationAngle)
         }
         
-        return mergedPDF.pageCount > 0 ? mergedPDF : nil
+        return PDFMergeResult(
+            document: mergedPDF.pageCount > 0 ? mergedPDF : nil,
+            skippedURLs: skippedURLs
+        )
     }
     
-    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> [SplitPage] {
+    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult {
         var allSplitPages: [SplitPage] = []
+        var skippedURLs: [URL] = []
 
         for url in urls {
-            guard let pdf = loadPDF(from: url) else { continue }
+            guard let pdf = loadPDF(from: url) else {
+                skippedURLs.append(url)
+                continue
+            }
             let rotationAngle = rotationAngles[url] ?? 0
 
             let splitDocuments = createSinglePagePDFs(from: pdf, withRotation: rotationAngle)
@@ -55,7 +79,7 @@ struct PDFService: PDFServiceProtocol {
             }
         }
 
-        return allSplitPages
+        return PDFSplitResult(pages: allSplitPages, skippedURLs: skippedURLs)
     }
     
     private func addPages(from sourcePDF: PDFDocument, to targetPDF: PDFDocument, withRotation rotation: Int) {

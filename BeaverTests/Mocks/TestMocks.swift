@@ -61,8 +61,8 @@ final class MockImageService: ImageServiceProtocol {
         imagesByURL[url]
     }
 
-    func convertImagesToPDF(imageUrls: [URL]) -> PDFDocument? {
-        convertedDocument
+    func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
+        ImageConversionResult(document: convertedDocument, skippedURLs: [])
     }
 }
 

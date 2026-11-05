@@ -105,6 +105,13 @@ struct SaveResult: Equatable {
     }
 }
 
-enum PDFFileWriterError: Error {
+enum PDFFileWriterError: LocalizedError {
     case failedToCreateData
+
+    var errorDescription: String? {
+        switch self {
+        case .failedToCreateData:
+            return "The PDF data could not be created."
+        }
+    }
 }

@@ -10,7 +10,7 @@ struct SplitNamingTests {
         let split = PDFService().splitPDF(
             urls: [TestFixtures.samplePDF, TestFixtures.sample2PDF],
             rotationAngles: [:]
-        )
+        ).pages
 
         #expect(split.map(\.fileName) == [
             "sample_page-1.pdf",
@@ -66,7 +66,7 @@ struct SplitNamingTests {
         let existing = directory.appendingPathComponent("sample_page-1.pdf")
         try Data("keep me".utf8).write(to: existing)
 
-        let split = PDFService().splitPDF(urls: [TestFixtures.samplePDF], rotationAngles: [:])
+        let split = PDFService().splitPDF(urls: [TestFixtures.samplePDF], rotationAngles: [:]).pages
         let result = PDFFileWriterService().savePDFDocuments(split, to: directory)
 
         #expect(result.successCount == 2)

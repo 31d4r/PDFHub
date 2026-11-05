@@ -24,7 +24,7 @@ struct PageRotationTests {
         let url = try makePreRotatedPDF()
         defer { try? FileManager.default.removeItem(at: url) }
 
-        let merged = try #require(service.mergePDFs(urls: [url], rotationAngles: [url: 90]))
+        let merged = try #require(service.mergePDFs(urls: [url], rotationAngles: [url: 90]).document)
 
         #expect(merged.pageCount == 2)
         #expect(merged.page(at: 0)?.rotation == 180)
@@ -36,7 +36,7 @@ struct PageRotationTests {
         let url = try makePreRotatedPDF()
         defer { try? FileManager.default.removeItem(at: url) }
 
-        let split = service.splitPDF(urls: [url], rotationAngles: [url: 270])
+        let split = service.splitPDF(urls: [url], rotationAngles: [url: 270]).pages
 
         #expect(split.count == 2)
         #expect(split.allSatisfy { $0.document.page(at: 0)?.rotation == 0 })
@@ -45,7 +45,7 @@ struct PageRotationTests {
     @Test("Merging the same file twice keeps every page")
     func mergeSameFileTwice() throws {
         let url = TestFixtures.samplePDF
-        let merged = try #require(service.mergePDFs(urls: [url, url], rotationAngles: [:]))
+        let merged = try #require(service.mergePDFs(urls: [url, url], rotationAngles: [:]).document)
         #expect(merged.pageCount == 4)
     }
 
