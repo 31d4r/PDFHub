@@ -16,17 +16,39 @@ Perfect for privacy-conscious users -> All processing happens locally on your Ma
 
 ## Built With
 
-- SwiftUI
+- SwiftUI, PDFKit and ImageIO
+- [AsyncReactor](https://github.com/diamirio/AsyncReactor) for state management
+- Swift 6 language mode with strict concurrency
+
+## Requirements
+
+- macOS 14 Sonoma or later
+- Xcode 26 or later to build (Swift 6.2)
 
 ## Getting Started
 
 To run the project locally:
 
 1. Clone the repository
-2. Open the `.xcodeproj` file in Xcode
-3. Build and run on macOS
+2. Open `Beaver.xcodeproj` in Xcode
+3. Select the `Beaver` scheme and build and run on My Mac
 
-You need to have Xcode installed.
+## Testing
+
+Run the tests in Xcode with Product > Test (⌘U), or from the command line:
+
+```sh
+xcodebuild -project Beaver.xcodeproj -scheme Beaver -destination 'platform=macOS' \
+  -derivedDataPath /tmp/beaver-dd test CODE_SIGNING_ALLOWED=NO
+```
+
+See [docs/testing.md](docs/testing.md) for details.
+
+## Privacy
+
+Beaver has no network code, no analytics and no tracking. It only reads files you choose or drop
+onto it, and only writes where you tell it to save. The app ships a privacy manifest declaring that
+no data is collected.
 
 ## Screenshots
 

@@ -1,37 +1,29 @@
+import BeaverCore
 import AppKit
 import Foundation
 import PDFKit
 import UniformTypeIdentifiers
 @testable import Beaver
 
-final class MockFilePanelService: FilePanelServiceProtocol {
-    var openURLs: [URL] = []
+final class MockSaveLocationProvider: SaveLocationProviding {
     var saveURL: URL?
-    var directoryURL: URL?
+    private(set) var requestedNames: [String] = []
 
-    func openFilePanel(
-        contentTypes: [UTType],
-        multipleSelection: Bool
-    ) -> [URL] {
-        openURLs
-    }
-
-    func showSavePanel(
-        defaultName: String,
-        prompt: String,
-        allowedTypes: [UTType]
-    ) -> URL? {
-        saveURL
-    }
-
-    func showDirectoryPanel(prompt: String) -> URL? {
-        directoryURL
+    func saveLocation(defaultName: String, prompt: String) -> URL? {
+        requestedNames.append(defaultName)
+        return saveURL
     }
 }
 
-final class MockFileIOService: FileIOServiceProtocol {
+// Tests drive this mock from one task at a time.
+final class MockFileIOService: FileIOServiceProtocol, @unchecked Sendable {
     var writtenURLs: [URL] = []
+    var existingURLs: Set<URL> = []
     var shouldFail = false
+
+    func fileExists(at url: URL) -> Bool {
+        existingURLs.contains(url)
+    }
 
     func write(
         data: Data,
@@ -48,22 +40,42 @@ final class MockFileIOService: FileIOServiceProtocol {
     }
 }
 
-final class MockImageService: ImageServiceProtocol {
-    var imagesByURL: [URL: NSImage] = [:]
+// Tests drive this mock from one task at a time.
+final class MockImageService: ImageServiceProtocol, @unchecked Sendable {
+    var thumbnailsByURL: [URL: CGImage] = [:]
     var convertedDocument: PDFDocument?
+    private(set) var convertedRotations: [[RotationAngle]] = []
 
-    func loadImage(from url: URL) -> NSImage? {
-        imagesByURL[url]
+    func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage? {
+        thumbnailsByURL[url]
     }
 
-    func convertImagesToPDF(imageUrls: [URL]) -> PDFDocument? {
-        convertedDocument
+    func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult {
+        convertedRotations.append(rotations)
+        return ImageConversionResult(document: convertedDocument, skippedURLs: [])
+    }
+}
+
+enum TestImages {
+    static func solid(width: Int, height: Int) -> CGImage {
+        let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )!
+        context.setFillColor(CGColor(red: 1, green: 0, blue: 0, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage()!
     }
 }
 
 enum TestFixtures {
     static var directory: URL {
-        let bundle = Bundle(for: MockFilePanelService.self)
+        let bundle = Bundle(for: MockSaveLocationProvider.self)
         if let url = bundle.url(
             forResource: "sample",
             withExtension: "pdf",
@@ -93,5 +105,13 @@ enum TestFixtures {
 
     static var samplePNG: URL {
         directory.appendingPathComponent("sample.png")
+    }
+}
+
+extension BeaverReactor {
+    /// Runs the one-PDF action that fits the targets: Merge for PDFs, Convert for images,
+    /// Combine for both. Lets export tests read as "save these as one file".
+    func exportOneFile() async {
+        await action(.perform(DocumentAction.singleFile(for: state.targets)))
     }
 }

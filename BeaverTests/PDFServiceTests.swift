@@ -1,3 +1,4 @@
+import BeaverCore
 import PDFKit
 import XCTest
 @testable import Beaver
@@ -21,7 +22,7 @@ final class PDFServiceTests: XCTestCase {
         let merged = service.mergePDFs(
             urls: urls,
             rotationAngles: rotationAngles
-        )
+        ).document
 
         XCTAssertEqual(merged?.pageCount, 3)
         XCTAssertEqual(merged?.page(at: 0)?.rotation, 90)
@@ -32,14 +33,14 @@ final class PDFServiceTests: XCTestCase {
         let split = service.splitPDF(
             urls: [TestFixtures.samplePDF],
             rotationAngles: [TestFixtures.samplePDF: 270]
-        )
+        ).pages
 
         XCTAssertEqual(split.count, 2)
-        XCTAssertEqual(split[0].pageCount, 1)
-        XCTAssertEqual(split[0].page(at: 0)?.rotation, 270)
+        XCTAssertEqual(split[0].document.pageCount, 1)
+        XCTAssertEqual(split[0].document.page(at: 0)?.rotation, 270)
     }
 
     func testMergeEmptyURLsReturnsNil() {
-        XCTAssertNil(service.mergePDFs(urls: [], rotationAngles: [:]))
+        XCTAssertNil(service.mergePDFs(urls: [], rotationAngles: [:]).document)
     }
 }

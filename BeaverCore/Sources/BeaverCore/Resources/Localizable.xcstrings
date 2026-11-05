@@ -1,0 +1,10 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "The PDF data could not be created." : {
+      "comment" : "Error shown when a PDF could not be turned into data for saving.",
+      "extractionState" : "manual"
+    }
+  },
+  "version" : "1.0"
+}

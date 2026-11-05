@@ -1,3 +1,4 @@
+import BeaverCore
 import PDFKit
 import XCTest
 @testable import Beaver
@@ -17,16 +18,15 @@ final class PDFFileWriterServiceTests: XCTestCase {
     func testSavePDFDocumentsReturnsCounts() {
         let mockIO = MockFileIOService()
         let writer = PDFFileWriterService(fileIOService: mockIO)
-        let documents = [
-            PDFDocument(url: TestFixtures.samplePDF)!,
-            PDFDocument(url: TestFixtures.sample2PDF)!
+        let pages = [
+            SplitPage(document: PDFDocument(url: TestFixtures.samplePDF)!, fileName: "a_page-1.pdf"),
+            SplitPage(document: PDFDocument(url: TestFixtures.sample2PDF)!, fileName: "b_page-1.pdf")
         ]
         let directory = URL(fileURLWithPath: "/tmp")
 
         let result = writer.savePDFDocuments(
-            documents,
-            to: directory,
-            fileNamePrefix: "split"
+            pages,
+            to: directory
         )
 
         XCTAssertEqual(result.successCount, 2)
@@ -39,12 +39,11 @@ final class PDFFileWriterServiceTests: XCTestCase {
         let mockIO = MockFileIOService()
         mockIO.shouldFail = true
         let writer = PDFFileWriterService(fileIOService: mockIO)
-        let documents = [PDFDocument(url: TestFixtures.samplePDF)!]
+        let pages = [SplitPage(document: PDFDocument(url: TestFixtures.samplePDF)!, fileName: "a_page-1.pdf")]
 
         let result = writer.savePDFDocuments(
-            documents,
-            to: URL(fileURLWithPath: "/tmp"),
-            fileNamePrefix: "split"
+            pages,
+            to: URL(fileURLWithPath: "/tmp")
         )
 
         XCTAssertEqual(result.successCount, 0)
