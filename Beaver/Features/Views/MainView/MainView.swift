@@ -22,6 +22,7 @@ struct MainView: View {
                 ImageToPDFView()
             }
         }
+        .focusedSceneObject(reactor)
     }
 
     private func menuView() -> some View {

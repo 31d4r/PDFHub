@@ -304,6 +304,95 @@
     },
     "Your PDF workflow companion": {
       "extractionState": "manual"
+    },
+    "menu.addImages": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Images…"
+          }
+        }
+      }
+    },
+    "menu.addPDFs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add PDFs…"
+          }
+        }
+      }
+    },
+    "menu.back": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "menu.clearAll": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear All…"
+          }
+        }
+      }
+    },
+    "menu.convertToPDF": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert Images to PDF…"
+          }
+        }
+      }
+    },
+    "menu.mergePDFs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge PDFs…"
+          }
+        }
+      }
+    },
+    "menu.splitPDFs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split PDFs…"
+          }
+        }
+      }
+    },
+    "menu.title": {
+      "comment": "Menu bar menu with Beaver's PDF actions",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

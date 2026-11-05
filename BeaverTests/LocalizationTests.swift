@@ -26,6 +26,12 @@ struct LocalizationTests {
         #expect(message == "Skipped 1 file that could not be read: a.pdf")
     }
 
+    @Test func menuCommandsUseCatalogValues() {
+        #expect(DesignSystem.Commands.menuTitle == "PDF")
+        #expect(DesignSystem.Commands.addPDFs == "Add PDFs…")
+        #expect(DesignSystem.Commands.clearAll == "Clear All…")
+    }
+
     @Test func discardTitlePluralizes() {
         #expect(DesignSystem.Confirmations.discardTitle(count: 1) == "Remove 1 file from Beaver?")
         #expect(DesignSystem.Confirmations.discardTitle(count: 4) == "Remove 4 files from Beaver?")

@@ -148,6 +148,17 @@ enum DesignSystem {
         }
     }
 
+    enum Commands {
+        static var menuTitle: String { String(localized: "menu.title", defaultValue: "PDF", comment: "Menu bar menu with Beaver's PDF actions") }
+        static var addPDFs: String { String(localized: "menu.addPDFs", defaultValue: "Add PDFs…") }
+        static var addImages: String { String(localized: "menu.addImages", defaultValue: "Add Images…") }
+        static var mergePDFs: String { String(localized: "menu.mergePDFs", defaultValue: "Merge PDFs…") }
+        static var splitPDFs: String { String(localized: "menu.splitPDFs", defaultValue: "Split PDFs…") }
+        static var convertToPDF: String { String(localized: "menu.convertToPDF", defaultValue: "Convert Images to PDF…") }
+        static var back: String { String(localized: "menu.back", defaultValue: "Back") }
+        static var clearAll: String { String(localized: "menu.clearAll", defaultValue: "Clear All…") }
+    }
+
     enum Progress {
         static var merging: String { String(localized: "Merging PDFs…") }
         static var splitting: String { String(localized: "Splitting PDFs…") }
