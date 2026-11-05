@@ -19,11 +19,19 @@
 			remoteGlobalIDString = CE2251872D848628003F6736;
 			remoteInfo = Beaver;
 		};
+		B4A0UITEST00000000000008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE2251802D848628003F6736 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE2251872D848628003F6736;
+			remoteInfo = Beaver;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A1B2C3D42D848628003F6701 /* BeaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE2251882D848628003F6736 /* Beaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4A0UITEST00000000000001 /* BeaverUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeaverUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -51,6 +59,11 @@
 			path = Beaver;
 			sourceTree = "<group>";
 		};
+		B4A0UITEST00000000000006 /* BeaverUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BeaverUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +83,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4A0UITEST00000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +98,7 @@
 			children = (
 				CECDD78E2D8AE8F700FE7AD7 /* Beaver */,
 				A1B2C3D42D848628003F6706 /* BeaverTests */,
+				B4A0UITEST00000000000006 /* BeaverUITests */,
 				CE2251892D848628003F6736 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,6 +108,7 @@
 			children = (
 				CE2251882D848628003F6736 /* Beaver.app */,
 				A1B2C3D42D848628003F6701 /* BeaverTests.xctest */,
+				B4A0UITEST00000000000001 /* BeaverUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -141,6 +163,29 @@
 			productReference = CE2251882D848628003F6736 /* Beaver.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B4A0UITEST00000000000002 /* BeaverUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B4A0UITEST00000000000009 /* Build configuration list for PBXNativeTarget "BeaverUITests" */;
+			buildPhases = (
+				B4A0UITEST00000000000003 /* Sources */,
+				B4A0UITEST00000000000004 /* Frameworks */,
+				B4A0UITEST00000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4A0UITEST00000000000007 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B4A0UITEST00000000000006 /* BeaverUITests */,
+			);
+			name = BeaverUITests;
+			packageProductDependencies = (
+			);
+			productName = BeaverUITests;
+			productReference = B4A0UITEST00000000000001 /* BeaverUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -152,6 +197,10 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					A1B2C3D42D848628003F6702 = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = CE2251872D848628003F6736;
+					};
+					B4A0UITEST00000000000002 = {
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = CE2251872D848628003F6736;
 					};
@@ -184,6 +233,7 @@
 			targets = (
 				CE2251872D848628003F6736 /* Beaver */,
 				A1B2C3D42D848628003F6702 /* BeaverTests */,
+				B4A0UITEST00000000000002 /* BeaverUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -197,6 +247,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CE2251862D848628003F6736 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4A0UITEST00000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -220,6 +277,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4A0UITEST00000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -227,6 +291,11 @@
 			isa = PBXTargetDependency;
 			target = CE2251872D848628003F6736 /* Beaver */;
 			targetProxy = A1B2C3D42D848628003F6708 /* PBXContainerItemProxy */;
+		};
+		B4A0UITEST00000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE2251872D848628003F6736 /* Beaver */;
+			targetProxy = B4A0UITEST00000000000008 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -505,6 +574,54 @@
 			};
 			name = Release;
 		};
+		B4A0UITEST0000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Beaver;
+			};
+			name = Debug;
+		};
+		B4A0UITEST0000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Beaver;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -531,6 +648,15 @@
 			buildConfigurations = (
 				CE2251982D848629003F6736 /* Debug */,
 				CE2251992D848629003F6736 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B4A0UITEST00000000000009 /* Build configuration list for PBXNativeTarget "BeaverUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4A0UITEST0000000000000A /* Debug */,
+				B4A0UITEST0000000000000B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

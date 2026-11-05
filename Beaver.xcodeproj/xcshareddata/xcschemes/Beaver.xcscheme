@@ -41,6 +41,17 @@
                ReferencedContainer = "container:Beaver.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B4A0UITEST00000000000002"
+               BuildableName = "BeaverUITests.xctest"
+               BlueprintName = "BeaverUITests"
+               ReferencedContainer = "container:Beaver.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

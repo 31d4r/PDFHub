@@ -47,6 +47,7 @@ struct MainView: View {
     var body: some View {
         presentations(window)
             .focusedSceneObject(reactor)
+            .task { UITestLaunch.prepareWorkspace(reactor: reactor) }
             .fileImporter(
                 isPresented: $isFileImporterPresented,
                 allowedContentTypes: reactor.state.fileImport?.allowedContentTypes ?? [],

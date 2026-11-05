@@ -32,6 +32,7 @@ struct MobileWorkspaceGrid: View {
                 .padding(DesignSystem.Mobile.contentPadding)
             }
             .accessibilityLabel(DesignSystem.Accessibility.fileList)
+            .accessibilityIdentifier(UITestID.workspaceGrid)
         }
     }
 

@@ -130,6 +130,13 @@ struct MobileMainView: View {
         }
         .modifier(FileDialogConfirmationLabel(label: state.fileImport?.confirmationLabel))
         .focusedSceneObject(reactor)
+        .task {
+            UITestLaunch.prepareWorkspace(reactor: reactor)
+            let urls = UITestLaunch.scanReviewImageURLs()
+            if !urls.isEmpty {
+                scanRequest = ScanRequest(source: .fixture(urls))
+            }
+        }
         .onChange(of: state.isEmpty) { _, isEmpty in
             if isEmpty { isSelecting = false }
         }

@@ -10,6 +10,8 @@ struct ScanRequest: Identifiable {
         case camera
         /// Photos already taken, in the order they were picked.
         case photos([PhotosPickerItem])
+        /// File URLs supplied by UI tests (no Photos picker).
+        case fixture([URL])
     }
 
     let id = UUID()
@@ -56,8 +58,14 @@ private struct ScanFlowContent: View {
             }
         }
         .task {
-            guard case .photos(let items) = request.source else { return }
-            await addPhotos(items)
+            switch request.source {
+            case .photos(let items):
+                await addPhotos(items)
+            case .fixture(let urls):
+                await reactor.action(.addPhotos(urls))
+            case .camera:
+                break
+            }
         }
         .onChange(of: reactor.state.savedURL) { _, url in
             if let url { onSaved(url) }
