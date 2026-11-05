@@ -18,9 +18,9 @@ struct ExportCancellationTests {
         panels.saveURL = URL(fileURLWithPath: "/tmp/beaver-tests/merged.pdf")
         let export = MockExportService(result: ExportAlert(message: "merged", isSuccess: true), isGated: true)
         let reactor = BeaverReactor(saveLocationProvider: panels, imageService: MockImageService(), exportService: export)
-        await reactor.action(.addFiles([TestFixtures.samplePDF]))
+        await reactor.action(.addFiles([TestFixtures.samplePDF, TestFixtures.sample2PDF]))
 
-        let running = Task { await reactor.action(.createPDF) }
+        let running = Task { await reactor.exportOneFile() }
         while reactor.state.activity == nil {
             await Task.yield()
         }

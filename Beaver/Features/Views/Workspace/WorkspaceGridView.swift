@@ -153,10 +153,25 @@ struct WorkspaceGridView: View {
                 help: DesignSystem.Help.rotate(direction)
             ) {
                 if isSelected && reactor.state.selection.count > 1 {
-                    reactor.action(.rotateAll(direction))
+                    reactor.action(.rotateSelection(direction))
                 } else {
                     reactor.action(.rotate(id: item.id, direction: direction))
                 }
+            })
+        }
+        // Merge, Split, Convert and Combine for the same files, only the ones that apply.
+        let targets = contextTargets(item, isSelected: isSelected)
+        let available = DocumentAction.allCases.filter {
+            reactor.state.availability(of: $0, ids: targets).isAvailable
+        }
+        for (index, action) in available.enumerated() {
+            actions.append(CardAction(
+                title: DesignSystem.Actions.menuTitle(action),
+                systemImage: DesignSystem.Actions.icon(action),
+                help: DesignSystem.Help.action(action, reactor.state.availability(of: action, ids: targets)),
+                startsGroup: index == 0
+            ) {
+                reactor.send(.perform(action, ids: targets))
             })
         }
         return actions

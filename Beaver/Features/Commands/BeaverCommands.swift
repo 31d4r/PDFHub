@@ -6,6 +6,7 @@ import AppKit
 
 /// Menu bar commands for the focused window. Each one sends the same reactor action as the
 /// matching toolbar button, so every toolbar action is also in the menu bar with a shortcut.
+/// The Actions menu's items come from `ActionsMenu`.
 struct BeaverCommands: Commands {
     @FocusedObject private var reactor: BeaverReactor?
     @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
@@ -43,14 +44,6 @@ struct BeaverCommands: Commands {
             .disabled(isHistoryBlocked)
         }
 
-        CommandGroup(after: .newItem) {
-            Button(DesignSystem.Commands.addFiles) {
-                reactor?.send(.chooseFiles)
-            }
-            .keyboardShortcut("o", modifiers: .command)
-            .disabled(!(reactor?.state.canEdit ?? false))
-        }
-
         CommandGroup(after: .pasteboard) {
             Button(DesignSystem.Commands.deselectAll) {
                 reactor?.action(.deselectAll)
@@ -76,74 +69,16 @@ struct BeaverCommands: Commands {
         }
 
         CommandMenu(DesignSystem.Commands.menuTitle) {
-            Button(DesignSystem.Commands.createPDF) {
-                reactor?.send(.createPDF)
+            ForEach(ActionsMenu.items(for: reactor?.state)) { item in
+                if item.startsGroup { Divider() }
+                Button(item.title) {
+                    guard let reactor else { return }
+                    ActionsMenu.perform(item.command, on: reactor)
+                }
+                .keyboardShortcut(item.key, modifiers: item.modifiers)
+                .disabled(!item.isEnabled)
             }
-            .keyboardShortcut("m", modifiers: [.command, .option])
-            .disabled(!(reactor?.state.canExport ?? false))
-
-            Button(DesignSystem.Commands.splitIntoPages) {
-                reactor?.send(.splitIntoPages)
-            }
-            .keyboardShortcut("s", modifiers: [.command, .option])
-            .disabled(!(reactor?.state.canExport ?? false))
-
-            Divider()
-
-            Button(hasSelection ? DesignSystem.Commands.rotateLeft : DesignSystem.Commands.rotateAllLeft) {
-                reactor?.action(.rotateAll(.left))
-            }
-            .keyboardShortcut("l", modifiers: .command)
-            .disabled(!(reactor?.state.canRotateAll ?? false))
-
-            Button(hasSelection ? DesignSystem.Commands.rotateRight : DesignSystem.Commands.rotateAllRight) {
-                reactor?.action(.rotateAll(.right))
-            }
-            .keyboardShortcut("r", modifiers: .command)
-            .disabled(!(reactor?.state.canRotateAll ?? false))
-
-            Divider()
-
-            Button(DesignSystem.Commands.showPages) {
-                guard let reactor, let pdf = focusedPDF(reactor) else { return }
-                reactor.action(.showPages(id: pdf.id))
-            }
-            .keyboardShortcut("p", modifiers: [.command, .option])
-            .disabled(reactor.map { !$0.state.canEdit || focusedPDF($0) == nil } ?? true)
-
-            Button(DesignSystem.Commands.quickLook) {
-                reactor?.action(.toggleQuickLook)
-            }
-            .keyboardShortcut("y", modifiers: .command)
-            .disabled(reactor?.state.isEmpty ?? true)
-
-            Divider()
-
-            Button(DesignSystem.Commands.remove) {
-                guard let reactor else { return }
-                reactor.action(.remove(reactor.state.selection.ids))
-            }
-            .keyboardShortcut(.delete, modifiers: .command)
-            .disabled(!(reactor?.state.canRemoveSelection ?? false))
-
-            Button(DesignSystem.Commands.removeAll) {
-                reactor?.send(.requestRemoveAll)
-            }
-            .keyboardShortcut(.delete, modifiers: [.command, .shift])
-            .disabled(!(reactor?.state.canRemoveAll ?? false))
         }
-    }
-
-    private var hasSelection: Bool { reactor?.state.hasSelection ?? false }
-
-    /// The PDF Show Pages opens: the focused file if it's a PDF, else the only selected PDF.
-    private func focusedPDF(_ reactor: BeaverReactor) -> PDFItem? {
-        let state = reactor.state
-        if let focus = state.selection.focus, let pdf = state.items.first(where: { $0.id == focus })?.pdf {
-            return pdf
-        }
-        let selected = state.selectedItems.compactMap(\.pdf)
-        return selected.count == 1 ? selected.first : nil
     }
 
     private func resizeThumbnails(by step: Double) {

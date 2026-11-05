@@ -212,7 +212,7 @@ struct RotateAllUndoTests {
         reactor.action(.rotateAll(.right))
         let urls = reactor.state.pdfs.map(\.url)
 
-        let running = Task { await reactor.action(.createPDF) }
+        let running = Task { await reactor.exportOneFile() }
         while reactor.state.activity == nil {
             await Task.yield()
         }

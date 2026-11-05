@@ -11,8 +11,11 @@ struct LocalizationTests {
         #expect(DesignSystem.Workspace.summary(pdfs: 2, images: 5) == "2 PDFs and 5 images")
     }
 
-    @Test func selectionSummaryCountsSelected() {
-        #expect(DesignSystem.Workspace.selectionSummary(selected: 2, total: 5) == "2 of 5 selected")
+    @Test func windowTitleAndSubtitle() {
+        #expect(DesignSystem.Workspace.title == "Beaver")
+        #expect(DesignSystem.Workspace.subtitle(pdfs: 0, images: 0, selected: 0) == "No files")
+        #expect(DesignSystem.Workspace.subtitle(pdfs: 3, images: 2, selected: 0) == "3 PDFs and 2 images")
+        #expect(DesignSystem.Workspace.subtitle(pdfs: 3, images: 2, selected: 2) == "3 PDFs and 2 images · 2 selected")
     }
 
     @Test func partialSaveUsesBothPlurals() {
@@ -28,7 +31,7 @@ struct LocalizationTests {
     }
 
     @Test func menuCommandsUseCatalogValues() {
-        #expect(DesignSystem.Commands.menuTitle == "PDF")
+        #expect(DesignSystem.Commands.menuTitle == "Actions")
         #expect(DesignSystem.Commands.addFiles == "Add Files…")
         #expect(DesignSystem.Commands.removeAll == "Remove All…")
     }
@@ -43,7 +46,7 @@ struct LocalizationTests {
     /// Every tooltip key must be in the shipped catalog, or the tooltip falls back to the
     /// development string and never gets translated.
     @Test(arguments: [
-        "help.withShortcut", "help.withDetail", "help.more", "help.thumbnailSize", "help.quickLook",
+        "help.withShortcut", "help.withDetail", "help.more", "help.quickLook", "export.addToWorkspace",
         "export.showInFinder", "export.open", "export.openFolder", "export.dismiss",
         "export.cancel", "export.showInFinder.help", "export.open.help", "export.openFolder.help",
         "export.cancel.help", "export.dismiss.help",
@@ -61,16 +64,15 @@ struct LocalizationTests {
         #expect(DesignSystem.Help.removeAll == "Remove All… (⇧⌘⌫)")
         #expect(DesignSystem.Help.showPages == "Show Pages (⌥⌘P)")
         #expect(DesignSystem.Help.quickLook == "Quick Look (Space or ⌘Y)")
-        #expect(DesignSystem.Help.thumbnailSize == "Thumbnail Size (Larger ⌘+, Smaller ⌘-)")
         #expect(DesignSystem.Help.deselectAll == "Deselect All (⌥⌘A)")
         #expect(DesignSystem.Export.cancelHelp == "Stop the export (⌘.)")
         #expect(
-            DesignSystem.Help.createPDF(.pdfs, selection: false)
-                == "Create PDF (⌥⌘M)\nMerge all PDFs into one PDF"
+            DesignSystem.Help.rotateMenuItem(.left, selection: true)
+                == "Rotate Selected Left (⌘L)\nRotate the selected files left"
         )
         #expect(
-            DesignSystem.Help.splitIntoPages(selection: true)
-                == "Split into Pages (⌥⌘S)\nSave each page of the selected files as its own PDF"
+            DesignSystem.Help.rotateMenuItem(.right, selection: false)
+                == "Rotate All Right (⇧⌘R)\nRotate every file right"
         )
     }
 
@@ -80,17 +82,16 @@ struct LocalizationTests {
             (DesignSystem.Workspace.addFiles, DesignSystem.Help.addFiles),
             (DesignSystem.Workspace.rotateLeft, DesignSystem.Help.rotateLeft),
             (DesignSystem.Workspace.rotateRight, DesignSystem.Help.rotateRight),
-            (DesignSystem.Workspace.createPDF, DesignSystem.Help.createPDF(.mixed, selection: true)),
-            (DesignSystem.Workspace.splitIntoPages, DesignSystem.Help.splitIntoPages(selection: false)),
+            (DesignSystem.Actions.title(.merge), DesignSystem.Help.action(.merge, .available(count: 2, selection: true))),
+            (DesignSystem.Actions.title(.split), DesignSystem.Help.action(.split, .unavailable(.busy))),
+            (DesignSystem.Workspace.rotateAllLeft, DesignSystem.Help.rotateMenuItem(.left, selection: false)),
             (DesignSystem.Workspace.remove, DesignSystem.Help.remove),
             (DesignSystem.Workspace.quickLook, DesignSystem.Help.quickLook),
-            (DesignSystem.Workspace.thumbnailSize, DesignSystem.Help.thumbnailSize),
             (DesignSystem.Pages.showPages, DesignSystem.Help.showPages),
             (DesignSystem.Pages.selectAll, DesignSystem.Help.selectAll),
             (DesignSystem.Pages.rotateSelectedLeft, DesignSystem.Help.rotateSelectedPagesLeft),
             (DesignSystem.Pages.rotateSelectedRight, DesignSystem.Help.rotateSelectedPagesRight),
             (DesignSystem.Pages.done, DesignSystem.Help.done),
-            (DesignSystem.Card.pagesRotatedBadge, DesignSystem.Help.pagesRotatedBadge),
         ]
         for pair in pairs {
             #expect(pair.help.hasPrefix(pair.label), "\(pair.help) doesn't start with \(pair.label)")

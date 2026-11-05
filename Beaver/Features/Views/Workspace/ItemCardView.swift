@@ -103,13 +103,12 @@ struct ItemCardView: View {
     @ViewBuilder
     private var badge: some View {
         if let pdf = item.pdf, pdf.hasPageRotations {
-            Image(systemName: DesignSystem.Icons.pagesRotated)
+            Image(systemName: DesignSystem.Icons.rotated)
                 .font(.caption)
                 .foregroundStyle(.white)
                 .padding(Constants.badgePadding)
                 .background(Color.accentColor, in: Circle())
-                .help(DesignSystem.Help.pagesRotatedBadge)
-                .accessibilityLabel(DesignSystem.Card.pagesRotatedBadge)
+                .help(DesignSystem.Card.rotatedBadge(file: .zero, rotatedPages: pdf.pageRotations.count) ?? "")
                 .offset(x: Constants.badgeOffset, y: -Constants.badgeOffset)
         }
     }

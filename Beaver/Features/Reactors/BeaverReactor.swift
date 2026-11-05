@@ -11,10 +11,9 @@ final class BeaverReactor: AsyncReactor {
         case chooseFiles
         /// Adds PDFs and images in the given order, skipping ones already listed.
         case addFiles([URL])
-        /// Saves the targets as one PDF: merged PDFs, converted images, or both combined.
-        case createPDF
-        /// Asks for a folder, then saves every page of the targets as its own PDF.
-        case splitIntoPages
+        /// Runs Merge, Split, Convert or Combine on `ids`, or on the targets when `ids` is nil.
+        /// Merge, Convert and Combine ask where to save one PDF; Split asks for a folder.
+        case perform(DocumentAction, ids: Set<UUID>? = nil)
 
         /// Asks before Remove All; runs immediately when the list is empty.
         case requestRemoveAll
@@ -50,7 +49,9 @@ final class BeaverReactor: AsyncReactor {
         case move(id: UUID, to: Int)
         case remove(Set<UUID>)
         case rotate(id: UUID, direction: RotationDirection)
-        /// Turns the targets: the selection, or every file when nothing is selected.
+        /// Turns the selected files. Does nothing when nothing is selected.
+        case rotateSelection(RotationDirection)
+        /// Turns every file, whatever is selected.
         case rotateAll(RotationDirection)
         /// Turns single pages (zero-based) of one PDF on top of its file rotation.
         case rotatePages(id: UUID, pages: [Int], direction: RotationDirection)
@@ -153,17 +154,31 @@ final class BeaverReactor: AsyncReactor {
         /// Whether the list can be changed from the main window right now.
         var canEdit: Bool { isIdle && pagesPDFID == nil }
 
-        /// Whether Rotate Left/Right has anything to turn right now.
+        /// Whether Rotate Left/Right (the selection) and Rotate All have anything to turn.
+        var canRotateSelection: Bool { canEdit && hasSelection }
         var canRotateAll: Bool { canEdit && !items.isEmpty }
-        var canExport: Bool { canEdit && !items.isEmpty }
         var canRemoveSelection: Bool { canEdit && hasSelection }
         var canRemoveAll: Bool { canEdit && !items.isEmpty }
 
         var canUndo: Bool { activity == nil && history.canUndo }
         var canRedo: Bool { activity == nil && history.canRedo }
 
-        /// What Create PDF would do with the current targets.
-        var exportKind: ExportKind { ExportKind(targets) }
+        /// The files an action works on: `ids` when given and not empty, else the targets.
+        func targets(for ids: Set<UUID>?) -> [WorkspaceItem] {
+            guard let ids, !ids.isEmpty else { return targets }
+            return items.filter { ids.contains($0.id) }
+        }
+
+        /// Whether `action` can run on `ids` (or the targets) right now, and if not, why.
+        func availability(of action: DocumentAction, ids: Set<UUID>? = nil) -> DocumentAction.Availability {
+            let isSelection = (ids?.isEmpty == false) || hasSelection
+            return action.availability(for: targets(for: ids), selection: isSelection, isBusy: !canEdit)
+        }
+
+        /// Whether the workspace holds both PDFs and images, so Combine is worth showing.
+        var hasBothKinds: Bool {
+            items.contains { $0.kind == .pdf } && items.contains { $0.kind == .image }
+        }
 
         /// Whether Remove All would throw away rotations the user made.
         var hasDiscardableRotations: Bool { items.contains(where: \.isRotated) }
@@ -195,10 +210,8 @@ final class BeaverReactor: AsyncReactor {
             requestFileImport(.files)
         case .addFiles(let urls):
             await addFiles(urls)
-        case .createPDF:
-            await createPDF()
-        case .splitIntoPages:
-            requestSplitDestination()
+        case .perform(let documentAction, let ids):
+            await perform(documentAction, ids: ids)
         case .requestRemoveAll:
             guard state.canRemoveAll else { return }
             state.isConfirmingRemoveAll = true
@@ -249,10 +262,17 @@ final class BeaverReactor: AsyncReactor {
                 guard let index = state.items.firstIndex(where: { $0.id == id }) else { return }
                 state.items[index].rotate(direction)
             }
+        case .rotateSelection(let direction):
+            let selected = state.selection.ids
+            guard !selected.isEmpty else { return }
+            recording(.rotate) { state in
+                for index in state.items.indices where selected.contains(state.items[index].id) {
+                    state.items[index].rotate(direction)
+                }
+            }
         case .rotateAll(let direction):
-            let targets = Set(state.targets.map(\.id))
-            recording(state.hasSelection ? .rotate : .rotateAll) { state in
-                for index in state.items.indices where targets.contains(state.items[index].id) {
+            recording(.rotateAll) { state in
+                for index in state.items.indices {
                     state.items[index].rotate(direction)
                 }
             }
@@ -456,27 +476,31 @@ final class BeaverReactor: AsyncReactor {
         state.exportAlert = task.isCancelled ? nil : alert
     }
 
-    private func createPDF() async {
-        guard state.canExport else { return }
-        let targets = state.targets
-        let kind = ExportKind(targets)
+    private func perform(_ action: DocumentAction, ids: Set<UUID>?) async {
+        guard state.availability(of: action, ids: ids).isAvailable else { return }
+        let sources = action.sources(from: state.targets(for: ids))
+
+        if action == .split {
+            requestFileImport(.splitDestination(sources.map(\.exportSource)))
+            return
+        }
 
         guard let saveURL = saveLocationProvider.saveLocation(
-            defaultName: kind.defaultFileName,
-            prompt: kind.savePrompt
+            defaultName: action.defaultFileName,
+            prompt: action.savePrompt
         ) else {
             return
         }
 
         let exportService = exportService
-        switch kind {
-        case .pdfs:
-            let pdfs = targets.pdfs
+        switch action {
+        case .merge:
+            let pdfs = sources.pdfs
             await runExport(.merging) {
                 await exportService.mergePDFs(urls: pdfs.map(\.url), rotations: pdfs.map(\.rotation), to: saveURL)
             }
-        case .images:
-            let images = targets.images
+        case .convert:
+            let images = sources.images
             await runExport(.converting) {
                 await exportService.convertImages(
                     urls: images.map(\.url),
@@ -484,17 +508,14 @@ final class BeaverReactor: AsyncReactor {
                     to: saveURL
                 )
             }
-        case .mixed:
-            let sources = targets.map(\.exportSource)
+        case .combine:
+            let exportSources = sources.map(\.exportSource)
             await runExport(.combining) {
-                await exportService.combine(sources: sources, to: saveURL)
+                await exportService.combine(sources: exportSources, to: saveURL)
             }
+        case .split:
+            break
         }
-    }
-
-    private func requestSplitDestination() {
-        guard state.canExport else { return }
-        requestFileImport(.splitDestination(state.targets.map(\.exportSource)))
     }
 
     private func split(_ sources: [ExportSource], into directory: URL) async {
@@ -516,41 +537,6 @@ final class BeaverReactor: AsyncReactor {
                 return await exportService.splitPDFs(urls: pdfs.map(\.0), rotations: pdfs.map(\.1), into: directory)
             }
             return await exportService.split(sources: sources, into: directory)
-        }
-    }
-}
-
-/// What Create PDF does with a set of items.
-enum ExportKind: Equatable, Sendable {
-    /// Merge the PDFs into one.
-    case pdfs
-    /// Turn the images into one PDF, a page each.
-    case images
-    /// Combine both, in list order.
-    case mixed
-
-    init(_ items: [WorkspaceItem]) {
-        let kinds = Set(items.map(\.kind))
-        switch (kinds.contains(.pdf), kinds.contains(.image)) {
-        case (_, false): self = .pdfs
-        case (false, true): self = .images
-        case (true, true): self = .mixed
-        }
-    }
-
-    var defaultFileName: String {
-        switch self {
-        case .pdfs: return DesignSystem.FileNames.mergedPDF
-        case .images: return DesignSystem.FileNames.convertedImagesPDF
-        case .mixed: return DesignSystem.FileNames.combinedPDF
-        }
-    }
-
-    var savePrompt: String {
-        switch self {
-        case .pdfs: return DesignSystem.FileNames.saveMergedPDFPrompt
-        case .images: return DesignSystem.FileNames.saveConvertedPDFPrompt
-        case .mixed: return DesignSystem.FileNames.saveCombinedPDFPrompt
         }
     }
 }

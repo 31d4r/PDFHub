@@ -29,6 +29,8 @@ struct CardAction {
     var isEnabled = true
     /// The tooltip; defaults to the title. Include the keyboard shortcut when there is one.
     var help: String?
+    /// Draw a separator above this item in the context menu.
+    var startsGroup = false
     let perform: () -> Void
 
     var tooltip: String { help ?? title }
@@ -105,6 +107,7 @@ struct ReorderableCardModifier: ViewModifier {
 
     private func menuButtons(_ actions: [CardAction]) -> some View {
         ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
+            if action.startsGroup { Divider() }
             Button(role: action.role) {
                 action.perform()
             } label: {

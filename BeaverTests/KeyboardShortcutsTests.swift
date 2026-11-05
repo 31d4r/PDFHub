@@ -10,7 +10,7 @@ struct KeyboardShortcutsTests {
 
     @Test func everySectionHasEntries() {
         let sections = DesignSystem.Shortcuts.sections
-        #expect(sections.map(\.title) == ["Files", "Arrange", "Select", "View"])
+        #expect(sections.map(\.title) == ["Files", "Actions", "Arrange", "Select", "View"])
         #expect(sections.allSatisfy { !$0.entries.isEmpty })
     }
 
@@ -20,9 +20,11 @@ struct KeyboardShortcutsTests {
     }
 
     @Test(arguments: [
-        DesignSystem.Help.Shortcut.addFiles, DesignSystem.Help.Shortcut.createPDF,
-        DesignSystem.Help.Shortcut.splitIntoPages, DesignSystem.Help.Shortcut.rotateLeft,
-        DesignSystem.Help.Shortcut.rotateRight, DesignSystem.Help.Shortcut.showPages,
+        DesignSystem.Help.Shortcut.addFiles, DesignSystem.Help.Shortcut.merge,
+        DesignSystem.Help.Shortcut.split, DesignSystem.Help.Shortcut.convert,
+        DesignSystem.Help.Shortcut.combine, DesignSystem.Help.Shortcut.rotateLeft,
+        DesignSystem.Help.Shortcut.rotateRight, DesignSystem.Help.Shortcut.rotateAllLeft,
+        DesignSystem.Help.Shortcut.rotateAllRight, DesignSystem.Help.Shortcut.showPages,
         DesignSystem.Help.Shortcut.quickLook, DesignSystem.Help.Shortcut.remove,
         DesignSystem.Help.Shortcut.removeAll, DesignSystem.Help.Shortcut.selectAll,
         DesignSystem.Help.Shortcut.deselectAll, DesignSystem.Help.Shortcut.larger,
@@ -34,14 +36,18 @@ struct KeyboardShortcutsTests {
 
     @Test func entriesUseTheControlNames() {
         let titles = Set(entries.map(\.title))
-        #expect(titles.contains(DesignSystem.Workspace.createPDF))
-        #expect(titles.contains(DesignSystem.Workspace.rotateLeft))
+        for action in DocumentAction.allCases {
+            #expect(titles.contains(DesignSystem.Actions.title(action)))
+        }
+        #expect(titles.contains(DesignSystem.Workspace.rotateSelectedLeft))
+        #expect(titles.contains(DesignSystem.Workspace.rotateAllLeft))
         #expect(titles.contains(DesignSystem.Pages.showPages))
         #expect(titles.contains(DesignSystem.Commands.undo))
     }
 
     @Test(arguments: [
-        "shortcuts.title", "shortcuts.menuItem", "shortcuts.section.files", "shortcuts.section.arrange",
+        "shortcuts.title", "shortcuts.menuItem", "shortcuts.section.files", "shortcuts.section.actions",
+        "shortcuts.section.arrange",
         "shortcuts.section.select", "shortcuts.section.view", "shortcuts.reorder",
         "shortcuts.moveSelection", "shortcuts.extendSelection",
     ])

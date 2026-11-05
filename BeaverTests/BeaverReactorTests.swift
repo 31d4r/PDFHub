@@ -83,29 +83,46 @@ struct BeaverReactorTests {
         let reactor = await makeMixedReactor()
         let ids = reactor.state.items.map(\.id)
         #expect(reactor.state.targets.count == 4)
-        #expect(reactor.state.exportKind == .mixed)
+        #expect(reactor.state.availability(of: .combine) == .available(count: 4, selection: false))
 
         reactor.action(.select(ids[0], .none))
         reactor.action(.select(ids[2], .command))
 
         #expect(reactor.state.targets.map(\.id) == [ids[0], ids[2]])
-        #expect(reactor.state.exportKind == .pdfs)
+        #expect(reactor.state.availability(of: .merge) == .available(count: 2, selection: true))
     }
 
-    @Test func rotateAllTurnsOnlyTheSelection() async {
+    @Test func rotateSelectionTurnsOnlyTheSelection() async {
         let reactor = await makeMixedReactor()
         let ids = reactor.state.items.map(\.id)
         reactor.action(.select(ids[1], .none))
 
-        reactor.action(.rotateAll(.right))
+        reactor.action(.rotateSelection(.right))
 
         #expect(reactor.state.items.map(\.rotationAngle) == [.zero, .ninety, .zero, .zero])
         #expect(reactor.state.history.undoLabel == .rotate)
+    }
 
-        reactor.action(.deselectAll)
+    @Test func rotateAllTurnsEveryFileEvenWithASelection() async {
+        let reactor = await makeMixedReactor()
+        let ids = reactor.state.items.map(\.id)
+        reactor.action(.select(ids[1], .none))
+
         reactor.action(.rotateAll(.left))
-        #expect(reactor.state.items.map(\.rotationAngle) == [.twoSeventy, .zero, .twoSeventy, .twoSeventy])
+
+        #expect(reactor.state.items.map(\.rotationAngle) == [.twoSeventy, .twoSeventy, .twoSeventy, .twoSeventy])
         #expect(reactor.state.history.undoLabel == .rotateAll)
+        #expect(reactor.state.selection.ids == [ids[1]])
+    }
+
+    @Test func rotateSelectionWithoutASelectionDoesNothing() async {
+        let reactor = await makeMixedReactor()
+        #expect(!reactor.state.canRotateSelection)
+
+        reactor.action(.rotateSelection(.right))
+
+        #expect(reactor.state.items.allSatisfy { $0.rotationAngle == .zero })
+        #expect(reactor.state.history.undoLabel == .add)
     }
 
     @Test func removeTakesTheSelectionAndUndoBringsItBack() async {
@@ -176,14 +193,15 @@ struct BeaverReactorTests {
         #expect(reactor.state.quickLookURL == nil)
     }
 
-    @Test func exportKindFollowsTheMix() async {
+    @Test func singleFileActionFollowsTheMix() async {
         let reactor = await makeMixedReactor()
         let items = reactor.state.items
 
-        #expect(ExportKind([items[0], items[2]]) == .pdfs)
-        #expect(ExportKind([items[1], items[3]]) == .images)
-        #expect(ExportKind(items) == .mixed)
-        #expect(ExportKind.pdfs.defaultFileName == DesignSystem.FileNames.mergedPDF)
-        #expect(ExportKind.mixed.defaultFileName == DesignSystem.FileNames.combinedPDF)
+        #expect(DocumentAction.singleFile(for: [items[0], items[2]]) == .merge)
+        #expect(DocumentAction.singleFile(for: [items[1], items[3]]) == .convert)
+        #expect(DocumentAction.singleFile(for: items) == .combine)
+        #expect(DocumentAction.merge.defaultFileName == DesignSystem.FileNames.mergedPDF)
+        #expect(DocumentAction.convert.defaultFileName == DesignSystem.FileNames.convertedImagesPDF)
+        #expect(DocumentAction.combine.defaultFileName == DesignSystem.FileNames.combinedPDF)
     }
 }

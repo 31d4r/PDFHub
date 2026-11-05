@@ -33,7 +33,7 @@ struct ReactorExportTests {
         let urls = [TestFixtures.samplePDF, TestFixtures.sample2PDF]
         await reactor.action(.addFiles(urls))
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls == [.merge(
             urls: urls,
@@ -49,7 +49,7 @@ struct ReactorExportTests {
         let reactor = makeReactor(export: export)
         await reactor.action(.addFiles([TestFixtures.samplePDF]))
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls.isEmpty)
         #expect(reactor.state.exportAlert == nil)
@@ -61,22 +61,21 @@ struct ReactorExportTests {
         let export = MockExportService()
         let reactor = makeReactor(panels: panels, export: export)
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls.isEmpty)
     }
 
-    @Test func createPDFUsesOnlyTheSelection() async {
-        let panels = MockSaveLocationProvider()
-        panels.saveURL = destination
+    @Test func splitUsesOnlyTheSelection() async {
         let export = MockExportService()
-        let reactor = makeReactor(panels: panels, export: export)
+        let reactor = makeReactor(export: export)
         await reactor.action(.addFiles([TestFixtures.samplePDF, TestFixtures.sample2PDF]))
         reactor.action(.select(reactor.state.items[1].id, .none))
 
-        await reactor.action(.createPDF)
+        await reactor.action(.perform(.split))
+        await reactor.action(.didImportFiles([directory]))
 
-        #expect(export.calls == [.merge(urls: [TestFixtures.sample2PDF], rotations: [.none], destination: destination)])
+        #expect(export.calls == [.split(urls: [TestFixtures.sample2PDF], rotations: [.none], directory: directory)])
     }
 
     @Test func splitUsesChosenDirectory() async {
@@ -85,7 +84,7 @@ struct ReactorExportTests {
         let reactor = makeReactor(export: export)
         await reactor.action(.addFiles([TestFixtures.samplePDF]))
 
-        await reactor.action(.splitIntoPages)
+        await reactor.action(.perform(.split))
         await reactor.action(.didImportFiles([directory]))
 
         #expect(export.calls == [.split(
@@ -96,19 +95,16 @@ struct ReactorExportTests {
         #expect(reactor.state.exportAlert == failure)
     }
 
-    @Test func splitWithImagesSplitsEverySourceInOrder() async {
+    @Test func splitPDFSkipsImages() async {
         let export = MockExportService()
         let reactor = makeReactor(export: export, images: makeImages())
         await reactor.action(.addFiles([TestFixtures.samplePNG, TestFixtures.samplePDF]))
         reactor.action(.rotate(id: reactor.state.items[0].id, direction: .right))
 
-        await reactor.action(.splitIntoPages)
+        await reactor.action(.perform(.split))
         await reactor.action(.didImportFiles([directory]))
 
-        #expect(export.calls == [.splitSources(
-            sources: [.image(TestFixtures.samplePNG, .ninety), .pdf(TestFixtures.samplePDF, .none)],
-            directory: directory
-        )])
+        #expect(export.calls == [.split(urls: [TestFixtures.samplePDF], rotations: [.none], directory: directory)])
     }
 
     @Test func createPDFConvertsWhenEveryTargetIsAnImage() async {
@@ -118,7 +114,7 @@ struct ReactorExportTests {
         let reactor = makeReactor(panels: panels, export: export, images: makeImages())
         await reactor.action(.addFiles([TestFixtures.samplePNG, secondPNG]))
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls == [.convert(urls: [TestFixtures.samplePNG, secondPNG], rotations: [.zero, .zero], destination: destination)])
         #expect(panels.requestedNames == [DesignSystem.FileNames.convertedImagesPDF])
@@ -131,7 +127,7 @@ struct ReactorExportTests {
         let reactor = makeReactor(panels: panels, export: export, images: makeImages())
         await reactor.action(.addFiles([TestFixtures.samplePNG, TestFixtures.samplePDF]))
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls == [.combine(
             sources: [.image(TestFixtures.samplePNG, .zero), .pdf(TestFixtures.samplePDF, .none)],
@@ -145,19 +141,19 @@ struct ReactorExportTests {
         panels.saveURL = destination
         let export = MockExportService(isGated: true)
         let reactor = makeReactor(panels: panels, export: export)
-        await reactor.action(.addFiles([TestFixtures.samplePDF]))
+        await reactor.action(.addFiles([TestFixtures.samplePDF, TestFixtures.sample2PDF]))
 
-        let running = Task { await reactor.action(.createPDF) }
+        let running = Task { await reactor.exportOneFile() }
         while export.calls.isEmpty {
             await Task.yield()
         }
         #expect(reactor.state.activity == .merging)
         #expect(!reactor.state.canEdit)
 
-        await reactor.action(.createPDF)
-        await reactor.action(.addFiles([TestFixtures.sample2PDF]))
+        await reactor.exportOneFile()
+        await reactor.action(.addFiles([TestFixtures.samplePNG]))
         #expect(export.calls.count == 1)
-        #expect(reactor.state.pdfs.count == 1)
+        #expect(reactor.state.items.count == 2)
 
         export.release()
         await running.value

@@ -163,7 +163,7 @@ struct ReactorReorderTests {
         let second = reactor.state.pdfs[1]
 
         reactor.action(.move(id: second.id, to: 0))
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls == [.merge(
             urls: [TestFixtures.sample2PDF, TestFixtures.samplePDF],
@@ -187,7 +187,7 @@ struct ReactorReorderTests {
         ]))
         reactor.action(.move(id: reactor.state.pdfs[1].id, to: 0))
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         let first = try #require(PDFDocument(url: TestFixtures.sample2PDF))
         let second = try #require(PDFDocument(url: TestFixtures.samplePDF))
@@ -238,7 +238,7 @@ struct ReactorReorderTests {
         let reactor = await makeImageReactor(urls: urls, panels: panels, export: export)
 
         reactor.action(.move(id: reactor.state.images[2].id, to: 0))
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls == [.convert(urls: [urls[2], urls[0], urls[1]], rotations: [.zero, .zero, .zero], destination: destination)])
     }
@@ -258,7 +258,7 @@ struct ReactorReorderTests {
         let reactor = await makeImageReactor(urls: [wide, tall], panels: panels, export: ExportService())
 
         reactor.action(.move(id: reactor.state.images[1].id, to: 0))
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         let document = try #require(PDFDocument(url: output))
         #expect(document.pageCount == 2)
@@ -278,7 +278,7 @@ struct ReactorReorderTests {
         reactor.action(.setPDFs([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
         let pdfsBefore = reactor.state.pdfs
 
-        let running = Task { await reactor.action(.createPDF) }
+        let running = Task { await reactor.exportOneFile() }
         while reactor.state.activity == nil {
             await Task.yield()
         }

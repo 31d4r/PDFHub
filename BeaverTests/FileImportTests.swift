@@ -69,7 +69,7 @@ struct FileImportTests {
         let reactor = makeReactor(export: export)
         await reactor.action(.addFiles([TestFixtures.samplePDF]))
 
-        await reactor.action(.splitIntoPages)
+        await reactor.action(.perform(.split))
 
         #expect(reactor.state.fileImport == .splitDestination([.pdf(TestFixtures.samplePDF, .none)]))
         #expect(reactor.state.isFileImporterPresented)
@@ -79,7 +79,7 @@ struct FileImportTests {
     @Test func splitIgnoresEmptyList() async {
         let reactor = makeReactor()
 
-        await reactor.action(.splitIntoPages)
+        await reactor.action(.perform(.split))
 
         #expect(reactor.state.fileImport == nil)
         #expect(!reactor.state.isFileImporterPresented)
@@ -104,8 +104,8 @@ struct FileImportTests {
             imageService: MockImageService(),
             exportService: export
         )
-        await reactor.action(.addFiles([TestFixtures.samplePDF]))
-        let running = Task { await reactor.action(.createPDF) }
+        await reactor.action(.addFiles([TestFixtures.samplePDF, TestFixtures.sample2PDF]))
+        let running = Task { await reactor.exportOneFile() }
         while reactor.state.activity == nil {
             await Task.yield()
         }

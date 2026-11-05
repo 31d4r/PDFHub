@@ -284,7 +284,7 @@ struct ReactorImageRotationTests {
 
         reactor.action(.rotate(id: second.id, direction: .left))
         reactor.action(.move(id: second.id, to: 0))
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         #expect(export.calls == [.convert(urls: [urls[1], urls[0]], rotations: [.twoSeventy, .zero], destination: destination)])
     }
@@ -293,7 +293,7 @@ struct ReactorImageRotationTests {
         let export = MockExportService(isGated: true)
         let reactor = await makeReactor(export: export)
 
-        let running = Task { await reactor.action(.createPDF) }
+        let running = Task { await reactor.exportOneFile() }
         while reactor.state.activity == nil {
             await Task.yield()
         }

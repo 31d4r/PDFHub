@@ -350,7 +350,7 @@ struct ReactorPageRotationTests {
         let reactor = makeReactor(export: export)
         let id = reactor.state.pdfs[0].id
 
-        let running = Task { await reactor.action(.createPDF) }
+        let running = Task { await reactor.exportOneFile() }
         while reactor.state.activity == nil {
             await Task.yield()
         }
@@ -379,7 +379,7 @@ struct ReactorPageRotationTests {
         #expect(reactor.state.pdfs[0].pageRotations == [0: .ninety])
         #expect(reactor.state.pdfs[1].pageRotations == [1: .twoSeventy])
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
         #expect(export.calls == [.merge(
             urls: [TestFixtures.sample2PDF, TestFixtures.samplePDF],
             rotations: [PDFRotation(pages: [0: .ninety]), PDFRotation(pages: [1: .twoSeventy])],
@@ -399,7 +399,7 @@ struct ReactorPageRotationTests {
         reactor.action(.rotatePages(id: id, pages: [0], direction: .right))
         let directory = URL(fileURLWithPath: "/tmp", isDirectory: true)
 
-        await reactor.action(.splitIntoPages)
+        await reactor.action(.perform(.split))
         await reactor.action(.didImportFiles([directory]))
 
         #expect(export.calls == [.split(
@@ -461,12 +461,12 @@ struct ReactorPageRotationTests {
         let panels = MockSaveLocationProvider()
         panels.saveURL = output
         let reactor = BeaverReactor(saveLocationProvider: panels, imageService: MockImageService(), exportService: ExportService())
-        reactor.action(.setPDFs([PDFItem(url: source)]))
+        reactor.action(.setPDFs([PDFItem(url: source), PDFItem(url: TestFixtures.samplePDF)]))
         let id = reactor.state.pdfs[0].id
         reactor.action(.rotate(id: id, direction: .right))
         reactor.action(.rotatePages(id: id, pages: [1], direction: .right))
 
-        await reactor.action(.createPDF)
+        await reactor.exportOneFile()
 
         let merged = try #require(PDFDocument(url: output))
         #expect(merged.page(at: 0)?.rotation == 90)    // 0 + 90 + 0

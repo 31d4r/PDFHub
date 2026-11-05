@@ -34,16 +34,18 @@ enum DesignSystem {
         static let rotateRight = "rotate.right"
         static let remove = "trash"
         static let more = "ellipsis.circle"
-        static let createPDF = "doc.badge.plus"
-        static let splitIntoPages = "square.split.2x1"
+        static let merge = "arrow.triangle.merge"
+        static let split = "scissors"
+        static let convert = "photo.on.rectangle.angled"
+        static let combine = "square.stack"
+        static let rotate = "rotate.right"
         static let pages = "square.grid.2x2"
         static let quickLook = "eye"
         static let pdf = "doc.richtext"
         static let image = "photo"
-        static let thumbnailSmall = "square.grid.3x3"
-        static let thumbnailLarge = "square.grid.2x2"
         static let selectedPage = "checkmark.circle.fill"
-        static let pagesRotated = "rotate.right.fill"
+        static let rotated = "rotate.right"
+        static let addToWorkspace = "plus.rectangle.on.rectangle"
         static let unreadable = "doc.questionmark"
         static let exportSucceeded = "checkmark.circle.fill"
         static let showInFinder = "folder"
@@ -53,8 +55,20 @@ enum DesignSystem {
 
     /// The window and its toolbar.
     enum Workspace {
-        static var title: String { String(localized: "Files", comment: "Window title of Beaver's file list") }
+        static var title: String { String(localized: "window.title", defaultValue: "Beaver", comment: "Window title: the app's name") }
         static var emptySubtitle: String { String(localized: "No files", comment: "Window subtitle when the list is empty") }
+
+        /// "3 PDFs and 2 images · 2 selected", or just the counts when nothing is selected.
+        static func subtitle(pdfs: Int, images: Int, selected: Int) -> String {
+            guard pdfs + images > 0 else { return emptySubtitle }
+            let counts = summary(pdfs: pdfs, images: images)
+            guard selected > 0 else { return counts }
+            return String(
+                localized: "window.subtitle.selection",
+                defaultValue: "\(counts) · \(Pages.selectedCount(selected))",
+                comment: "Window subtitle: what's in the list, then how many files are selected"
+            )
+        }
 
         /// "3 PDFs and 2 images"
         static func summary(pdfs: Int, images: Int) -> String {
@@ -65,10 +79,6 @@ enum DesignSystem {
         }
 
         /// "2 of 5 selected"
-        static func selectionSummary(selected: Int, total: Int) -> String {
-            String(localized: "\(selected) of \(total) selected")
-        }
-
         static var addFiles: String { String(localized: "Add Files…") }
         static var addFilesHelp: String { String(localized: "Add PDFs and images") }
         static var rotateLeft: String { String(localized: "Rotate Left") }
@@ -77,36 +87,116 @@ enum DesignSystem {
         static var remove: String { String(localized: "Remove") }
         static var removeAll: String { String(localized: "Remove All…") }
         static var more: String { String(localized: "More") }
-        static var thumbnailSize: String { String(localized: "Thumbnail Size") }
-        static var createPDF: String { String(localized: "Create PDF") }
-        static var splitIntoPages: String { String(localized: "Split into Pages") }
+        static var rotateSelectedLeft: String { String(localized: "workspace.rotateSelectedLeft", defaultValue: "Rotate Selected Left") }
+        static var rotateSelectedRight: String { String(localized: "workspace.rotateSelectedRight", defaultValue: "Rotate Selected Right") }
+        static var rotateAllLeft: String { String(localized: "workspace.rotateAllLeft", defaultValue: "Rotate All Left") }
+        static var rotateAllRight: String { String(localized: "workspace.rotateAllRight", defaultValue: "Rotate All Right") }
         static var quickLook: String { String(localized: "Quick Look") }
 
+        /// "Rotate selected left" or "Rotate all left": the Rotate menu's tooltip details.
         static func rotateHelp(_ direction: RotationDirection, selection: Bool) -> String {
             switch (direction, selection) {
-            case (.left, true): return String(localized: "Rotate the selected files left")
-            case (.left, false): return String(localized: "Rotate all files left")
-            case (.right, true): return String(localized: "Rotate the selected files right")
-            case (.right, false): return String(localized: "Rotate all files right")
+            case (.left, true): return String(localized: "rotate.help.selectedLeft", defaultValue: "Rotate the selected files left")
+            case (.left, false): return String(localized: "rotate.help.allLeft", defaultValue: "Rotate every file left")
+            case (.right, true): return String(localized: "rotate.help.selectedRight", defaultValue: "Rotate the selected files right")
+            case (.right, false): return String(localized: "rotate.help.allRight", defaultValue: "Rotate every file right")
             }
         }
 
+        static var selectedSection: String { String(localized: "rotate.section.selected", defaultValue: "Selected Files") }
+        static var allSection: String { String(localized: "rotate.section.all", defaultValue: "All Files") }
 
-        static func createPDFHelp(_ kind: ExportKind, selection: Bool) -> String {
-            switch (kind, selection) {
-            case (.pdfs, true): return String(localized: "Merge the selected PDFs into one PDF")
-            case (.pdfs, false): return String(localized: "Merge all PDFs into one PDF")
-            case (.images, true): return String(localized: "Turn the selected images into one PDF")
-            case (.images, false): return String(localized: "Turn all images into one PDF")
-            case (.mixed, true): return String(localized: "Combine the selected files into one PDF")
-            case (.mixed, false): return String(localized: "Combine all files into one PDF")
+        static var rotateMenuHelp: String {
+            String(localized: "rotate.menu.help", defaultValue: "Rotate the selected files, or every file")
+        }
+
+        static var addToWorkspace: String { String(localized: "export.addToWorkspace", defaultValue: "Add to Beaver") }
+    }
+
+    /// Merge, Split, Convert and Combine: their names, what they'll do, and why they can't.
+    enum Actions {
+        static func title(_ action: DocumentAction) -> String {
+            switch action {
+            case .merge: return String(localized: "action.merge", defaultValue: "Merge PDFs")
+            case .split: return String(localized: "action.split", defaultValue: "Split PDF")
+            case .convert: return String(localized: "action.convert", defaultValue: "Convert to PDF")
+            case .combine: return String(localized: "action.combine", defaultValue: "Combine into PDF")
             }
         }
 
-        static func splitHelp(selection: Bool) -> String {
-            selection
-                ? String(localized: "Save each page of the selected files as its own PDF")
-                : String(localized: "Save each page of all files as its own PDF")
+        /// The menu item: the title with "…" because a save panel or folder picker follows.
+        static func menuTitle(_ action: DocumentAction) -> String {
+            switch action {
+            case .merge: return String(localized: "menu.merge", defaultValue: "Merge PDFs…")
+            case .split: return String(localized: "menu.split", defaultValue: "Split PDF…")
+            case .convert: return String(localized: "menu.convert", defaultValue: "Convert to PDF…")
+            case .combine: return String(localized: "menu.combine", defaultValue: "Combine into PDF…")
+            }
+        }
+
+        static func icon(_ action: DocumentAction) -> String {
+            switch action {
+            case .merge: return Icons.merge
+            case .split: return Icons.split
+            case .convert: return Icons.convert
+            case .combine: return Icons.combine
+            }
+        }
+
+        /// What will happen, to which files: "Merge 3 selected PDFs into one PDF".
+        static func detail(_ action: DocumentAction, count: Int, selection: Bool) -> String {
+            switch (action, selection) {
+            case (.merge, true):
+                return String(localized: "action.merge.detail.selected", defaultValue: "Merge \(count) selected PDFs into one PDF")
+            case (.merge, false):
+                return String(localized: "action.merge.detail.all", defaultValue: "Merge all \(count) PDFs into one PDF")
+            case (.split, true):
+                return String(localized: "action.split.detail.selected", defaultValue: "Save each page of \(count) selected PDFs as its own PDF")
+            case (.split, false):
+                return String(localized: "action.split.detail.all", defaultValue: "Save each page of all \(count) PDFs as its own PDF")
+            case (.convert, true):
+                return String(localized: "action.convert.detail.selected", defaultValue: "Turn \(count) selected images into one PDF")
+            case (.convert, false):
+                return String(localized: "action.convert.detail.all", defaultValue: "Turn all \(count) images into one PDF")
+            case (.combine, true):
+                return String(localized: "action.combine.detail.selected", defaultValue: "Combine \(count) selected files into one PDF, in order")
+            case (.combine, false):
+                return String(localized: "action.combine.detail.all", defaultValue: "Combine all \(count) files into one PDF, in order")
+            }
+        }
+
+        /// Why the action is dimmed, phrased as what to do about it.
+        static func reason(_ reason: DocumentAction.Unavailable) -> String {
+            switch reason {
+            case .busy:
+                return String(localized: "action.reason.busy", defaultValue: "Available when Beaver finishes the current task")
+            case .needsTwoPDFs(let selection):
+                return selection
+                    ? String(localized: "action.reason.merge.select", defaultValue: "Select at least two PDFs to merge")
+                    : String(localized: "action.reason.merge.add", defaultValue: "Add at least two PDFs to merge")
+            case .mergeTakesOnlyPDFs:
+                return String(
+                    localized: "action.reason.merge.pdfsOnly",
+                    defaultValue: "Merge works with PDFs only. Use Combine into PDF to include images."
+                )
+            case .needsPDF(let selection):
+                return selection
+                    ? String(localized: "action.reason.split.select", defaultValue: "Select a PDF to split")
+                    : String(localized: "action.reason.split.add", defaultValue: "Add a PDF to split")
+            case .needsImages(let selection):
+                return selection
+                    ? String(localized: "action.reason.convert.select", defaultValue: "Select images to convert")
+                    : String(localized: "action.reason.convert.add", defaultValue: "Add images to convert to a PDF")
+            case .convertTakesOnlyImages:
+                return String(
+                    localized: "action.reason.convert.imagesOnly",
+                    defaultValue: "Convert works with images only. Use Combine into PDF to include PDFs."
+                )
+            case .needsBothKinds(let selection):
+                return selection
+                    ? String(localized: "action.reason.combine.select", defaultValue: "Select both PDFs and images to combine")
+                    : String(localized: "action.reason.combine.add", defaultValue: "Combine needs both PDFs and images")
+            }
         }
     }
 
@@ -128,7 +218,29 @@ enum DesignSystem {
     /// One file in the grid.
     enum Card {
         static var pdfKind: String { String(localized: "PDF") }
-        static var pagesRotatedBadge: String { String(localized: "Pages rotated") }
+
+        /// The rotation badge: "Rotated 90°", or "3 pages rotated" for a PDF's own page turns.
+        static func rotatedBadge(file: RotationAngle, rotatedPages: Int) -> String? {
+            switch (file == .zero, rotatedPages) {
+            case (true, 0):
+                return nil
+            case (false, 0):
+                return String(localized: "card.rotated", defaultValue: "Rotated \(file.degrees)°", comment: "Badge tooltip on a turned file")
+            case (true, _):
+                return String(localized: "card.pagesRotated", defaultValue: "\(rotatedPages) pages rotated", comment: "Badge tooltip on a PDF with turned pages")
+            case (false, _):
+                return String(
+                    localized: "card.rotatedWithPages",
+                    defaultValue: "Rotated \(file.degrees)°, \(rotatedPages) pages rotated",
+                    comment: "Badge tooltip on a turned PDF that also has turned pages"
+                )
+            }
+        }
+
+        /// "90°" on the badge itself.
+        static func rotatedBadgeLabel(_ angle: RotationAngle) -> String {
+            String(localized: "card.rotatedLabel", defaultValue: "\(angle.degrees)°", comment: "Degrees on the rotation badge")
+        }
 
         /// "PDF · 12 pages"
         static func pdfMeta(pageCount: Int?) -> String {
@@ -181,11 +293,15 @@ enum DesignSystem {
         static var selectionHint: String {
             String(localized: "Click to select, ⌘-click to add or remove, ⇧-click for a range.")
         }
-        static var pagesRotatedBadge: String { String(localized: "Pages rotated") }
-        static var pagesRotatedBadgeHelp: String { String(localized: "Some pages have their own rotation") }
+        static var rotateLeft: String { String(localized: "pages.rotateLeft", defaultValue: "Rotate Left") }
+        static var rotateRight: String { String(localized: "pages.rotateRight", defaultValue: "Rotate Right") }
+        static var rotateSelectionHint: String {
+            String(localized: "pages.rotateSelection.disabled", defaultValue: "Select pages to rotate them")
+        }
 
+        /// The sheet title is the file name; "3 pages" goes underneath.
         static func title(_ fileName: String) -> String {
-            String(localized: "Pages of \(fileName)")
+            fileName
         }
 
         static func pageCount(_ count: Int) -> String {
@@ -218,11 +334,9 @@ enum DesignSystem {
     }
 
     enum Commands {
-        static var menuTitle: String { String(localized: "menu.title", defaultValue: "PDF", comment: "Menu bar menu with Beaver's PDF actions") }
+        static var menuTitle: String { String(localized: "menu.actions.title", defaultValue: "Actions", comment: "Menu bar menu with Beaver's actions") }
         static var addFiles: String { String(localized: "menu.addFiles", defaultValue: "Add Files…") }
-        static var createPDF: String { String(localized: "menu.createPDF", defaultValue: "Create PDF…") }
-        static var splitIntoPages: String { String(localized: "menu.splitIntoPages", defaultValue: "Split into Pages…") }
-        static var showPages: String { String(localized: "menu.showPages", defaultValue: "Show Pages") }
+        static var showPages: String { String(localized: "menu.showPages", defaultValue: "Show Pages…") }
         static var quickLook: String { String(localized: "menu.quickLook", defaultValue: "Quick Look") }
         static var rotateLeft: String { String(localized: "menu.rotateLeft", defaultValue: "Rotate Left") }
         static var rotateRight: String { String(localized: "menu.rotateRight", defaultValue: "Rotate Right") }
@@ -260,10 +374,23 @@ enum DesignSystem {
         /// Key equivalents as the menus show them.
         enum Shortcut {
             static let addFiles = "⌘O"
-            static let createPDF = "⌥⌘M"
-            static let splitIntoPages = "⌥⌘S"
+            static let merge = "⌥⌘M"
+            static let split = "⌥⌘S"
+            static let convert = "⌥⌘I"
+            static let combine = "⌥⌘C"
             static let rotateLeft = "⌘L"
             static let rotateRight = "⌘R"
+            static let rotateAllLeft = "⇧⌘L"
+            static let rotateAllRight = "⇧⌘R"
+
+            static func action(_ action: DocumentAction) -> String {
+                switch action {
+                case .merge: return merge
+                case .split: return split
+                case .convert: return convert
+                case .combine: return combine
+                }
+            }
             static let showPages = "⌥⌘P"
             static let quickLook = "⌘Y"
             static let remove = "⌘⌫"
@@ -285,7 +412,7 @@ enum DesignSystem {
             )
         }
 
-        /// "Create PDF (⌥⌘M)" on the first line and what it will do on the second.
+        /// "Merge PDFs (⌥⌘M)" on the first line and what it will do on the second.
         static func withDetail(_ title: String, _ detail: String) -> String {
             String(
                 localized: "help.withDetail",
@@ -302,33 +429,35 @@ enum DesignSystem {
         static func rotate(_ direction: RotationDirection) -> String {
             direction == .left ? rotateLeft : rotateRight
         }
-        static func rotateAll(_ direction: RotationDirection, selection: Bool) -> String {
-            withDetail(rotate(direction), Workspace.rotateHelp(direction, selection: selection))
+        /// "Rotate Selected Left (⌘L)" or "Rotate All Left (⇧⌘L)", then what it turns.
+        static func rotateMenuItem(_ direction: RotationDirection, selection: Bool) -> String {
+            let title: String
+            let shortcut: String
+            switch (direction, selection) {
+            case (.left, true): (title, shortcut) = (Workspace.rotateSelectedLeft, Shortcut.rotateLeft)
+            case (.right, true): (title, shortcut) = (Workspace.rotateSelectedRight, Shortcut.rotateRight)
+            case (.left, false): (title, shortcut) = (Workspace.rotateAllLeft, Shortcut.rotateAllLeft)
+            case (.right, false): (title, shortcut) = (Workspace.rotateAllRight, Shortcut.rotateAllRight)
+            }
+            return withDetail(withShortcut(title, shortcut), Workspace.rotateHelp(direction, selection: selection))
+        }
+
+        /// The toolbar and menu tooltip for Merge, Split, Convert or Combine: its shortcut,
+        /// then what it will do to which files, or why it's dimmed.
+        static func action(_ action: DocumentAction, _ availability: DocumentAction.Availability) -> String {
+            let title = withShortcut(Actions.title(action), Shortcut.action(action))
+            switch availability {
+            case .available(let count, let selection):
+                return withDetail(title, Actions.detail(action, count: count, selection: selection))
+            case .unavailable(let reason):
+                return withDetail(title, Actions.reason(reason))
+            }
         }
         static var more: String { String(localized: "help.more", defaultValue: "More: select, deselect and remove files") }
         static var selectAll: String { withShortcut(Pages.selectAll, Shortcut.selectAll) }
         static var deselectAll: String { withShortcut(Commands.deselectAll, Shortcut.deselectAll) }
         static var remove: String { withShortcut(Workspace.remove, Shortcut.remove) }
         static var removeAll: String { withShortcut(Workspace.removeAll, Shortcut.removeAll) }
-        static var thumbnailSize: String {
-            String(
-                localized: "help.thumbnailSize",
-                defaultValue: "\(Workspace.thumbnailSize) (Larger \(Shortcut.larger), Smaller \(Shortcut.smaller))",
-                comment: "Tooltip on the thumbnail size slider, with the zoom shortcuts"
-            )
-        }
-        static func splitIntoPages(selection: Bool) -> String {
-            withDetail(
-                withShortcut(Workspace.splitIntoPages, Shortcut.splitIntoPages),
-                Workspace.splitHelp(selection: selection)
-            )
-        }
-        static func createPDF(_ kind: ExportKind, selection: Bool) -> String {
-            withDetail(
-                withShortcut(Workspace.createPDF, Shortcut.createPDF),
-                Workspace.createPDFHelp(kind, selection: selection)
-            )
-        }
         static var showPages: String { withShortcut(Pages.showPages, Shortcut.showPages) }
         static var quickLook: String {
             String(
@@ -339,13 +468,15 @@ enum DesignSystem {
         }
         static var rotateSelectedPagesLeft: String { withShortcut(Pages.rotateSelectedLeft, Shortcut.rotateLeft) }
         static var rotateSelectedPagesRight: String { withShortcut(Pages.rotateSelectedRight, Shortcut.rotateRight) }
+        /// The sheet's text buttons: what they turn, or how to make them work.
+        static func rotatePages(_ direction: RotationDirection, hasSelection: Bool) -> String {
+            let title = direction == .left ? rotateSelectedPagesLeft : rotateSelectedPagesRight
+            return hasSelection ? title : withDetail(title, Pages.rotateSelectionHint)
+        }
         static var rotateAllPages: String { Pages.rotateAllPages }
         static var rotateAllPagesLeft: String { Pages.rotateAllPagesLeft }
         static var rotateAllPagesRight: String { Pages.rotateAllPagesRight }
         static var done: String { withShortcut(Pages.done, Shortcut.done) }
-        static var pagesRotatedBadge: String {
-            withDetail(Card.pagesRotatedBadge, Pages.pagesRotatedBadgeHelp)
-        }
     }
 
     /// The Help ▸ Keyboard Shortcuts window: a reference people open when they want it,
@@ -373,14 +504,18 @@ enum DesignSystem {
             return [
                 Section(title: String(localized: "shortcuts.section.files", defaultValue: "Files"), entries: [
                     Entry(title: Workspace.addFiles, keys: Key.addFiles),
-                    Entry(title: Workspace.createPDF, keys: Key.createPDF),
-                    Entry(title: Workspace.splitIntoPages, keys: Key.splitIntoPages),
                     Entry(title: Workspace.remove, keys: Key.remove),
                     Entry(title: Workspace.removeAll, keys: Key.removeAll),
                 ]),
+                Section(
+                    title: String(localized: "shortcuts.section.actions", defaultValue: "Actions"),
+                    entries: DocumentAction.allCases.map { Entry(title: Actions.title($0), keys: Key.action($0)) }
+                ),
                 Section(title: String(localized: "shortcuts.section.arrange", defaultValue: "Arrange"), entries: [
-                    Entry(title: Workspace.rotateLeft, keys: Key.rotateLeft),
-                    Entry(title: Workspace.rotateRight, keys: Key.rotateRight),
+                    Entry(title: Workspace.rotateSelectedLeft, keys: Key.rotateLeft),
+                    Entry(title: Workspace.rotateSelectedRight, keys: Key.rotateRight),
+                    Entry(title: Workspace.rotateAllLeft, keys: Key.rotateAllLeft),
+                    Entry(title: Workspace.rotateAllRight, keys: Key.rotateAllRight),
                     Entry(title: Commands.undo, keys: "⌘Z"),
                     Entry(title: Commands.redo, keys: "⇧⌘Z"),
                     Entry(

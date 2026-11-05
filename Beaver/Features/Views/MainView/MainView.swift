@@ -4,10 +4,10 @@ import QuickLook
 import SwiftUI
 
 /// Beaver's one window. PDFs and images share a single grid, in output order, so there's no
-/// mode to pick first: what Create PDF does follows from what's in the list.
+/// mode to pick first: the toolbar's Merge, Split, Convert and Combine follow from what's
+/// in the list and what's selected.
 struct MainView: View {
     @EnvironmentObject private var reactor: BeaverReactor
-    @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
     @State private var isDropTargeted = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -71,7 +71,7 @@ struct MainView: View {
             .navigationTitle(DesignSystem.Workspace.title)
             .windowSubtitle(subtitle)
             .toolbar {
-                WorkspaceToolbar(reactor: reactor, thumbnailSize: $thumbnailSize)
+                WorkspaceToolbar(reactor: reactor)
             }
     }
 
@@ -118,14 +118,14 @@ struct MainView: View {
         }
     }
 
-    /// "2 of 5 selected", "3 PDFs, 2 images", or "No files".
+    /// "3 PDFs and 2 images · 2 selected", "3 PDFs and 2 images", or "No files".
     private var subtitle: String {
         let state = reactor.state
-        if state.isEmpty { return DesignSystem.Workspace.emptySubtitle }
-        if state.hasSelection {
-            return DesignSystem.Workspace.selectionSummary(selected: state.selection.count, total: state.items.count)
-        }
-        return DesignSystem.Workspace.summary(pdfs: state.pdfs.count, images: state.images.count)
+        return DesignSystem.Workspace.subtitle(
+            pdfs: state.pdfs.count,
+            images: state.images.count,
+            selected: state.selection.count
+        )
     }
 }
 

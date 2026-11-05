@@ -107,3 +107,11 @@ enum TestFixtures {
         directory.appendingPathComponent("sample.png")
     }
 }
+
+extension BeaverReactor {
+    /// Runs the one-PDF action that fits the targets: Merge for PDFs, Convert for images,
+    /// Combine for both. Lets export tests read as "save these as one file".
+    func exportOneFile() async {
+        await action(.perform(DocumentAction.singleFile(for: state.targets)))
+    }
+}
