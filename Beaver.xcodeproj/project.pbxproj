@@ -7,10 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE22519C2D848668003F6736 /* AsyncReactor in Frameworks */ = {isa = PBXBuildFile; productRef = CE22519B2D848668003F6736 /* AsyncReactor */; };
 		B3A0C0DE2E00000000000001 /* BeaverCore in Frameworks */ = {isa = PBXBuildFile; productRef = B3A0C0DE2E00000000000002 /* BeaverCore */; };
+		CE22519C2D848668003F6736 /* AsyncReactor in Frameworks */ = {isa = PBXBuildFile; productRef = CE22519B2D848668003F6736 /* AsyncReactor */; };
 /* End PBXBuildFile section */
-
 
 /* Begin PBXContainerItemProxy section */
 		A1B2C3D42D848628003F6708 /* PBXContainerItemProxy */ = {
@@ -23,8 +22,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		CE2251882D848628003F6736 /* Beaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D42D848628003F6701 /* BeaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BeaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE2251882D848628003F6736 /* Beaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -39,6 +38,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		A1B2C3D42D848628003F6706 /* BeaverTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BeaverTests;
+			sourceTree = "<group>";
+		};
 		CECDD78E2D8AE8F700FE7AD7 /* Beaver */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -47,27 +51,22 @@
 			path = Beaver;
 			sourceTree = "<group>";
 		};
-		A1B2C3D42D848628003F6706 /* BeaverTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BeaverTests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A1B2C3D42D848628003F6704 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CE2251852D848628003F6736 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				CE22519C2D848668003F6736 /* AsyncReactor in Frameworks */,
 				B3A0C0DE2E00000000000001 /* BeaverCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A1B2C3D42D848628003F6704 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +94,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A1B2C3D42D848628003F6702 /* BeaverTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "BeaverTests" */;
+			buildPhases = (
+				A1B2C3D42D848628003F6703 /* Sources */,
+				A1B2C3D42D848628003F6704 /* Frameworks */,
+				A1B2C3D42D848628003F6705 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1B2C3D42D848628003F6707 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A1B2C3D42D848628003F6706 /* BeaverTests */,
+			);
+			name = BeaverTests;
+			packageProductDependencies = (
+			);
+			productName = BeaverTests;
+			productReference = A1B2C3D42D848628003F6701 /* BeaverTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CE2251872D848628003F6736 /* Beaver */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CE2251972D848629003F6736 /* Build configuration list for PBXNativeTarget "Beaver" */;
@@ -119,29 +141,6 @@
 			productReference = CE2251882D848628003F6736 /* Beaver.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A1B2C3D42D848628003F6702 /* BeaverTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "BeaverTests" */;
-			buildPhases = (
-				A1B2C3D42D848628003F6703 /* Sources */,
-				A1B2C3D42D848628003F6704 /* Frameworks */,
-				A1B2C3D42D848628003F6705 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				A1B2C3D42D848628003F6707 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				A1B2C3D42D848628003F6706 /* BeaverTests */,
-			);
-			name = BeaverTests;
-			packageProductDependencies = (
-			);
-			productName = BeaverTests;
-			productReference = A1B2C3D42D848628003F6701 /* BeaverTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -152,12 +151,12 @@
 				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					CE2251872D848628003F6736 = {
-						CreatedOnToolsVersion = 16.1;
-					};
 					A1B2C3D42D848628003F6702 = {
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = CE2251872D848628003F6736;
+					};
+					CE2251872D848628003F6736 = {
+						CreatedOnToolsVersion = 16.1;
 					};
 				};
 			};
@@ -186,14 +185,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		CE2251862D848628003F6736 /* Resources */ = {
+		A1B2C3D42D848628003F6705 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A1B2C3D42D848628003F6705 /* Resources */ = {
+		CE2251862D848628003F6736 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -203,13 +202,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		CE2251842D848628003F6736 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A1B2C3D42D848628003F6703 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -217,8 +209,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE2251842D848628003F6736 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
-
 
 /* Begin PBXTargetDependency section */
 		A1B2C3D42D848628003F6707 /* PBXTargetDependency */ = {
@@ -229,6 +227,56 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		A1B2C3D42D848628003F670A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beaver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beaver";
+			};
+			name = Debug;
+		};
+		A1B2C3D42D848628003F670B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beaver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beaver";
+			};
+			name = Release;
+		};
 		CE2251952D848629003F6736 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -371,14 +419,15 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Beaver/Info.plist;
 				"INFOPLIST_FILE[sdk=iphone*]" = "Beaver/Info-iOS.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Beaver;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_CFBundleDisplayName = Beaver;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -387,19 +436,18 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.Beaver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.Beaver;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -421,14 +469,15 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Beaver/Info.plist;
 				"INFOPLIST_FILE[sdk=iphone*]" = "Beaver/Info-iOS.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Beaver;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_CFBundleDisplayName = Beaver;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -437,76 +486,33 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.Beaver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-			};
-			name = Release;
-		};
-
-		A1B2C3D42D848628003F670A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beaver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beaver";
-			};
-			name = Debug;
-		};
-		A1B2C3D42D848628003F670B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eldartutnjic.BeaverTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beaver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Beaver";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "BeaverTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D42D848628003F670A /* Debug */,
+				A1B2C3D42D848628003F670B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CE2251832D848628003F6736 /* Build configuration list for PBXProject "Beaver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -521,15 +527,6 @@
 			buildConfigurations = (
 				CE2251982D848629003F6736 /* Debug */,
 				CE2251992D848629003F6736 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A1B2C3D42D848628003F6709 /* Build configuration list for PBXNativeTarget "BeaverTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A1B2C3D42D848628003F670A /* Debug */,
-				A1B2C3D42D848628003F670B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -555,14 +552,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B3A0C0DE2E00000000000002 /* BeaverCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BeaverCore;
+		};
 		CE22519B2D848668003F6736 /* AsyncReactor */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CE22519A2D848668003F6736 /* XCRemoteSwiftPackageReference "AsyncReactor" */;
 			productName = AsyncReactor;
-		};
-		B3A0C0DE2E00000000000002 /* BeaverCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BeaverCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
