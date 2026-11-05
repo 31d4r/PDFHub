@@ -4,8 +4,9 @@ import AppKit
 #endif
 
 /// A non-blocking note after a successful export, with the next steps a person usually wants:
-/// reveal the file in Finder, open it, or add a new PDF to the list. It stays until dismissed
-/// or the next export starts.
+/// reveal the file in Finder, open it, or add a new PDF to the list. On the Mac it stays until
+/// dismissed or the next export starts; on iPhone and iPad it also goes by itself after a few
+/// seconds, unless VoiceOver is on, it has been touched, or it offers to add the PDF.
 struct ExportBanner: View {
     let alert: ExportAlert
     /// Shown only for a single new PDF that isn't listed yet; exports never add their output themselves.
@@ -15,6 +16,9 @@ struct ExportBanner: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
+    @Environment(\.accessibilityVoiceOverEnabled) private var isVoiceOverRunning
+    @AccessibilityFocusState private var isFocused: Bool
+    @State private var hasInteracted = false
 
     private var isFolder: Bool {
         guard let output = alert.output else { return false }
@@ -36,9 +40,27 @@ struct ExportBanner: View {
                 Divider().opacity(contrast == .increased ? 1 : 0.6)
             }
             .accessibilityElement(children: .contain)
+            .accessibilityFocused($isFocused)
             .onAppear {
                 AccessibilityNotification.Announcement(alert.message).post()
             }
+            #if os(iOS)
+            .simultaneousGesture(TapGesture().onEnded { hasInteracted = true })
+            .task(id: autoDismissDelay) {
+                guard let autoDismissDelay else { return }
+                try? await Task.sleep(for: autoDismissDelay)
+                guard !Task.isCancelled else { return }
+                onDismiss()
+            }
+            #endif
+    }
+
+    private var autoDismissDelay: Duration? {
+        ExportBannerPolicy.autoDismissDelay(
+            isVoiceOverRunning: isVoiceOverRunning || isFocused,
+            hasInteracted: hasInteracted,
+            offersChoice: onAddToWorkspace != nil
+        )
     }
 
     /// One row on the Mac. On iPhone and iPad the buttons go under the message, side by side

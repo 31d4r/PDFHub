@@ -195,6 +195,8 @@ struct MobileMainView: View {
             ) {
                 reactor.action(.didDismissAlert)
             }
+            // A new export gets a new banner, with its own timer.
+            .id(alert.message)
             .transition(barTransition)
         }
     }

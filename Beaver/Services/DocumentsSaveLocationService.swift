@@ -4,7 +4,7 @@ import Foundation
 
 /// Saves new PDFs into the app's Documents folder, which the Files app shows under
 /// On My iPhone › Beaver. iOS has no modal save panel, so the export writes here first
-/// and the banner then offers Share and Save to Files for another place.
+/// and the banner then offers Share, and Show in Files to open that folder.
 @MainActor
 struct DocumentsSaveLocationService: SaveLocationProviding {
     private let directory: URL?

@@ -50,16 +50,12 @@ extension DesignSystem {
         static var shareHelp: String {
             String(localized: "mobile.share.help", defaultValue: "Send the PDF with AirDrop, Mail, Messages and more", comment: "iOS: accessibility hint for Share")
         }
-        static var saveToFiles: String { String(localized: "mobile.saveToFiles", defaultValue: "Save to Files", comment: "iOS: save a copy of the PDF to a place in Files") }
-        static var saveToFilesHelp: String {
-            String(localized: "mobile.saveToFiles.help", defaultValue: "Save a copy in iCloud Drive or another place in Files", comment: "iOS: accessibility hint for Save to Files")
-        }
         static var showInFiles: String { String(localized: "mobile.showInFiles", defaultValue: "Show in Files", comment: "iOS: open the Files app at the saved pages") }
         static var showInFilesHelp: String {
             String(localized: "mobile.showInFiles.help", defaultValue: "Open the folder with the saved pages in Files", comment: "iOS: accessibility hint for Show in Files")
         }
-        static func savedCopy(_ fileName: String) -> String {
-            String(localized: "mobile.savedCopy", defaultValue: "Saved a copy of \(fileName)", comment: "iOS: VoiceOver announcement after Save to Files")
+        static var showFileInFilesHelp: String {
+            String(localized: "mobile.showFileInFiles.help", defaultValue: "Open Beaver’s folder in Files, where the PDF was saved", comment: "iOS: accessibility hint for Show in Files after one PDF is saved")
         }
         static var photos: String { String(localized: "mobile.photos", defaultValue: "Photos", comment: "iOS: add images from the photo library") }
         static var choosePhotos: String { String(localized: "mobile.choosePhotos", defaultValue: "Choose Photos", comment: "iOS empty state button that opens the photo library") }

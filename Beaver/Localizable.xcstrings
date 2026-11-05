@@ -1897,42 +1897,6 @@
         }
       }
     },
-    "mobile.saveToFiles" : {
-      "comment" : "iOS: save a copy of the PDF to a place in Files",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save to Files"
-          }
-        }
-      }
-    },
-    "mobile.saveToFiles.help" : {
-      "comment" : "iOS: accessibility hint for Save to Files",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save a copy in iCloud Drive or another place in Files"
-          }
-        }
-      }
-    },
-    "mobile.savedCopy" : {
-      "comment" : "iOS: VoiceOver announcement after Save to Files",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved a copy of %@"
-          }
-        }
-      }
-    },
     "mobile.select" : {
       "comment" : "iOS: start choosing files in the grid",
       "extractionState" : "manual",
@@ -2025,6 +1989,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Send the PDF with AirDrop, Mail, Messages and more"
+          }
+        }
+      }
+    },
+    "mobile.showFileInFiles.help" : {
+      "comment" : "iOS: accessibility hint for Show in Files after one PDF is saved",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Beaver’s folder in Files, where the PDF was saved"
           }
         }
       }
