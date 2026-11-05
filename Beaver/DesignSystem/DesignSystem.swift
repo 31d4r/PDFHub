@@ -348,6 +348,69 @@ enum DesignSystem {
         }
     }
 
+    /// The Help ▸ Keyboard Shortcuts window: a reference people open when they want it,
+    /// instead of tips that pop up on their own.
+    enum Shortcuts {
+        struct Entry: Identifiable, Equatable {
+            let title: String
+            let keys: String
+            var id: String { title + keys }
+        }
+
+        struct Section: Identifiable, Equatable {
+            let title: String
+            let entries: [Entry]
+            var id: String { title }
+        }
+
+        static var windowID: String { "keyboard-shortcuts" }
+        static var windowTitle: String { String(localized: "shortcuts.title", defaultValue: "Keyboard Shortcuts") }
+        static var menuItem: String { String(localized: "shortcuts.menuItem", defaultValue: "Keyboard Shortcuts") }
+        static var showShortcut: String { "⌘/" }
+
+        static var sections: [Section] {
+            typealias Key = Help.Shortcut
+            return [
+                Section(title: String(localized: "shortcuts.section.files", defaultValue: "Files"), entries: [
+                    Entry(title: Workspace.addFiles, keys: Key.addFiles),
+                    Entry(title: Workspace.createPDF, keys: Key.createPDF),
+                    Entry(title: Workspace.splitIntoPages, keys: Key.splitIntoPages),
+                    Entry(title: Workspace.remove, keys: Key.remove),
+                    Entry(title: Workspace.removeAll, keys: Key.removeAll),
+                ]),
+                Section(title: String(localized: "shortcuts.section.arrange", defaultValue: "Arrange"), entries: [
+                    Entry(title: Workspace.rotateLeft, keys: Key.rotateLeft),
+                    Entry(title: Workspace.rotateRight, keys: Key.rotateRight),
+                    Entry(title: Commands.undo, keys: "⌘Z"),
+                    Entry(title: Commands.redo, keys: "⇧⌘Z"),
+                    Entry(
+                        title: String(localized: "shortcuts.reorder", defaultValue: "Change the order"),
+                        keys: EmptyState.hintDragKey
+                    ),
+                ]),
+                Section(title: String(localized: "shortcuts.section.select", defaultValue: "Select"), entries: [
+                    Entry(title: Pages.selectAll, keys: Key.selectAll),
+                    Entry(title: Commands.deselectAll, keys: "\(Key.deselectAll)  ⎋"),
+                    Entry(
+                        title: String(localized: "shortcuts.moveSelection", defaultValue: "Select the next file"),
+                        keys: "← → ↑ ↓"
+                    ),
+                    Entry(
+                        title: String(localized: "shortcuts.extendSelection", defaultValue: "Add the next file to the selection"),
+                        keys: "⇧ ← → ↑ ↓"
+                    ),
+                ]),
+                Section(title: String(localized: "shortcuts.section.view", defaultValue: "View"), entries: [
+                    Entry(title: Workspace.quickLook, keys: "\(EmptyState.hintSpaceKey)  \(Key.quickLook)"),
+                    Entry(title: Pages.showPages, keys: "\(Key.showPages)  ↩"),
+                    Entry(title: Commands.largerThumbnails, keys: Key.larger),
+                    Entry(title: Commands.smallerThumbnails, keys: Key.smaller),
+                    Entry(title: Export.cancel, keys: Key.cancel),
+                ]),
+            ]
+        }
+    }
+
     /// The banner after a successful export, and the progress bar's Cancel.
     enum Export {
         static var showInFinder: String { String(localized: "export.showInFinder", defaultValue: "Show in Finder") }

@@ -14,6 +14,9 @@ struct RotateControlsView: View {
     var extra: CardAction?
     let onRotate: (RotationDirection) -> Void
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
+
     var body: some View {
         HStack(spacing: 0) {
             button(
@@ -36,10 +39,20 @@ struct RotateControlsView: View {
             }
         }
         .padding(.horizontal, Constants.capsulePadding)
-        .background(.regularMaterial, in: Capsule())
-        .overlay(Capsule().strokeBorder(.separator, lineWidth: Constants.borderWidth))
+        .background(capsuleFill, in: Capsule())
+        .overlay(
+            Capsule().strokeBorder(
+                contrast == .increased ? AnyShapeStyle(.primary) : AnyShapeStyle(.separator),
+                lineWidth: contrast == .increased ? Constants.highContrastBorderWidth : Constants.borderWidth
+            )
+        )
         .shadow(color: .black.opacity(Constants.shadowOpacity), radius: Constants.shadowRadius, y: 1)
         .disabled(isDisabled)
+    }
+
+    /// Frosted over the thumbnail, or solid when the person asked for less transparency.
+    private var capsuleFill: AnyShapeStyle {
+        reduceTransparency ? AnyShapeStyle(.background) : AnyShapeStyle(.regularMaterial)
     }
 
     private func button(
@@ -66,6 +79,7 @@ private enum Constants {
     static let capsulePadding: CGFloat = 4
     static let dividerHeight: CGFloat = 14
     static let borderWidth: CGFloat = 0.5
+    static let highContrastBorderWidth: CGFloat = 1
     static let shadowOpacity: Double = 0.12
     static let shadowRadius: CGFloat = 3
 }

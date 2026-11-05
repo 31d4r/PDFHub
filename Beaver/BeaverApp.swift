@@ -20,5 +20,13 @@ struct BeaverApp: App {
         .commands {
             BeaverCommands()
         }
+
+        #if os(macOS)
+        Window(DesignSystem.Shortcuts.windowTitle, id: DesignSystem.Shortcuts.windowID) {
+            KeyboardShortcutsView()
+        }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        #endif
     }
 }

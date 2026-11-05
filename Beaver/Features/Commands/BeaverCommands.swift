@@ -9,8 +9,18 @@ import AppKit
 struct BeaverCommands: Commands {
     @FocusedObject private var reactor: BeaverReactor?
     @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
+        // There's no Help Book, so replace the item that would only say "Help isn't available"
+        // with a shortcut reference that opens when asked for.
+        CommandGroup(replacing: .help) {
+            Button(DesignSystem.Shortcuts.menuItem) {
+                openWindow(id: DesignSystem.Shortcuts.windowID)
+            }
+            .keyboardShortcut("/", modifiers: .command)
+        }
+
         CommandGroup(replacing: .undoRedo) {
             Button(undoTitle) {
                 if let reactor, reactor.state.canUndo {
