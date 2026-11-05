@@ -6,6 +6,7 @@ import AppKit
 
 /// A sheet with every page of one PDF: rotate single pages, a selection, or all of them.
 /// Changes go through the reactor at once, so they can be undone and are used by Merge and Split.
+/// The sheet starts at a size that fits its pages and can be resized.
 struct PDFPagesView: View {
     @EnvironmentObject private var reactor: BeaverReactor
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -37,9 +38,11 @@ struct PDFPagesView: View {
         }
         .frame(
             minWidth: Constants.minWidth,
-            idealWidth: Constants.idealWidth,
+            idealWidth: idealSize.width,
+            maxWidth: .infinity,
             minHeight: Constants.minHeight,
-            idealHeight: Constants.idealHeight
+            idealHeight: idealSize.height,
+            maxHeight: .infinity
         )
         .focusedSceneObject(reactor)
         .onExitCommand(perform: close)
@@ -52,19 +55,22 @@ struct PDFPagesView: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(alignment: .center, spacing: DesignSystem.Spacing.small) {
+        HStack(alignment: .center, spacing: DesignSystem.Spacing.medium) {
             VStack(alignment: .leading, spacing: Constants.titleSpacing) {
                 Text(DesignSystem.Pages.title(pdf.url.lastPathComponent))
                     .font(.headline)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                    .help(pdf.url.lastPathComponent)
                     .accessibilityAddTraits(.isHeader)
                 Text(subtitle)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .monospacedDigit()
             }
+            .layoutPriority(1)
 
-            Spacer(minLength: DesignSystem.Spacing.medium)
+            Spacer(minLength: 0)
 
             Button(DesignSystem.Pages.selectAll) {
                 selection.selectAll(count: count)
@@ -72,39 +78,7 @@ struct PDFPagesView: View {
             .keyboardShortcut("a", modifiers: .command)
             .help(DesignSystem.Help.selectAll)
             .disabled(count == 0)
-
-            ControlGroup {
-                Button {
-                    rotateSelection(.left)
-                } label: {
-                    Label(DesignSystem.Pages.rotateSelectedLeft, systemImage: DesignSystem.Icons.rotateLeft)
-                }
-                .keyboardShortcut("l", modifiers: .command)
-                .help(DesignSystem.Help.rotateSelectedPagesLeft)
-
-                Button {
-                    rotateSelection(.right)
-                } label: {
-                    Label(DesignSystem.Pages.rotateSelectedRight, systemImage: DesignSystem.Icons.rotateRight)
-                }
-                .keyboardShortcut("r", modifiers: .command)
-                .help(DesignSystem.Help.rotateSelectedPagesRight)
-            }
-            .labelStyle(.iconOnly)
             .fixedSize()
-            .disabled(isDisabled || selection.isEmpty)
-
-            Menu {
-                Button(DesignSystem.Pages.rotateAllPagesLeft) { rotateAllPages(.left) }
-                    .help(DesignSystem.Help.rotateAllPagesLeft)
-                Button(DesignSystem.Pages.rotateAllPagesRight) { rotateAllPages(.right) }
-                    .help(DesignSystem.Help.rotateAllPagesRight)
-            } label: {
-                Label(DesignSystem.Pages.rotateAllPages, systemImage: DesignSystem.Icons.rotateRight)
-            }
-            .fixedSize()
-            .disabled(isDisabled || count == 0)
-            .help(DesignSystem.Help.rotateAllPages)
         }
         .padding(DesignSystem.Spacing.contentPadding)
     }
@@ -165,6 +139,7 @@ struct PDFPagesView: View {
             }
             .focusable()
             .focused($isGridFocused)
+            .accessibilityHint(DesignSystem.Pages.selectionHint)
             .focusEffectDisabled()
             .onKeyPress(keys: [.leftArrow, .rightArrow, .upArrow, .downArrow]) { press in
                 step(press.key, extending: press.modifiers.contains(.shift))
@@ -180,18 +155,58 @@ struct PDFPagesView: View {
 
     // MARK: - Footer
 
+    /// Rotate the selected pages or all of them, and Done.
     private var footer: some View {
-        HStack {
-            Text(DesignSystem.Pages.selectionHint)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-            Spacer()
+        HStack(spacing: DesignSystem.Spacing.small) {
+            Button {
+                rotateSelection(.left)
+            } label: {
+                Label(DesignSystem.Pages.rotateLeft, systemImage: DesignSystem.Icons.rotateLeft)
+            }
+            .keyboardShortcut("l", modifiers: .command)
+            .help(DesignSystem.Help.rotatePages(.left, hasSelection: !selection.isEmpty))
+            .disabled(isDisabled || selection.isEmpty)
+
+            Button {
+                rotateSelection(.right)
+            } label: {
+                Label(DesignSystem.Pages.rotateRight, systemImage: DesignSystem.Icons.rotateRight)
+            }
+            .keyboardShortcut("r", modifiers: .command)
+            .help(DesignSystem.Help.rotatePages(.right, hasSelection: !selection.isEmpty))
+            .disabled(isDisabled || selection.isEmpty)
+
+            Menu {
+                Button(DesignSystem.Pages.rotateAllPagesLeft) { rotateAllPages(.left) }
+                    .help(DesignSystem.Help.rotateAllPagesLeft)
+                Button(DesignSystem.Pages.rotateAllPagesRight) { rotateAllPages(.right) }
+                    .help(DesignSystem.Help.rotateAllPagesRight)
+            } label: {
+                Text(DesignSystem.Pages.rotateAllPages)
+            }
+            .fixedSize()
+            .disabled(isDisabled || count == 0)
+            .help(DesignSystem.Help.rotateAllPages)
+
+            Spacer(minLength: DesignSystem.Spacing.medium)
+
             Button(DesignSystem.Pages.done, action: close)
                 .keyboardShortcut(.defaultAction)
                 .help(DesignSystem.Help.done)
         }
+        .labelStyle(.titleAndIcon)
         .padding(DesignSystem.Spacing.contentPadding)
+    }
+
+    /// Wide enough for up to four pages in a row and tall enough for two rows, within the screen.
+    private var idealSize: CGSize {
+        let columns = CGFloat(min(max(count, 1), Constants.idealColumns))
+        let rows = CGFloat(min(max((count + Constants.idealColumns - 1) / Constants.idealColumns, 1), Constants.idealRows))
+        let width = columns * Constants.cellMinimum + (columns - 1) * Constants.gridSpacing
+            + 2 * DesignSystem.Spacing.contentPadding
+        let height = rows * Constants.cellHeight + (rows - 1) * Constants.gridSpacing
+            + 2 * DesignSystem.Spacing.contentPadding + Constants.chromeHeight
+        return CGSize(width: max(width, Constants.minWidth), height: max(height, Constants.minHeight))
     }
 
     // MARK: - Actions
@@ -265,12 +280,18 @@ private struct PageThumbnailCell: View {
 
     @State private var image: CGImage?
 
+    /// Solid accent when selected, a lighter ring for keyboard focus alone.
+    private var cellRing: Color {
+        if isSelected { return .accentColor }
+        return isFocused ? Color.accentColor.opacity(Constants.focusRingOpacity) : .clear
+    }
+
     var body: some View {
         VStack(spacing: Constants.cellSpacing) {
             thumbnail
             HStack {
                 Text(DesignSystem.Pages.page(index))
-                    .font(.callout.weight(.medium))
+                    .font(.callout.weight(isSelected ? .semibold : .medium))
                     .foregroundStyle(.primary)
                     .accessibilityHidden(true)
                 Spacer(minLength: 0)
@@ -284,7 +305,11 @@ private struct PageThumbnailCell: View {
         .padding(Constants.cellPadding)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.Layout.selectionRadius, style: .continuous)
-                .fill(.quinary)
+                .fill(isSelected ? AnyShapeStyle(Color.accentColor.opacity(Constants.selectedTintOpacity)) : AnyShapeStyle(.quinary))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Layout.selectionRadius, style: .continuous)
+                .strokeBorder(cellRing, lineWidth: Constants.selectionLineWidth)
         )
         .accessibilityElement(children: .contain)
         .task(id: index) {
@@ -311,19 +336,12 @@ private struct PageThumbnailCell: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
-        .overlay {
-            RoundedRectangle(cornerRadius: DesignSystem.Layout.thumbnailRadius, style: .continuous)
-                .strokeBorder(
-                    isSelected ? Color.accentColor : (isFocused ? Color.accentColor.opacity(0.5) : .clear),
-                    lineWidth: Constants.selectionLineWidth
-                )
-        }
         .overlay(alignment: .topTrailing) {
             if isSelected {
                 Image(systemName: DesignSystem.Icons.selectedPage)
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(.white, Color.accentColor)
-                    .font(.title3)
+                    .font(.title2)
                     .padding(Constants.checkmarkPadding)
                     .accessibilityHidden(true)
             }
@@ -338,10 +356,16 @@ private struct PageThumbnailCell: View {
 }
 
 private enum Constants {
-    static let minWidth: CGFloat = 640
-    static let idealWidth: CGFloat = 820
-    static let minHeight: CGFloat = 480
-    static let idealHeight: CGFloat = 640
+    static let minWidth: CGFloat = 560
+    static let minHeight: CGFloat = 420
+    static let idealColumns = 4
+    static let idealRows = 2
+    /// A cell at its minimum width: square thumbnail, label row and padding.
+    static let cellHeight: CGFloat = 230
+    /// Header, footer and their dividers.
+    static let chromeHeight: CGFloat = 130
+    static let selectedTintOpacity: Double = 0.14
+    static let focusRingOpacity: Double = 0.5
     static let titleSpacing: CGFloat = 2
     static let cellMinimum: CGFloat = 170
     static let gridSpacing: CGFloat = 16

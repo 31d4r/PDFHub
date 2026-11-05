@@ -75,9 +75,9 @@ struct RotateControlsView: View {
 }
 
 private enum Constants {
-    static let buttonSize: CGFloat = 26
+    static let buttonSize: CGFloat = 28
     static let capsulePadding: CGFloat = 4
-    static let dividerHeight: CGFloat = 14
+    static let dividerHeight: CGFloat = 16
     static let borderWidth: CGFloat = 0.5
     static let highContrastBorderWidth: CGFloat = 1
     static let shadowOpacity: Double = 0.12
