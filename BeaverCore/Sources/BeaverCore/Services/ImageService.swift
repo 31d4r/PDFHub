@@ -11,9 +11,13 @@ public protocol ImageServiceProtocol: Sendable {
     /// its EXIF orientation, and quarter turns swap the page size. Matched by position, so the same
     /// file added twice can be turned two ways; missing entries mean no rotation.
     func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult
+    /// The image's size in pixels, upright by its EXIF orientation. `nil` when it can't be read.
+    func pixelSize(for url: URL) -> CGSize?
 }
 
 public extension ImageServiceProtocol {
+    func pixelSize(for url: URL) -> CGSize? { nil }
+
     func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
         convertImagesToPDF(imageUrls: imageUrls, rotations: [])
     }
@@ -39,6 +43,21 @@ public struct ImageService: ImageServiceProtocol {
     public func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage? {
         guard let source = makeSource(for: url) else { return nil }
         return orientedImage(from: source, maxPixelSize: maxPixelSize)
+    }
+
+    public func pixelSize(for url: URL) -> CGSize? {
+        guard
+            let source = makeSource(for: url),
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+            let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.intValue,
+            let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.intValue,
+            width > 0, height > 0
+        else { return nil }
+        // EXIF orientations 5–8 store the image turned a quarter.
+        let orientation = (properties[kCGImagePropertyOrientation] as? NSNumber)?.intValue ?? 1
+        return (5...8).contains(orientation)
+            ? CGSize(width: height, height: width)
+            : CGSize(width: width, height: height)
     }
 
     public func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult {

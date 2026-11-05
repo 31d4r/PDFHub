@@ -10,16 +10,20 @@ public struct ImageItem: Identifiable, Equatable, Sendable {
     public private(set) var rotationAngle: RotationAngle
     /// `thumbnail` turned by `rotationAngle`, for display.
     public private(set) var preview: CGImage
+    /// The full image's size in pixels, upright by its EXIF orientation, when known.
+    public let pixelSize: CGSize?
 
     public init(
         id: UUID = UUID(),
         url: URL,
         thumbnail: CGImage,
-        rotationAngle: RotationAngle = .zero
+        rotationAngle: RotationAngle = .zero,
+        pixelSize: CGSize? = nil
     ) {
         self.id = id
         self.url = url
         self.thumbnail = thumbnail
+        self.pixelSize = pixelSize
         self.rotationAngle = rotationAngle
         self.preview = ImageRotator.rotate(thumbnail, by: rotationAngle) ?? thumbnail
     }

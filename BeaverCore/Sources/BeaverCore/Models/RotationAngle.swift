@@ -42,3 +42,12 @@ public enum RotationAngle: Int, CaseIterable, Equatable, Sendable {
         }
     }
 }
+
+public extension RotationAngle {
+    /// The shortest clockwise (positive) or counterclockwise (negative) turn in degrees from this
+    /// angle to `other`, so an animation from 270° to 0° turns a quarter, not three quarters.
+    func shortestTurn(to other: RotationAngle) -> Int {
+        let delta = RotationAngle.normalized(other.degrees - degrees)
+        return delta > 180 ? delta - 360 : delta
+    }
+}

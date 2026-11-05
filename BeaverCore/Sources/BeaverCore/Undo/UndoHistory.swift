@@ -19,6 +19,8 @@ public struct UndoHistory<Snapshot: Equatable & Sendable, Label: Equatable & Sen
     public var canRedo: Bool { !redoEntries.isEmpty }
     public var undoLabel: Label? { undoEntries.last?.label }
     public var redoLabel: Label? { redoEntries.last?.label }
+    /// Every saved state, oldest undo first, then redo.
+    public var snapshots: [Snapshot] { (undoEntries + redoEntries).map(\.snapshot) }
 
     /// Saves the state from before a change.
     public mutating func record(_ before: Snapshot, label: Label) {
