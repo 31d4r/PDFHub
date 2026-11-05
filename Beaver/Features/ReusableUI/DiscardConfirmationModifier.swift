@@ -27,13 +27,13 @@ struct DiscardConfirmationModifier: ViewModifier {
                         : DesignSystem.Confirmations.clearAll,
                     role: .destructive
                 ) {
-                    reactor.send(.confirmDiscard)
+                    reactor.send(.confirmDiscard(request))
                 }
                 Button(DesignSystem.Confirmations.cancel, role: .cancel) {
                     reactor.action(.didCancelDiscard)
                 }
             } message: { _ in
-                Text(DesignSystem.Confirmations.discardMessage)
+                Text(DesignSystem.Confirmations.discardMessage(includesRotations: reactor.state.hasDiscardableRotations))
             }
     }
 }

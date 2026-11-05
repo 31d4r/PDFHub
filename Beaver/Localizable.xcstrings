@@ -1,22 +1,22 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "%lld files loaded": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld file loaded"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld files loaded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld file loaded"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld files loaded"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld files loaded"
                 }
               }
             }
@@ -24,22 +24,22 @@
         }
       }
     },
-    "%lld images ready to convert": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld image ready to convert"
+    "%lld images ready to convert" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld image ready to convert"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld images ready to convert"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld images ready to convert"
                 }
               }
             }
@@ -47,128 +47,129 @@
         }
       }
     },
-    "Add Images": {
-      "extractionState": "manual"
+    "+%lld" : {},
+    "Add Images" : {
+      "extractionState" : "manual"
     },
-    "Add PDF": {
-      "extractionState": "manual"
+    "Add PDF" : {
+      "extractionState" : "manual"
     },
-    "Back": {
-      "extractionState": "manual"
+    "Back" : {
+      "extractionState" : "manual"
     },
-    "Beaver": {
-      "extractionState": "manual"
+    "Beaver" : {
+      "extractionState" : "manual"
     },
-    "Cancel": {
-      "extractionState": "manual"
+    "Cancel" : {
+      "extractionState" : "manual"
     },
-    "Clear All": {
-      "extractionState": "manual"
+    "Clear All" : {
+      "extractionState" : "manual"
     },
-    "Convert Images\nto PDF": {
-      "extractionState": "manual"
+    "Convert Images\nto PDF" : {
+      "extractionState" : "manual"
     },
-    "Convert to PDF": {
-      "extractionState": "manual"
+    "Convert to PDF" : {
+      "extractionState" : "manual"
     },
-    "Converting images…": {
-      "extractionState": "manual"
+    "Converting images…" : {
+      "extractionState" : "manual"
     },
-    "Delete This Image": {
-      "extractionState": "manual"
+    "Delete This Image" : {
+      "extractionState" : "manual"
     },
-    "Error": {
-      "extractionState": "manual"
+    "Error" : {
+      "extractionState" : "manual"
     },
-    "Failed to convert images to PDF": {
-      "extractionState": "manual"
+    "Failed to convert images to PDF" : {
+      "extractionState" : "manual"
     },
-    "Failed to merge PDFs": {
-      "extractionState": "manual"
+    "Failed to merge PDFs" : {
+      "extractionState" : "manual"
     },
-    "Failed to save any PDF files": {
-      "extractionState": "manual"
+    "Failed to save any PDF files" : {
+      "extractionState" : "manual"
     },
-    "Failed to save converted PDF: %@": {
-      "extractionState": "manual"
+    "Failed to save converted PDF: %@" : {
+      "extractionState" : "manual"
     },
-    "Failed to save merged PDF: %@": {
-      "extractionState": "manual"
+    "Failed to save merged PDF: %@" : {
+      "extractionState" : "manual"
     },
-    "Go Back": {
-      "extractionState": "manual"
+    "Go Back" : {
+      "extractionState" : "manual"
     },
-    "Images to PDF": {
-      "extractionState": "manual"
+    "Images to PDF" : {
+      "extractionState" : "manual"
     },
-    "Merge PDFs": {
-      "extractionState": "manual"
+    "Merge PDFs" : {
+      "extractionState" : "manual"
     },
-    "Merged PDF successfully saved at %@": {
-      "extractionState": "manual"
+    "Merged PDF successfully saved at %@" : {
+      "extractionState" : "manual"
     },
-    "Merging PDFs…": {
-      "extractionState": "manual"
+    "Merging PDFs…" : {
+      "extractionState" : "manual"
     },
-    "No images selected": {
-      "extractionState": "manual"
+    "No images selected" : {
+      "extractionState" : "manual"
     },
-    "No pages found to split": {
-      "extractionState": "manual"
+    "No pages found to split" : {
+      "extractionState" : "manual"
     },
-    "OK": {
-      "extractionState": "manual"
+    "OK" : {
+      "extractionState" : "manual"
     },
-    "PDF Document": {
-      "extractionState": "manual"
+    "PDF Document" : {
+      "extractionState" : "manual"
     },
-    "PDF Documents": {
-      "extractionState": "manual"
+    "PDF Documents" : {
+      "extractionState" : "manual"
     },
-    "Partially successful: Saved %lld files, failed to save %lld files": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Partially successful: Saved %#@saved@, failed to save %#@failed@"
+    "Partially successful: Saved %lld files, failed to save %lld files" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partially successful: Saved %#@saved@, failed to save %#@failed@"
           },
-          "substitutions": {
-            "failed": {
-              "argNum": 2,
-              "formatSpecifier": "lld",
-              "variations": {
-                "plural": {
-                  "one": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg file"
+          "substitutions" : {
+            "failed" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
                     }
                   },
-                  "other": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg files"
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
                     }
                   }
                 }
               }
             },
-            "saved": {
-              "argNum": 1,
-              "formatSpecifier": "lld",
-              "variations": {
-                "plural": {
-                  "one": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg file"
+            "saved" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
                     }
                   },
-                  "other": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg files"
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
                     }
                   }
                 }
@@ -178,31 +179,31 @@
         }
       }
     },
-    "Preview of %@": {
-      "extractionState": "manual"
+    "Preview of %@" : {
+      "extractionState" : "manual"
     },
-    "Remove": {
-      "extractionState": "manual"
+    "Remove" : {
+      "extractionState" : "manual"
     },
-    "Remove %@": {
-      "extractionState": "manual"
+    "Remove %@" : {
+      "extractionState" : "manual"
     },
-    "Remove %lld files from Beaver?": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Remove %lld file from Beaver?"
+    "Remove %lld files from Beaver?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Remove %lld file from Beaver?"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Remove %lld files from Beaver?"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Remove %lld files from Beaver?"
                 }
               }
             }
@@ -210,45 +211,45 @@
         }
       }
     },
-    "Rotate left": {
-      "extractionState": "manual"
+    "Rotate left" : {
+      "extractionState" : "manual"
     },
-    "Rotate right": {
-      "extractionState": "manual"
+    "Rotate right" : {
+      "extractionState" : "manual"
     },
-    "Save Converted PDF": {
-      "extractionState": "manual"
+    "Save Converted PDF" : {
+      "extractionState" : "manual"
     },
-    "Save Merged PDF": {
-      "extractionState": "manual"
+    "Save Merged PDF" : {
+      "extractionState" : "manual"
     },
-    "Save Split PDFs": {
-      "extractionState": "manual"
+    "Save Split PDFs" : {
+      "extractionState" : "manual"
     },
-    "Skipped %lld files that could not be read: %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skipped %#@files@ that could not be read: %2$@"
+    "Skipped %lld files that could not be read: %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skipped %#@files@ that could not be read: %2$@"
           },
-          "substitutions": {
-            "files": {
-              "argNum": 1,
-              "formatSpecifier": "lld",
-              "variations": {
-                "plural": {
-                  "one": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg file"
+          "substitutions" : {
+            "files" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
                     }
                   },
-                  "other": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg files"
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
                     }
                   }
                 }
@@ -258,37 +259,37 @@
         }
       }
     },
-    "Split & Merge\nPDF Files": {
-      "extractionState": "manual"
+    "Split & Merge\nPDF Files" : {
+      "extractionState" : "manual"
     },
-    "Split PDFs": {
-      "extractionState": "manual"
+    "Split PDFs" : {
+      "extractionState" : "manual"
     },
-    "Splitting PDFs…": {
-      "extractionState": "manual"
+    "Splitting PDFs…" : {
+      "extractionState" : "manual"
     },
-    "Success": {
-      "extractionState": "manual"
+    "Success" : {
+      "extractionState" : "manual"
     },
-    "Successfully converted images to PDF file": {
-      "extractionState": "manual"
+    "Successfully converted images to PDF file" : {
+      "extractionState" : "manual"
     },
-    "Successfully saved %lld PDF files": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Successfully saved %lld PDF file"
+    "Successfully saved %lld PDF files" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Successfully saved %lld PDF file"
                 }
               },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Successfully saved %lld PDF files"
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Successfully saved %lld PDF files"
                 }
               }
             }
@@ -296,101 +297,104 @@
         }
       }
     },
-    "The original files on disk are not changed. Rotations you made here will be lost.": {
-      "extractionState": "manual"
+    "The original files on disk are not changed." : {
+      "extractionState" : "manual"
     },
-    "Your PDF workflow companion": {
-      "extractionState": "manual"
+    "The original files on disk are not changed. Rotations you made here will be lost." : {
+      "extractionState" : "manual"
     },
-    "menu.addImages": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add Images…"
+    "Your PDF workflow companion" : {
+      "extractionState" : "manual"
+    },
+    "menu.addImages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Images…"
           }
         }
       }
     },
-    "menu.addPDFs": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add PDFs…"
+    "menu.addPDFs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add PDFs…"
           }
         }
       }
     },
-    "menu.back": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Back"
+    "menu.back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
           }
         }
       }
     },
-    "menu.clearAll": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear All…"
+    "menu.clearAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear All…"
           }
         }
       }
     },
-    "menu.convertToPDF": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Convert Images to PDF…"
+    "menu.convertToPDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convert Images to PDF…"
           }
         }
       }
     },
-    "menu.mergePDFs": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Merge PDFs…"
+    "menu.mergePDFs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge PDFs…"
           }
         }
       }
     },
-    "menu.splitPDFs": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Split PDFs…"
+    "menu.splitPDFs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split PDFs…"
           }
         }
       }
     },
-    "menu.title": {
-      "comment": "Menu bar menu with Beaver's PDF actions",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDF"
+    "menu.title" : {
+      "comment" : "Menu bar menu with Beaver's PDF actions",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

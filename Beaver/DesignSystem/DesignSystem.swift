@@ -170,7 +170,11 @@ enum DesignSystem {
         static func discardTitle(count: Int) -> String {
             String(localized: "Remove \(count) files from Beaver?")
         }
-        static var discardMessage: String { String(localized: "The original files on disk are not changed. Rotations you made here will be lost.") }
+        static func discardMessage(includesRotations: Bool) -> String {
+            includesRotations
+                ? String(localized: "The original files on disk are not changed. Rotations you made here will be lost.")
+                : String(localized: "The original files on disk are not changed.")
+        }
         static var goBack: String { String(localized: "Go Back") }
         static var clearAll: String { String(localized: "Clear All") }
         static var cancel: String { String(localized: "Cancel") }

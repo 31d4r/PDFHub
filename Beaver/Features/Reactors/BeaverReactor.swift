@@ -23,7 +23,8 @@ final class BeaverReactor: AsyncReactor {
 
         /// Asks before discarding the current list; runs immediately when there is nothing to lose.
         case requestDiscard(DiscardRequest)
-        case confirmDiscard
+        /// Carries the request shown in the dialog, because dismissing the dialog clears `pendingDiscard` first.
+        case confirmDiscard(DiscardRequest)
 
         /// The user picked files or a folder in the importer for `state.fileImport`.
         case didImportFiles([URL])
@@ -84,6 +85,11 @@ final class BeaverReactor: AsyncReactor {
             case .menu: return 0
             }
         }
+
+        /// Whether a discard would throw away rotations the user made on the current screen.
+        var hasDiscardableRotations: Bool {
+            screen == .pdfWorkflow && selectedPDFs.contains { $0.rotationAngle != .zero }
+        }
     }
 
     @Published private(set) var state: State
@@ -134,8 +140,8 @@ final class BeaverReactor: AsyncReactor {
             state.screen = screen
         case .requestDiscard(let request):
             requestDiscard(request)
-        case .confirmDiscard:
-            confirmDiscard()
+        case .confirmDiscard(let request):
+            confirmDiscard(request)
         case .didImportFiles(let urls):
             await completeFileImport(urls)
         case .didFailFileImport(let message):
@@ -384,9 +390,9 @@ final class BeaverReactor: AsyncReactor {
         }
     }
 
-    private func confirmDiscard() {
-        guard let request = state.pendingDiscard else { return }
+    private func confirmDiscard(_ request: DiscardRequest) {
         state.pendingDiscard = nil
+        guard state.activity == nil, state.screen != .menu else { return }
         perform(request)
     }
 
