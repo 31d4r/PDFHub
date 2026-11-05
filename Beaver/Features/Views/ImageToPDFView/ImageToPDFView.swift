@@ -114,6 +114,10 @@ struct ImageToPDFView: View {
                         reactor.send(.selectImages)
                     }
 
+                    RotateAllMenuButton(isDisabled: !reactor.state.canRotateAll) { direction in
+                        reactor.action(.rotateAll(direction))
+                    }
+
                     HeaderActionButton(
                         icon: DesignSystem.Icons.convertButtonIcon,
                         title: DesignSystem.ButtonLabels.convertToPDF,

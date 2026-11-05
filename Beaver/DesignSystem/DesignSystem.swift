@@ -101,6 +101,8 @@ enum DesignSystem {
         static let deleteIconFill = "trash.fill"
         static let rotateLeftIconFill = "rotate.left.fill"
         static let rotateRightIconFill = "rotate.right.fill"
+        static let rotateLeftIcon = "rotate.left"
+        static let rotateRightIcon = "rotate.right"
         static let pdfButtonIcon = "doc.text.fill"
         static let imageButtonIcon = "photo.stack.fill"
         static let headerIcon = "photo.stack.fill"
@@ -115,6 +117,7 @@ enum DesignSystem {
         static var convertToPDF: String { String(localized: "Convert to PDF") }
         static var clearAll: String { String(localized: "Clear All") }
         static var back: String { String(localized: "Back") }
+        static var rotateAll: String { String(localized: "Rotate All") }
     }
 
     enum Text {
@@ -180,6 +183,21 @@ enum DesignSystem {
         static var convertToPDF: String { String(localized: "menu.convertToPDF", defaultValue: "Convert Images to PDF…") }
         static var back: String { String(localized: "menu.back", defaultValue: "Back") }
         static var clearAll: String { String(localized: "menu.clearAll", defaultValue: "Clear All…") }
+        static var rotateAllLeft: String { String(localized: "menu.rotateAllLeft", defaultValue: "Rotate All Left") }
+        static var rotateAllRight: String { String(localized: "menu.rotateAllRight", defaultValue: "Rotate All Right") }
+        static var undo: String { String(localized: "menu.undo", defaultValue: "Undo") }
+        static var redo: String { String(localized: "menu.redo", defaultValue: "Redo") }
+        /// The name of an undoable change, shown after "Undo" or "Redo".
+        static var rotateEditName: String { String(localized: "menu.edit.rotate", defaultValue: "Rotate") }
+        static var rotateAllEditName: String { String(localized: "menu.edit.rotateAll", defaultValue: "Rotate All") }
+
+        static func undo(_ editName: String) -> String {
+            String(localized: "menu.undoNamed", defaultValue: "Undo \(editName)", comment: "Edit menu, e.g. Undo Rotate All")
+        }
+
+        static func redo(_ editName: String) -> String {
+            String(localized: "menu.redoNamed", defaultValue: "Redo \(editName)", comment: "Edit menu, e.g. Redo Rotate All")
+        }
     }
 
     enum Progress {

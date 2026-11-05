@@ -79,6 +79,10 @@ struct PDFGridListView: View {
                         reactor.send(.selectPDF)
                     }
 
+                    RotateAllMenuButton(isDisabled: !reactor.state.canRotateAll) { direction in
+                        reactor.action(.rotateAll(direction))
+                    }
+
                     HeaderActionButton(
                         icon: DesignSystem.Icons.splitButtonIcon,
                         title: DesignSystem.ButtonLabels.splitPDFs,
@@ -137,7 +141,7 @@ struct PDFGridListView: View {
                                 subject: pdf.url.lastPathComponent,
                                 isDisabled: reactor.state.activity != nil
                             ) { direction in
-                                pdf.rotationAngle = pdf.rotationAngle.rotated(direction)
+                                reactor.action(.rotatePDF(id: pdf.id, direction: direction))
                             }
 
                             Spacer()

@@ -277,6 +277,17 @@
         }
       }
     },
+    "Rotate All" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All"
+          }
+        }
+      }
+    },
     "Rotate left" : {
       "extractionState" : "manual"
     },
@@ -438,6 +449,28 @@
         }
       }
     },
+    "menu.edit.rotate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate"
+          }
+        }
+      }
+    },
+    "menu.edit.rotateAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All"
+          }
+        }
+      }
+    },
     "menu.mergePDFs" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -445,6 +478,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Merge PDFs…"
+          }
+        }
+      }
+    },
+    "menu.redo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redo"
+          }
+        }
+      }
+    },
+    "menu.redoNamed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redo %@"
+          }
+        }
+      }
+    },
+    "menu.rotateAllLeft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All Left"
+          }
+        }
+      }
+    },
+    "menu.rotateAllRight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate All Right"
           }
         }
       }
@@ -468,6 +545,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "PDF"
+          }
+        }
+      }
+    },
+    "menu.undo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo"
+          }
+        }
+      }
+    },
+    "menu.undoNamed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo %@"
           }
         }
       }

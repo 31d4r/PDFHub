@@ -46,8 +46,27 @@ final class BeaverReactor: AsyncReactor {
         /// Moves a card to `index`. Synchronous so a drop or menu choice applies at once.
         case movePDF(id: UUID, to: Int)
         case moveImage(id: UUID, to: Int)
-        /// Turns one image a quarter turn. Synchronous and carries the id, so a tap applies at once.
+        /// Rotations are synchronous and carry their target, so a tap applies at once and
+        /// each one can be undone. All are ignored while an export runs.
+        case rotatePDF(id: UUID, direction: RotationDirection)
         case rotateImage(id: UUID, direction: RotationDirection)
+        /// Turns every file on the current screen.
+        case rotateAll(RotationDirection)
+        case undo
+        case redo
+    }
+
+    /// What a rotation change was, for "Undo …" and "Redo …" menu titles.
+    enum RotationEdit: Equatable, Sendable {
+        case rotate
+        case rotateAll
+
+        var title: String {
+            switch self {
+            case .rotate: return DesignSystem.Commands.rotateEditName
+            case .rotateAll: return DesignSystem.Commands.rotateAllEditName
+            }
+        }
     }
 
     /// Something that would throw away the files the user has added.
@@ -81,6 +100,24 @@ final class BeaverReactor: AsyncReactor {
         /// What the file importer is for. Kept after dismissal so a late completion still applies.
         var fileImport: FileImportRequest?
         var isFileImporterPresented = false
+        var rotationHistory = UndoHistory<RotationSnapshot, RotationEdit>()
+
+        var rotationSnapshot: RotationSnapshot {
+            RotationSnapshot(pdfs: selectedPDFs, images: selectedImages)
+        }
+
+        /// Whether Rotate All has anything to turn right now.
+        var canRotateAll: Bool {
+            guard activity == nil else { return false }
+            switch screen {
+            case .pdfWorkflow: return !selectedPDFs.isEmpty
+            case .imageWorkflow: return !selectedImages.isEmpty
+            case .menu: return false
+            }
+        }
+
+        var canUndoRotation: Bool { activity == nil && rotationHistory.canUndo }
+        var canRedoRotation: Bool { activity == nil && rotationHistory.canRedo }
 
         /// Files on the current screen that a discard would remove.
         var discardableCount: Int {
@@ -185,11 +222,64 @@ final class BeaverReactor: AsyncReactor {
         case .moveImage(let id, let index):
             guard state.activity == nil else { return }
             state.selectedImages.move(id: id, to: index)
+        case .rotatePDF(let id, let direction):
+            recordingRotation(.rotate) { state in
+                guard let index = state.selectedPDFs.firstIndex(where: { $0.id == id }) else { return }
+                state.selectedPDFs[index].rotationAngle = state.selectedPDFs[index].rotationAngle.rotated(direction)
+            }
         case .rotateImage(let id, let direction):
-            guard state.activity == nil,
-                  let index = state.selectedImages.firstIndex(where: { $0.id == id })
-            else { return }
-            state.selectedImages[index].rotate(direction)
+            recordingRotation(.rotate) { state in
+                guard let index = state.selectedImages.firstIndex(where: { $0.id == id }) else { return }
+                state.selectedImages[index].rotate(direction)
+            }
+        case .rotateAll(let direction):
+            rotateAll(direction)
+        case .undo:
+            stepRotationHistory { history, current in history.undo(current: current) }
+        case .redo:
+            stepRotationHistory { history, current in history.redo(current: current) }
+        }
+    }
+
+    /// Applies `change` and, if it turned anything, records the previous rotations for undo.
+    private func recordingRotation(_ edit: RotationEdit, _ change: (inout State) -> Void) {
+        guard state.activity == nil else { return }
+        let before = state.rotationSnapshot
+        change(&state)
+        if state.rotationSnapshot != before {
+            state.rotationHistory.record(before, label: edit)
+        }
+    }
+
+    private func rotateAll(_ direction: RotationDirection) {
+        recordingRotation(.rotateAll) { state in
+            switch state.screen {
+            case .pdfWorkflow:
+                for index in state.selectedPDFs.indices {
+                    state.selectedPDFs[index].rotationAngle = state.selectedPDFs[index].rotationAngle.rotated(direction)
+                }
+            case .imageWorkflow:
+                for index in state.selectedImages.indices {
+                    state.selectedImages[index].rotate(direction)
+                }
+            case .menu:
+                break
+            }
+        }
+    }
+
+    /// Undoes or redoes one step, skipping steps that no longer change anything
+    /// (for example, a rotation of a card that has since been removed).
+    private func stepRotationHistory(
+        _ step: (inout UndoHistory<RotationSnapshot, RotationEdit>, RotationSnapshot) -> RotationSnapshot?
+    ) {
+        guard state.activity == nil else { return }
+        while true {
+            let current = state.rotationSnapshot
+            guard let target = step(&state.rotationHistory, current) else { return }
+            target.restore(&state.selectedPDFs)
+            target.restore(&state.selectedImages)
+            if state.rotationSnapshot != current { return }
         }
     }
 
@@ -303,12 +393,14 @@ final class BeaverReactor: AsyncReactor {
         state.selectedPDFs.removeAll { $0.id == id }
         releaseUnusedFileAccess()
         if state.selectedPDFs.isEmpty {
+            state.rotationHistory.removeAll()
             state.screen = .menu
         }
     }
 
     private func clearPDFs() {
         state.selectedPDFs.removeAll()
+        state.rotationHistory.removeAll()
         releaseUnusedFileAccess()
         state.screen = .menu
     }
@@ -392,12 +484,14 @@ final class BeaverReactor: AsyncReactor {
         state.selectedImages.removeAll { $0.id == id }
         releaseUnusedFileAccess()
         if state.selectedImages.isEmpty {
+            state.rotationHistory.removeAll()
             state.screen = .menu
         }
     }
 
     private func clearImages() {
         state.selectedImages.removeAll()
+        state.rotationHistory.removeAll()
         releaseUnusedFileAccess()
         state.screen = .menu
     }
