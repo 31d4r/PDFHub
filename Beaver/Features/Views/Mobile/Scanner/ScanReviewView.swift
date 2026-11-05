@@ -4,7 +4,8 @@ import PhotosUI
 import SwiftUI
 
 /// Checks a scan before it becomes a PDF: swipe through the pages, pick a look for each,
-/// fix corners, turn, reorder, delete, retake or add pages. Tap the title to rename it.
+/// fix corners, turn, reorder, delete, retake or add pages. It's a modal task, so the only ways
+/// out are Cancel and Save, never a back button; the name opens a menu with Rename.
 struct ScanReviewView: View {
     let isLoadingPhotos: Bool
     let onClose: () -> Void
@@ -19,6 +20,8 @@ struct ScanReviewView: View {
     @State private var isPhotoPickerPresented = false
     @State private var photoSelection: [PhotosPickerItem] = []
     @State private var isLoadingMorePhotos = false
+    @State private var isRenamePresented = false
+    @State private var draftName = ""
 
     private var state: ScanReactor.State { reactor.state }
 
@@ -27,14 +30,27 @@ struct ScanReviewView: View {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.background.secondary)
-                .navigationTitle(nameBinding)
+                // A plain title, not an editable one: the editor toolbar role that renames in
+                // place also adds a back button, which here would leave without asking.
+                .navigationTitle(state.name)
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbarRole(.editor)
+                .navigationBarBackButtonHidden()
                 .toolbar { toolbar }
                 .overlay { progress }
                 .animation(reduceMotion ? nil : .snappy, value: state.pages.map(\.id))
         }
-        .interactiveDismissDisabled()
+        .interactiveDismissDisabled(state.needsDiscardConfirmation)
+        .alert(DesignSystem.Scan.renameTitle, isPresented: $isRenamePresented) {
+            TextField(DesignSystem.Scan.namePlaceholder, text: $draftName)
+                .textInputAutocapitalization(.sentences)
+                .submitLabel(.done)
+            Button(DesignSystem.Scan.cancel, role: .cancel) {}
+            Button(DesignSystem.Scan.renameConfirm) {
+                reactor.action(.rename(draftName))
+            }
+        } message: {
+            Text(DesignSystem.Scan.renameMessage)
+        }
         .confirmationDialog(
             DesignSystem.Scan.discardTitle,
             isPresented: $isDiscardPresented,
@@ -207,14 +223,17 @@ struct ScanReviewView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
             Button(DesignSystem.Scan.cancel) {
-                if state.pages.isEmpty {
+                if state.needsDiscardConfirmation {
+                    isDiscardPresented = true
+                } else {
                     reactor.action(.discard)
                     onClose()
-                } else {
-                    isDiscardPresented = true
                 }
             }
             .disabled(state.activity == .saving)
+        }
+        ToolbarItem(placement: .principal) {
+            titleMenu
         }
         ToolbarItem(placement: .confirmationAction) {
             Button(DesignSystem.Scan.save) {
@@ -260,6 +279,38 @@ struct ScanReviewView: View {
             }
             .disabled(!canChangePage)
         }
+    }
+
+    /// The name, shrunk a little and then cut in the middle so the date at the end stays
+    /// visible. The whole name is in the menu, in the rename field and in what VoiceOver reads.
+    private var titleMenu: some View {
+        Menu {
+            Section(state.name) {
+                Button {
+                    draftName = state.name
+                    isRenamePresented = true
+                } label: {
+                    Label(DesignSystem.Scan.rename, systemImage: DesignSystem.Scan.Icons.rename)
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(state.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .minimumScaleFactor(0.8)
+                Image(systemName: DesignSystem.Scan.Icons.titleMenu)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
+            .foregroundStyle(.primary)
+        }
+        .disabled(!state.canEdit || isBusy)
+        .accessibilityLabel(state.name)
+        .accessibilityHint(DesignSystem.Scan.renameHelp)
+        .accessibilityAddTraits(.isHeader)
     }
 
     private var addMenu: some View {
@@ -311,10 +362,6 @@ struct ScanReviewView: View {
 
     private var isBusy: Bool {
         state.activity != nil || isLoadingPhotos || isLoadingMorePhotos
-    }
-
-    private var nameBinding: Binding<String> {
-        Binding(get: { state.name }, set: { reactor.action(.rename($0)) })
     }
 
     private var currentPageBinding: Binding<UUID?> {

@@ -55,6 +55,22 @@ struct ScanReactorTests {
         #expect(reactor.state.name == "Receipts")
     }
 
+    @Test func onlyUnsavedPagesAskBeforeTheyAreThrownAway() async throws {
+        let output = directory.appendingPathComponent("out", isDirectory: true)
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        saveLocation.saveURL = output.appendingPathComponent("Saved.pdf")
+        let reactor = makeReactor()
+        #expect(!reactor.state.needsDiscardConfirmation)
+
+        await reactor.action(.addCaptures([page()]))
+        #expect(reactor.state.needsDiscardConfirmation)
+
+        await reactor.action(.save)
+        #expect(reactor.state.savedURL != nil)
+        #expect(!reactor.state.needsDiscardConfirmation)
+    }
+
     @Test func aFilterAppliesToOnePageOrAll() async {
         let reactor = makeReactor()
         await reactor.action(.addCaptures([page(), page()]))
@@ -184,6 +200,7 @@ struct ScanReactorTests {
         #expect(reactor.state.savedURL == nil)
         #expect(reactor.state.errorMessage == DesignSystem.Scan.saveFailed)
         #expect(reactor.state.pages.count == 1)
+        #expect(reactor.state.needsDiscardConfirmation)
         #expect(reactor.state.canSave)
         reactor.action(.discard)
     }

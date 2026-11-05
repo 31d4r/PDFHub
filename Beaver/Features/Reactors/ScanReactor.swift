@@ -57,6 +57,8 @@ final class ScanReactor: AsyncReactor {
         var currentPage: ScanPage? { currentIndex.map { pages[$0] } }
         var canEdit: Bool { activity == nil && savedURL == nil }
         var canSave: Bool { canEdit && !pages.isEmpty }
+        /// Pages that haven't been saved yet are only thrown away after asking.
+        var needsDiscardConfirmation: Bool { !pages.isEmpty && savedURL == nil }
 
         /// Whether Apply to All would change another page.
         var canApplyFilterToAll: Bool {

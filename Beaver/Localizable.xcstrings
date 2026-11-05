@@ -2631,6 +2631,18 @@
         }
       }
     },
+    "scan.name.placeholder" : {
+      "comment" : "iOS: placeholder in the rename field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        }
+      }
+    },
     "scan.namePrefix" : {
       "comment" : "Start of a scanned PDF's file name, followed by the date and time",
       "extractionState" : "manual",
@@ -2771,6 +2783,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Finding Pages…"
+          }
+        }
+      }
+    },
+    "scan.rename" : {
+      "comment" : "iOS: menu item under the scan's name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename…"
+          }
+        }
+      }
+    },
+    "scan.rename.confirm" : {
+      "comment" : "iOS: confirm the new name of a scan",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename"
+          }
+        }
+      }
+    },
+    "scan.rename.help" : {
+      "comment" : "iOS: accessibility hint for the scan's name in the title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows a menu to rename the scan."
+          }
+        }
+      }
+    },
+    "scan.rename.message" : {
+      "comment" : "iOS: message in the alert that renames a scan",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The PDF is saved with this name."
+          }
+        }
+      }
+    },
+    "scan.rename.title" : {
+      "comment" : "iOS: title of the alert that renames a scan",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename Scan"
           }
         }
       }

@@ -29,6 +29,8 @@ extension DesignSystem {
             static let applyToAll = "square.stack.3d.down.right"
             static let warning = "exclamationmark.triangle.fill"
             static let current = "checkmark"
+            static let rename = "pencil"
+            static let titleMenu = "chevron.down"
         }
 
         /// The start of a scan's name, before the date and time: "Scan 2026-11-04 17.05".
@@ -76,6 +78,16 @@ extension DesignSystem {
         static var saveHelp: String {
             String(localized: "scan.save.help", defaultValue: "Saves the pages as one PDF and adds it to Beaver.", comment: "iOS: accessibility hint for Save")
         }
+        static var rename: String { String(localized: "scan.rename", defaultValue: "Rename…", comment: "iOS: menu item under the scan's name") }
+        static var renameHelp: String {
+            String(localized: "scan.rename.help", defaultValue: "Shows a menu to rename the scan.", comment: "iOS: accessibility hint for the scan's name in the title")
+        }
+        static var renameTitle: String { String(localized: "scan.rename.title", defaultValue: "Rename Scan", comment: "iOS: title of the alert that renames a scan") }
+        static var renameMessage: String {
+            String(localized: "scan.rename.message", defaultValue: "The PDF is saved with this name.", comment: "iOS: message in the alert that renames a scan")
+        }
+        static var renameConfirm: String { String(localized: "scan.rename.confirm", defaultValue: "Rename", comment: "iOS: confirm the new name of a scan") }
+        static var namePlaceholder: String { String(localized: "scan.name.placeholder", defaultValue: "Name", comment: "iOS: placeholder in the rename field") }
         static var done: String { String(localized: "scan.done", defaultValue: "Done", comment: "iOS: close the crop or pages screen") }
 
         static var discardTitle: String {
