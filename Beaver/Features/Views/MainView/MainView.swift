@@ -60,7 +60,12 @@ struct MainView: View {
                     }
                     .transition(barTransition)
                 } else if let alert = reactor.state.exportAlert, alert.isSuccess {
-                    ExportBanner(alert: alert) {
+                    ExportBanner(
+                        alert: alert,
+                        onAddToWorkspace: reactor.state.exportToAdd.map { _ in
+                            { reactor.send(.addExportToWorkspace) }
+                        }
+                    ) {
                         reactor.action(.didDismissAlert)
                     }
                     .transition(barTransition)

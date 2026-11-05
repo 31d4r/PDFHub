@@ -4,9 +4,12 @@ import AppKit
 #endif
 
 /// A non-blocking note after a successful export, with the next steps a person usually wants:
-/// reveal the file in Finder or open it. It stays until dismissed or the next export starts.
+/// reveal the file in Finder, open it, or add a new PDF to the list. It stays until dismissed
+/// or the next export starts.
 struct ExportBanner: View {
     let alert: ExportAlert
+    /// Shown only for a single new PDF that isn't listed yet; exports never add their output themselves.
+    var onAddToWorkspace: (() -> Void)?
     let onDismiss: () -> Void
 
     @Environment(\.openURL) private var openURL
@@ -62,6 +65,13 @@ struct ExportBanner: View {
 
     @ViewBuilder
     private func actions(for output: URL) -> some View {
+        if let onAddToWorkspace {
+            Button(action: onAddToWorkspace) {
+                Label(DesignSystem.Export.addToWorkspace, systemImage: DesignSystem.Icons.addToWorkspace)
+            }
+            .help(DesignSystem.Export.addToWorkspaceHelp)
+        }
+
         #if os(macOS)
         Button(DesignSystem.Export.showInFinder) {
             NSWorkspace.shared.activateFileViewerSelecting([output])

@@ -1217,6 +1217,17 @@
         }
       }
     },
+    "export.addToWorkspace.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add the new PDF to the list to keep working with it"
+          }
+        }
+      }
+    },
     "export.cancel" : {
       "extractionState" : "manual",
       "localizations" : {

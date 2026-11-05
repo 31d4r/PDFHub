@@ -18,6 +18,8 @@ final class BeaverReactor: AsyncReactor {
         /// Asks before Remove All; runs immediately when the list is empty.
         case requestRemoveAll
         case confirmRemoveAll
+        /// Adds the PDF the last export saved to the list, when it isn't listed yet.
+        case addExportToWorkspace
 
         /// The user picked files or a folder in the importer for `state.fileImport`.
         case didImportFiles([URL])
@@ -176,6 +178,15 @@ final class BeaverReactor: AsyncReactor {
         }
 
         /// Whether the workspace holds both PDFs and images, so Combine is worth showing.
+        /// The single PDF the last export saved, when it can be added to the list: exports never
+        /// add their output themselves, and Split's folder of pages is never offered.
+        var exportToAdd: URL? {
+            guard canEdit, let alert = exportAlert, alert.isSuccess, let output = alert.output,
+                  !output.hasDirectoryPath, output.pathExtension.lowercased() == "pdf" else { return nil }
+            let listed = Set(items.map { $0.url.standardizedFileURL })
+            return listed.contains(output.standardizedFileURL) ? nil : output
+        }
+
         var hasBothKinds: Bool {
             items.contains { $0.kind == .pdf } && items.contains { $0.kind == .image }
         }
@@ -212,6 +223,9 @@ final class BeaverReactor: AsyncReactor {
             await addFiles(urls)
         case .perform(let documentAction, let ids):
             await perform(documentAction, ids: ids)
+        case .addExportToWorkspace:
+            guard let output = state.exportToAdd else { return }
+            await addFiles([output])
         case .requestRemoveAll:
             guard state.canRemoveAll else { return }
             state.isConfirmingRemoveAll = true

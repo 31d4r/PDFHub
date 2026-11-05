@@ -110,7 +110,6 @@ enum DesignSystem {
             String(localized: "rotate.menu.help", defaultValue: "Rotate the selected files, or every file")
         }
 
-        static var addToWorkspace: String { String(localized: "export.addToWorkspace", defaultValue: "Add to Beaver") }
     }
 
     /// Merge, Split, Convert and Combine: their names, what they'll do, and why they can't.
@@ -557,6 +556,10 @@ enum DesignSystem {
         static var openHelp: String { String(localized: "export.open.help", defaultValue: "Open the saved file in its default app") }
         static var openFolderHelp: String { String(localized: "export.openFolder.help", defaultValue: "Open the folder with the saved pages") }
         static var cancelHelp: String { Help.withShortcut(String(localized: "export.cancel.help", defaultValue: "Stop the export"), "⌘.") }
+        static var addToWorkspace: String { String(localized: "export.addToWorkspace", defaultValue: "Add to Beaver") }
+        static var addToWorkspaceHelp: String {
+            String(localized: "export.addToWorkspace.help", defaultValue: "Add the new PDF to the list to keep working with it")
+        }
         static var dismissHelp: String { String(localized: "export.dismiss.help", defaultValue: "Hide this message") }
     }
 
