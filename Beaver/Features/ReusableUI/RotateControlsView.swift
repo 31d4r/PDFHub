@@ -7,6 +7,9 @@ struct RotateControlsView: View {
     /// The file or page name, so VoiceOver says what turns ("Rotate photo.png left").
     var subject: String?
     var isDisabled = false
+    /// The rotate tooltips; the pages sheet passes its own so they name its shortcuts.
+    var leftHelp = DesignSystem.Help.rotateLeft
+    var rightHelp = DesignSystem.Help.rotateRight
     /// An extra button after the rotate pair, such as Show Pages.
     var extra: CardAction?
     let onRotate: (RotationDirection) -> Void
@@ -16,17 +19,19 @@ struct RotateControlsView: View {
             button(
                 DesignSystem.Workspace.rotateLeft,
                 systemImage: DesignSystem.Icons.rotateLeft,
-                label: subject.map(DesignSystem.Accessibility.rotateLeft)
+                label: subject.map(DesignSystem.Accessibility.rotateLeft),
+                help: leftHelp
             ) { onRotate(.left) }
             button(
                 DesignSystem.Workspace.rotateRight,
                 systemImage: DesignSystem.Icons.rotateRight,
-                label: subject.map(DesignSystem.Accessibility.rotateRight)
+                label: subject.map(DesignSystem.Accessibility.rotateRight),
+                help: rightHelp
             ) { onRotate(.right) }
             if let extra {
                 Divider()
                     .frame(height: Constants.dividerHeight)
-                button(extra.title, systemImage: extra.systemImage, label: nil, action: extra.perform)
+                button(extra.title, systemImage: extra.systemImage, label: nil, help: extra.tooltip, action: extra.perform)
                     .disabled(!extra.isEnabled)
             }
         }
@@ -41,6 +46,7 @@ struct RotateControlsView: View {
         _ title: String,
         systemImage: String,
         label: String?,
+        help: String,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -50,7 +56,7 @@ struct RotateControlsView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
-        .help(title)
+        .help(help)
         .accessibilityLabel(label ?? title)
     }
 }

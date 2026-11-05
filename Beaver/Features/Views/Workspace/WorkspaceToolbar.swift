@@ -17,7 +17,7 @@ struct WorkspaceToolbar: ToolbarContent {
             } label: {
                 Label(DesignSystem.Workspace.addFiles, systemImage: DesignSystem.Icons.addFiles)
             }
-            .help(DesignSystem.Workspace.addFilesHelp)
+            .help(DesignSystem.Help.addFiles)
             .disabled(!state.canEdit)
         }
 
@@ -28,28 +28,33 @@ struct WorkspaceToolbar: ToolbarContent {
             } label: {
                 Label(DesignSystem.Workspace.rotate, systemImage: DesignSystem.Icons.rotateRight)
             }
+            .help(DesignSystem.Workspace.rotate)
             .disabled(!state.canRotateAll)
         }
 
         ToolbarItem {
             Menu {
                 Button(DesignSystem.Pages.selectAll) { reactor.action(.selectAll) }
+                    .help(DesignSystem.Help.selectAll)
                     .disabled(state.isEmpty)
                 Button(DesignSystem.Commands.deselectAll) { reactor.action(.deselectAll) }
+                    .help(DesignSystem.Help.deselectAll)
                     .disabled(!state.hasSelection)
                 Divider()
                 Button(DesignSystem.Workspace.remove, role: .destructive) {
                     reactor.action(.remove(state.selection.ids))
                 }
+                .help(DesignSystem.Help.remove)
                 .disabled(!state.canRemoveSelection)
                 Button(DesignSystem.Workspace.removeAll, role: .destructive) {
                     reactor.send(.requestRemoveAll)
                 }
+                .help(DesignSystem.Help.removeAll)
                 .disabled(!state.canRemoveAll)
             } label: {
                 Label(DesignSystem.Workspace.more, systemImage: DesignSystem.Icons.more)
             }
-            .help(DesignSystem.Workspace.more)
+            .help(DesignSystem.Help.more)
             .disabled(state.isEmpty)
         }
 
@@ -70,7 +75,7 @@ struct WorkspaceToolbar: ToolbarContent {
                     .accessibilityHidden(true)
             }
             .foregroundStyle(.secondary)
-            .help(DesignSystem.Workspace.thumbnailSize)
+            .help(DesignSystem.Help.thumbnailSize)
             .disabled(state.isEmpty)
         }
 
@@ -80,7 +85,7 @@ struct WorkspaceToolbar: ToolbarContent {
             } label: {
                 Label(DesignSystem.Workspace.splitIntoPages, systemImage: DesignSystem.Icons.splitIntoPages)
             }
-            .help(DesignSystem.Workspace.splitHelp(selection: state.hasSelection))
+            .help(DesignSystem.Help.splitIntoPages(selection: state.hasSelection))
             .disabled(!state.canExport)
         }
 
@@ -92,7 +97,7 @@ struct WorkspaceToolbar: ToolbarContent {
                     .labelStyle(.titleAndIcon)
             }
             .buttonStyle(.borderedProminent)
-            .help(DesignSystem.Workspace.createPDFHelp(state.exportKind, selection: state.hasSelection))
+            .help(DesignSystem.Help.createPDF(state.exportKind, selection: state.hasSelection))
             .disabled(!state.canExport)
         }
     }
@@ -106,6 +111,6 @@ struct WorkspaceToolbar: ToolbarContent {
                 systemImage: direction == .left ? DesignSystem.Icons.rotateLeft : DesignSystem.Icons.rotateRight
             )
         }
-        .help(DesignSystem.Workspace.rotateHelp(direction, selection: state.hasSelection))
+        .help(DesignSystem.Help.rotateAll(direction, selection: state.hasSelection))
     }
 }

@@ -9,6 +9,7 @@ struct MainView: View {
     @EnvironmentObject private var reactor: BeaverReactor
     @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
     @State private var isDropTargeted = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @ActionBinding(
         BeaverReactor.self,
@@ -54,16 +55,29 @@ struct MainView: View {
         droppableContent
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if let activity = reactor.state.activity {
-                    ActivityBar(title: activity.title)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    ActivityBar(title: activity.title) {
+                        reactor.action(.cancelExport)
+                    }
+                    .transition(barTransition)
+                } else if let alert = reactor.state.exportAlert, alert.isSuccess {
+                    ExportBanner(alert: alert) {
+                        reactor.action(.didDismissAlert)
+                    }
+                    .transition(barTransition)
                 }
             }
-            .animation(.snappy, value: reactor.state.activity)
+            .animation(reduceMotion ? nil : .snappy, value: reactor.state.activity)
+            .animation(reduceMotion ? nil : .snappy, value: reactor.state.exportAlert)
             .navigationTitle(DesignSystem.Workspace.title)
             .windowSubtitle(subtitle)
             .toolbar {
                 WorkspaceToolbar(reactor: reactor, thumbnailSize: $thumbnailSize)
             }
+    }
+
+    /// Bars slide up from the bottom edge, or just fade with Reduce Motion.
+    private var barTransition: AnyTransition {
+        reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity)
     }
 
     private var droppableContent: some View {
@@ -128,24 +142,38 @@ private struct DropHighlight: View {
 }
 
 /// Inline progress under the grid while an export runs, instead of a modal overlay.
+/// Cancel (⌘.) stops it before anything is written.
 private struct ActivityBar: View {
     let title: String
+    let onCancel: () -> Void
+
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.small) {
             ProgressView()
                 .controlSize(.small)
+                .accessibilityHidden(true)
             Text(title)
                 .font(.callout)
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.updatesFrequently)
             Spacer()
+            Button(DesignSystem.Export.cancel, action: onCancel)
+                .keyboardShortcut(".", modifiers: .command)
+                .help(DesignSystem.Export.cancelHelp)
         }
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.small)
-        .background(.bar)
+        .background {
+            if reduceTransparency {
+                Rectangle().fill(.background)
+            } else {
+                Rectangle().fill(.bar)
+            }
+        }
         .overlay(alignment: .top) { Divider() }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.updatesFrequently)
+        .accessibilityElement(children: .contain)
     }
 }
 

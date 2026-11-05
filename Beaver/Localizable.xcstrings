@@ -913,9 +913,6 @@
         }
       }
     },
-    "Success" : {
-      "extractionState" : "manual"
-    },
     "Successfully converted images to PDF file" : {
       "extractionState" : "manual"
     },
@@ -1005,6 +1002,175 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Remove All"
+          }
+        }
+      }
+    },
+    "export.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "export.cancel.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop the export"
+          }
+        }
+      }
+    },
+    "export.dismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "export.dismiss.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide this message"
+          }
+        }
+      }
+    },
+    "export.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open"
+          }
+        }
+      }
+    },
+    "export.open.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the saved file in its default app"
+          }
+        }
+      }
+    },
+    "export.openFolder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Folder"
+          }
+        }
+      }
+    },
+    "export.openFolder.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the folder with the saved pages"
+          }
+        }
+      }
+    },
+    "export.showInFinder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Finder"
+          }
+        }
+      }
+    },
+    "export.showInFinder.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show the saved file in Finder"
+          }
+        }
+      }
+    },
+    "help.more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More: select, deselect and remove files"
+          }
+        }
+      }
+    },
+    "help.quickLook" : {
+      "comment" : "Tooltip for Quick Look, which opens with the Space bar or Command-Y",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (Space or %@)"
+          }
+        }
+      }
+    },
+    "help.thumbnailSize" : {
+      "comment" : "Tooltip on the thumbnail size slider, with the zoom shortcuts",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (Larger %@, Smaller %@)"
+          }
+        }
+      }
+    },
+    "help.withDetail" : {
+      "comment" : "Tooltip: the action with its shortcut, then a line saying what it does",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n%@"
+          }
+        }
+      }
+    },
+    "help.withShortcut" : {
+      "comment" : "Tooltip: an action name followed by its keyboard shortcut",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (%@)"
           }
         }
       }

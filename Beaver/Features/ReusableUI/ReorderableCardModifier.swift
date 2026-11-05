@@ -27,7 +27,11 @@ struct CardAction {
     let systemImage: String
     var role: ButtonRole?
     var isEnabled = true
+    /// The tooltip; defaults to the title. Include the keyboard shortcut when there is one.
+    var help: String?
     let perform: () -> Void
+
+    var tooltip: String { help ?? title }
 }
 
 /// Lets a grid card be moved: drag it onto another card, or use the context menu
@@ -79,6 +83,7 @@ struct ReorderableCardModifier: ViewModifier {
                     Button(Self.label(for: direction)) {
                         moveSelf(direction)
                     }
+                    .help(Self.label(for: direction))
                     .disabled(!canMove(direction))
                 }
                 if !trailingActions.isEmpty { Divider() }
@@ -105,6 +110,7 @@ struct ReorderableCardModifier: ViewModifier {
             } label: {
                 Label(action.title, systemImage: action.systemImage)
             }
+            .help(action.tooltip)
             .disabled(!action.isEnabled)
         }
     }

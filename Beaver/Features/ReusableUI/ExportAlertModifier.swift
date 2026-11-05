@@ -1,17 +1,18 @@
 import SwiftUI
 
-/// Presents `state.exportAlert` and clears it when the user dismisses the alert.
+/// Presents a failed export as an alert and clears it on dismissal. Successes show as the
+/// non-blocking `ExportBanner` instead.
 struct ExportAlertModifier: ViewModifier {
     @ObservedObject var reactor: BeaverReactor
 
     func body(content: Content) -> some View {
-        let alert = reactor.state.exportAlert
+        let alert = reactor.state.exportAlert.flatMap { $0.isSuccess ? nil : $0 }
 
         content
             .alert(
-                alert?.isSuccess == true ? DesignSystem.Alerts.success : DesignSystem.Alerts.error,
+                DesignSystem.Alerts.error,
                 isPresented: Binding(
-                    get: { reactor.state.exportAlert != nil },
+                    get: { alert != nil },
                     set: { isPresented in
                         if !isPresented {
                             reactor.action(.didDismissAlert)

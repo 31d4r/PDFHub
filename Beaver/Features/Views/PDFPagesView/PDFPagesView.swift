@@ -70,6 +70,7 @@ struct PDFPagesView: View {
                 selection.selectAll(count: count)
             }
             .keyboardShortcut("a", modifiers: .command)
+            .help(DesignSystem.Help.selectAll)
             .disabled(count == 0)
 
             ControlGroup {
@@ -79,7 +80,7 @@ struct PDFPagesView: View {
                     Label(DesignSystem.Pages.rotateSelectedLeft, systemImage: DesignSystem.Icons.rotateLeft)
                 }
                 .keyboardShortcut("l", modifiers: .command)
-                .help(DesignSystem.Pages.rotateSelectedLeft)
+                .help(DesignSystem.Help.rotateSelectedPagesLeft)
 
                 Button {
                     rotateSelection(.right)
@@ -87,7 +88,7 @@ struct PDFPagesView: View {
                     Label(DesignSystem.Pages.rotateSelectedRight, systemImage: DesignSystem.Icons.rotateRight)
                 }
                 .keyboardShortcut("r", modifiers: .command)
-                .help(DesignSystem.Pages.rotateSelectedRight)
+                .help(DesignSystem.Help.rotateSelectedPagesRight)
             }
             .labelStyle(.iconOnly)
             .fixedSize()
@@ -95,13 +96,15 @@ struct PDFPagesView: View {
 
             Menu {
                 Button(DesignSystem.Pages.rotateAllPagesLeft) { rotateAllPages(.left) }
+                    .help(DesignSystem.Help.rotateAllPagesLeft)
                 Button(DesignSystem.Pages.rotateAllPagesRight) { rotateAllPages(.right) }
+                    .help(DesignSystem.Help.rotateAllPagesRight)
             } label: {
                 Label(DesignSystem.Pages.rotateAllPages, systemImage: DesignSystem.Icons.rotateRight)
             }
             .fixedSize()
             .disabled(isDisabled || count == 0)
-            .help(DesignSystem.Pages.rotateAllPages)
+            .help(DesignSystem.Help.rotateAllPages)
         }
         .padding(DesignSystem.Spacing.contentPadding)
     }
@@ -186,6 +189,7 @@ struct PDFPagesView: View {
             Spacer()
             Button(DesignSystem.Pages.done, action: close)
                 .keyboardShortcut(.defaultAction)
+                .help(DesignSystem.Help.done)
         }
         .padding(DesignSystem.Spacing.contentPadding)
     }

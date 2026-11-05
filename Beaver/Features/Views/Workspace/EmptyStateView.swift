@@ -36,6 +36,7 @@ struct EmptyStateView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .help(DesignSystem.Help.addFiles)
             .accessibilityHint(DesignSystem.Accessibility.dropTargetHint)
 
             HStack(spacing: DesignSystem.Spacing.large) {

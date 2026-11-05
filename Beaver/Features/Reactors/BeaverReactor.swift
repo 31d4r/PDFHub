@@ -34,6 +34,8 @@ final class BeaverReactor: AsyncReactor {
         /// Replaces the PDFs in the list (images stay), e.g. for previews and tests.
         case setPDFs([PDFItem])
         case didDismissAlert
+        /// Stops the running export. Nothing is saved unless writing had already begun.
+        case cancelExport
         case didCancelRemoveAll
         case didChangeFileImporterPresented(Bool)
 
@@ -173,6 +175,8 @@ final class BeaverReactor: AsyncReactor {
     private let imageService: ImageServiceProtocol
     private let exportService: ExportServiceProtocol
     private let securityScopedAccess = SecurityScopedAccess()
+    /// The running export, kept so Cancel can stop it.
+    private var exportTask: Task<ExportAlert, Never>?
 
     init(
         saveLocationProvider: SaveLocationProviding = SavePanelService(),
@@ -222,6 +226,8 @@ final class BeaverReactor: AsyncReactor {
             didChangeItems()
         case .didDismissAlert:
             state.exportAlert = nil
+        case .cancelExport:
+            exportTask?.cancel()
         case .didCancelRemoveAll:
             state.isConfirmingRemoveAll = false
         case .didChangeFileImporterPresented(let isPresented):
@@ -438,12 +444,16 @@ final class BeaverReactor: AsyncReactor {
     /// Runs `work` off the main actor with `activity` shown, then presents its result.
     private func runExport(
         _ activity: Activity,
-        _ work: () async -> ExportAlert
+        _ work: @escaping @Sendable () async -> ExportAlert
     ) async {
         state.activity = activity
-        let alert = await work()
+        state.exportAlert = nil
+        let task = Task { await work() }
+        exportTask = task
+        let alert = await task.value
+        exportTask = nil
         state.activity = nil
-        state.exportAlert = alert
+        state.exportAlert = task.isCancelled ? nil : alert
     }
 
     private func createPDF() async {

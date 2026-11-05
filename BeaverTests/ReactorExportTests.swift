@@ -148,7 +148,7 @@ struct ReactorExportTests {
         await reactor.action(.addFiles([TestFixtures.samplePDF]))
 
         let running = Task { await reactor.action(.createPDF) }
-        while reactor.state.activity == nil {
+        while export.calls.isEmpty {
             await Task.yield()
         }
         #expect(reactor.state.activity == .merging)

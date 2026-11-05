@@ -92,7 +92,12 @@ struct ItemCardView: View {
     }
 
     private var showPagesAction: CardAction {
-        CardAction(title: DesignSystem.Pages.showPages, systemImage: DesignSystem.Icons.pages, perform: onShowPages)
+        CardAction(
+            title: DesignSystem.Pages.showPages,
+            systemImage: DesignSystem.Icons.pages,
+            help: DesignSystem.Help.showPages,
+            perform: onShowPages
+        )
     }
 
     @ViewBuilder
@@ -103,7 +108,7 @@ struct ItemCardView: View {
                 .foregroundStyle(.white)
                 .padding(Constants.badgePadding)
                 .background(Color.accentColor, in: Circle())
-                .help(DesignSystem.Pages.pagesRotatedBadgeHelp)
+                .help(DesignSystem.Help.pagesRotatedBadge)
                 .accessibilityLabel(DesignSystem.Card.pagesRotatedBadge)
                 .offset(x: Constants.badgeOffset, y: -Constants.badgeOffset)
         }

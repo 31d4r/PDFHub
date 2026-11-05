@@ -49,6 +49,8 @@ struct ExportService: ExportServiceProtocol {
             )
         }
 
+        guard !Task.isCancelled else { return .cancelled }
+
         do {
             try writer.savePDFDocument(document, to: destination)
             return ExportAlert(
@@ -56,7 +58,8 @@ struct ExportService: ExportServiceProtocol {
                     DesignSystem.Alerts.mergedPDFSaved(fileName: destination.lastPathComponent),
                     skipped: result.skippedURLs
                 ),
-                isSuccess: true
+                isSuccess: true,
+                output: destination
             )
         } catch {
             return ExportAlert(
@@ -80,13 +83,16 @@ struct ExportService: ExportServiceProtocol {
             )
         }
 
+        guard !Task.isCancelled else { return .cancelled }
+
         let saveResult = writer.savePDFDocuments(result.pages, to: directory)
         return ExportAlert(
             message: DesignSystem.Alerts.message(
                 DesignSystem.Alerts.message(for: saveResult),
                 skipped: result.skippedURLs
             ),
-            isSuccess: !saveResult.isCompleteFailure
+            isSuccess: !saveResult.isCompleteFailure,
+            output: saveResult.isCompleteFailure ? nil : directory
         )
     }
 
@@ -104,6 +110,8 @@ struct ExportService: ExportServiceProtocol {
             )
         }
 
+        guard !Task.isCancelled else { return .cancelled }
+
         do {
             try writer.savePDFDocument(document, to: destination)
             return ExportAlert(
@@ -111,7 +119,8 @@ struct ExportService: ExportServiceProtocol {
                     DesignSystem.Alerts.convertedImagesSuccess,
                     skipped: result.skippedURLs
                 ),
-                isSuccess: true
+                isSuccess: true,
+                output: destination
             )
         } catch {
             return ExportAlert(
@@ -135,6 +144,8 @@ struct ExportService: ExportServiceProtocol {
             )
         }
 
+        guard !Task.isCancelled else { return .cancelled }
+
         do {
             try writer.savePDFDocument(document, to: destination)
             return ExportAlert(
@@ -142,7 +153,8 @@ struct ExportService: ExportServiceProtocol {
                     DesignSystem.Alerts.combinedPDFSaved(fileName: destination.lastPathComponent),
                     skipped: result.skippedURLs
                 ),
-                isSuccess: true
+                isSuccess: true,
+                output: destination
             )
         } catch {
             return ExportAlert(
@@ -166,13 +178,16 @@ struct ExportService: ExportServiceProtocol {
             )
         }
 
+        guard !Task.isCancelled else { return .cancelled }
+
         let saveResult = writer.savePDFDocuments(result.pages, to: directory)
         return ExportAlert(
             message: DesignSystem.Alerts.message(
                 DesignSystem.Alerts.message(for: saveResult),
                 skipped: result.skippedURLs
             ),
-            isSuccess: !saveResult.isCompleteFailure
+            isSuccess: !saveResult.isCompleteFailure,
+            output: saveResult.isCompleteFailure ? nil : directory
         )
     }
 }

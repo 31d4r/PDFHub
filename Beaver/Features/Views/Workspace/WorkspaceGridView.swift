@@ -115,7 +115,8 @@ struct WorkspaceGridView: View {
                     title: DesignSystem.Workspace.remove,
                     systemImage: DesignSystem.Icons.remove,
                     role: .destructive,
-                    isEnabled: isEnabled
+                    isEnabled: isEnabled,
+                    help: DesignSystem.Help.remove
                 ) {
                     reactor.action(.remove(contextTargets(item, isSelected: isSelected)))
                 }
@@ -133,17 +134,23 @@ struct WorkspaceGridView: View {
             actions.append(CardAction(
                 title: DesignSystem.Pages.showPages,
                 systemImage: DesignSystem.Icons.pages,
-                isEnabled: isEnabled
+                isEnabled: isEnabled,
+                help: DesignSystem.Help.showPages
             ) { reactor.action(.showPages(id: item.id)) })
         }
-        actions.append(CardAction(title: DesignSystem.Workspace.quickLook, systemImage: DesignSystem.Icons.quickLook) {
+        actions.append(CardAction(
+            title: DesignSystem.Workspace.quickLook,
+            systemImage: DesignSystem.Icons.quickLook,
+            help: DesignSystem.Help.quickLook
+        ) {
             reactor.action(.didChangeQuickLook(item.url))
         })
         for direction in [RotationDirection.left, .right] {
             actions.append(CardAction(
                 title: direction == .left ? DesignSystem.Workspace.rotateLeft : DesignSystem.Workspace.rotateRight,
                 systemImage: direction == .left ? DesignSystem.Icons.rotateLeft : DesignSystem.Icons.rotateRight,
-                isEnabled: isEnabled
+                isEnabled: isEnabled,
+                help: DesignSystem.Help.rotate(direction)
             ) {
                 if isSelected && reactor.state.selection.count > 1 {
                     reactor.action(.rotateAll(direction))

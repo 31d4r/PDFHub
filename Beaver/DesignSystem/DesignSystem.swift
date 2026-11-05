@@ -45,6 +45,10 @@ enum DesignSystem {
         static let selectedPage = "checkmark.circle.fill"
         static let pagesRotated = "rotate.right.fill"
         static let unreadable = "doc.questionmark"
+        static let exportSucceeded = "checkmark.circle.fill"
+        static let showInFinder = "folder"
+        static let open = "arrow.up.forward.app"
+        static let dismiss = "xmark"
     }
 
     /// The window and its toolbar.
@@ -250,6 +254,114 @@ enum DesignSystem {
         }
     }
 
+    /// Tooltips. Each names the action, using the same words as its accessibility label, and
+    /// adds the keyboard shortcut when there is one ("Rotate Left (⌘L)").
+    enum Help {
+        /// Key equivalents as the menus show them.
+        enum Shortcut {
+            static let addFiles = "⌘O"
+            static let createPDF = "⌥⌘M"
+            static let splitIntoPages = "⌥⌘S"
+            static let rotateLeft = "⌘L"
+            static let rotateRight = "⌘R"
+            static let showPages = "⌥⌘P"
+            static let quickLook = "⌘Y"
+            static let remove = "⌘⌫"
+            static let removeAll = "⇧⌘⌫"
+            static let selectAll = "⌘A"
+            static let deselectAll = "⌥⌘A"
+            static let larger = "⌘+"
+            static let smaller = "⌘-"
+            static let cancel = "⌘."
+            static let done = "↩"
+        }
+
+        /// "Rotate Left (⌘L)"
+        static func withShortcut(_ action: String, _ shortcut: String) -> String {
+            String(
+                localized: "help.withShortcut",
+                defaultValue: "\(action) (\(shortcut))",
+                comment: "Tooltip: an action name followed by its keyboard shortcut"
+            )
+        }
+
+        /// "Create PDF (⌥⌘M)" on the first line and what it will do on the second.
+        static func withDetail(_ title: String, _ detail: String) -> String {
+            String(
+                localized: "help.withDetail",
+                defaultValue: "\(title)\n\(detail)",
+                comment: "Tooltip: the action with its shortcut, then a line saying what it does"
+            )
+        }
+
+        static var addFiles: String {
+            withDetail(withShortcut(Workspace.addFiles, Shortcut.addFiles), Workspace.addFilesHelp)
+        }
+        static var rotateLeft: String { withShortcut(Workspace.rotateLeft, Shortcut.rotateLeft) }
+        static var rotateRight: String { withShortcut(Workspace.rotateRight, Shortcut.rotateRight) }
+        static func rotate(_ direction: RotationDirection) -> String {
+            direction == .left ? rotateLeft : rotateRight
+        }
+        static func rotateAll(_ direction: RotationDirection, selection: Bool) -> String {
+            withDetail(rotate(direction), Workspace.rotateHelp(direction, selection: selection))
+        }
+        static var more: String { String(localized: "help.more", defaultValue: "More: select, deselect and remove files") }
+        static var selectAll: String { withShortcut(Pages.selectAll, Shortcut.selectAll) }
+        static var deselectAll: String { withShortcut(Commands.deselectAll, Shortcut.deselectAll) }
+        static var remove: String { withShortcut(Workspace.remove, Shortcut.remove) }
+        static var removeAll: String { withShortcut(Workspace.removeAll, Shortcut.removeAll) }
+        static var thumbnailSize: String {
+            String(
+                localized: "help.thumbnailSize",
+                defaultValue: "\(Workspace.thumbnailSize) (Larger \(Shortcut.larger), Smaller \(Shortcut.smaller))",
+                comment: "Tooltip on the thumbnail size slider, with the zoom shortcuts"
+            )
+        }
+        static func splitIntoPages(selection: Bool) -> String {
+            withDetail(
+                withShortcut(Workspace.splitIntoPages, Shortcut.splitIntoPages),
+                Workspace.splitHelp(selection: selection)
+            )
+        }
+        static func createPDF(_ kind: ExportKind, selection: Bool) -> String {
+            withDetail(
+                withShortcut(Workspace.createPDF, Shortcut.createPDF),
+                Workspace.createPDFHelp(kind, selection: selection)
+            )
+        }
+        static var showPages: String { withShortcut(Pages.showPages, Shortcut.showPages) }
+        static var quickLook: String {
+            String(
+                localized: "help.quickLook",
+                defaultValue: "\(Workspace.quickLook) (Space or \(Shortcut.quickLook))",
+                comment: "Tooltip for Quick Look, which opens with the Space bar or Command-Y"
+            )
+        }
+        static var rotateSelectedPagesLeft: String { withShortcut(Pages.rotateSelectedLeft, Shortcut.rotateLeft) }
+        static var rotateSelectedPagesRight: String { withShortcut(Pages.rotateSelectedRight, Shortcut.rotateRight) }
+        static var rotateAllPages: String { Pages.rotateAllPages }
+        static var rotateAllPagesLeft: String { Pages.rotateAllPagesLeft }
+        static var rotateAllPagesRight: String { Pages.rotateAllPagesRight }
+        static var done: String { withShortcut(Pages.done, Shortcut.done) }
+        static var pagesRotatedBadge: String {
+            withDetail(Card.pagesRotatedBadge, Pages.pagesRotatedBadgeHelp)
+        }
+    }
+
+    /// The banner after a successful export, and the progress bar's Cancel.
+    enum Export {
+        static var showInFinder: String { String(localized: "export.showInFinder", defaultValue: "Show in Finder") }
+        static var open: String { String(localized: "export.open", defaultValue: "Open") }
+        static var openFolder: String { String(localized: "export.openFolder", defaultValue: "Open Folder") }
+        static var dismiss: String { String(localized: "export.dismiss", defaultValue: "Dismiss") }
+        static var cancel: String { String(localized: "export.cancel", defaultValue: "Cancel") }
+        static var showInFinderHelp: String { String(localized: "export.showInFinder.help", defaultValue: "Show the saved file in Finder") }
+        static var openHelp: String { String(localized: "export.open.help", defaultValue: "Open the saved file in its default app") }
+        static var openFolderHelp: String { String(localized: "export.openFolder.help", defaultValue: "Open the folder with the saved pages") }
+        static var cancelHelp: String { Help.withShortcut(String(localized: "export.cancel.help", defaultValue: "Stop the export"), "⌘.") }
+        static var dismissHelp: String { String(localized: "export.dismiss.help", defaultValue: "Hide this message") }
+    }
+
     enum Progress {
         static var merging: String { String(localized: "Merging PDFs…") }
         static var splitting: String { String(localized: "Splitting into pages…") }
@@ -271,7 +383,6 @@ enum DesignSystem {
     }
 
     enum Alerts {
-        static var success: String { String(localized: "Success") }
         static var error: String { String(localized: "Error") }
         static var ok: String { String(localized: "OK") }
 
