@@ -138,7 +138,7 @@ struct ImageToPDFView: View {
                 ForEach(
                     0 ..< min(selectedImages.count, Constants.maxVisibleDots),
                     id: \.self
-                ) { index in
+                ) { _ in
                     Circle()
                         .fill(
                             LinearGradient(
@@ -153,16 +153,6 @@ struct ImageToPDFView: View {
                         .frame(
                             width: Constants.dotSize,
                             height: Constants.dotSize
-                        )
-                        .scaleEffect(
-                            index < selectedImages.count
-                                ? Constants.activeDotScale
-                                : Constants.inactiveDotScale
-                        )
-                        .opacity(
-                            index < selectedImages.count
-                                ? Constants.activeDotOpacity
-                                : Constants.inactiveDotOpacity
                         )
                 }
 
@@ -272,10 +262,6 @@ private enum Constants {
 
     static let dotSize: CGFloat = 8
     static let maxVisibleDots = 10
-    static let activeDotScale: CGFloat = 1.0
-    static let inactiveDotScale: CGFloat = 0.5
-    static let activeDotOpacity: Double = 1.0
-    static let inactiveDotOpacity: Double = 0.3
 
     static let gridSpacing: CGFloat = 20
     static let imageMaxWidth: CGFloat = 400
