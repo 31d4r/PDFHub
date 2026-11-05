@@ -51,6 +51,12 @@ enum DesignSystem {
         static let showInFinder = "folder"
         static let open = "arrow.up.forward.app"
         static let dismiss = "xmark"
+        static let share = "square.and.arrow.up"
+        static let actions = "doc.badge.gearshape"
+        static let select = "checkmark.circle"
+        static let selectionEmpty = "circle"
+        static let undo = "arrow.uturn.backward"
+        static let redo = "arrow.uturn.forward"
     }
 
     /// The window and its toolbar.

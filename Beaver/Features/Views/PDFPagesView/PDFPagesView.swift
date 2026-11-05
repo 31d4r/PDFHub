@@ -36,16 +36,9 @@ struct PDFPagesView: View {
             Divider()
             footer
         }
-        .frame(
-            minWidth: Constants.minWidth,
-            idealWidth: idealSize.width,
-            maxWidth: .infinity,
-            minHeight: Constants.minHeight,
-            idealHeight: idealSize.height,
-            maxHeight: .infinity
-        )
+        .sheetFrame(minimum: CGSize(width: Constants.minWidth, height: Constants.minHeight), ideal: idealSize)
         .focusedSceneObject(reactor)
-        .onExitCommand(perform: close)
+        .exitCommand(perform: close)
         .task {
             pageCount = await thumbnailer.pageCount()
             isGridFocused = true
@@ -156,7 +149,23 @@ struct PDFPagesView: View {
     // MARK: - Footer
 
     /// Rotate the selected pages or all of them, and Done.
+    @ViewBuilder
     private var footer: some View {
+        #if os(iOS)
+        // Icons alone when the titles don't fit, such as on iPhone; VoiceOver still reads them.
+        ViewThatFits(in: .horizontal) {
+            footerButtons.labelStyle(.titleAndIcon)
+            footerButtons.labelStyle(.iconOnly)
+        }
+        .padding(DesignSystem.Spacing.contentPadding)
+        #else
+        footerButtons
+            .labelStyle(.titleAndIcon)
+            .padding(DesignSystem.Spacing.contentPadding)
+        #endif
+    }
+
+    private var footerButtons: some View {
         HStack(spacing: DesignSystem.Spacing.small) {
             Button {
                 rotateSelection(.left)
@@ -194,8 +203,6 @@ struct PDFPagesView: View {
                 .keyboardShortcut(.defaultAction)
                 .help(DesignSystem.Help.done)
         }
-        .labelStyle(.titleAndIcon)
-        .padding(DesignSystem.Spacing.contentPadding)
     }
 
     /// Wide enough for up to four pages in a row and tall enough for two rows, within the screen.
@@ -367,7 +374,12 @@ private enum Constants {
     static let selectedTintOpacity: Double = 0.14
     static let focusRingOpacity: Double = 0.5
     static let titleSpacing: CGFloat = 2
+    #if os(iOS)
+    /// Two pages side by side on iPhone.
+    static let cellMinimum: CGFloat = 140
+    #else
     static let cellMinimum: CGFloat = 170
+    #endif
     static let gridSpacing: CGFloat = 16
     static let cellSpacing: CGFloat = 8
     static let cellPadding: CGFloat = 10
@@ -377,4 +389,34 @@ private enum Constants {
     static let checkmarkPadding: CGFloat = 6
     static let pageShadowOpacity: Double = 0.15
     static let pageShadowRadius: CGFloat = 3
+}
+
+private extension View {
+    /// The Mac sheet starts at a size that fits its pages and can be resized; iOS sheets
+    /// take the size the system gives them.
+    @ViewBuilder
+    func sheetFrame(minimum: CGSize, ideal: CGSize) -> some View {
+        #if os(macOS)
+        frame(
+            minWidth: minimum.width,
+            idealWidth: ideal.width,
+            maxWidth: .infinity,
+            minHeight: minimum.height,
+            idealHeight: ideal.height,
+            maxHeight: .infinity
+        )
+        #else
+        self
+        #endif
+    }
+
+    /// Escape closes the sheet on the Mac; iOS sheets close with Done or a swipe.
+    @ViewBuilder
+    func exitCommand(perform action: @escaping () -> Void) -> some View {
+        #if os(macOS)
+        onExitCommand(perform: action)
+        #else
+        self
+        #endif
+    }
 }

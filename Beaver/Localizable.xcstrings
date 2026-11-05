@@ -1717,6 +1717,258 @@
         }
       }
     },
+    "mobile.actions" : {
+      "comment" : "iOS toolbar menu with Merge, Split, Convert and Combine",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actions"
+          }
+        }
+      }
+    },
+    "mobile.actions.help" : {
+      "comment" : "iOS: accessibility hint for the Actions menu",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge, split or convert the selected files, or all of them"
+          }
+        }
+      }
+    },
+    "mobile.add" : {
+      "comment" : "iOS toolbar menu that adds photos or files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        }
+      }
+    },
+    "mobile.add.help" : {
+      "comment" : "iOS: accessibility hint for Add",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add PDFs and images from Files"
+          }
+        }
+      }
+    },
+    "mobile.browseFiles" : {
+      "comment" : "iOS: add PDFs or images from the Files app",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse Files"
+          }
+        }
+      }
+    },
+    "mobile.done" : {
+      "comment" : "iOS: stop choosing files in the grid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "mobile.empty.message" : {
+      "comment" : "iOS empty state message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add PDFs and photos, then merge them, split them into pages or turn them into one PDF. Your originals are never changed."
+          }
+        }
+      }
+    },
+    "mobile.empty.title" : {
+      "comment" : "iOS empty state title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Your First Document"
+          }
+        }
+      }
+    },
+    "mobile.saveToFiles" : {
+      "comment" : "iOS: save a copy of the PDF to a place in Files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save to Files"
+          }
+        }
+      }
+    },
+    "mobile.saveToFiles.help" : {
+      "comment" : "iOS: accessibility hint for Save to Files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save a copy in iCloud Drive or another place in Files"
+          }
+        }
+      }
+    },
+    "mobile.savedCopy" : {
+      "comment" : "iOS: VoiceOver announcement after Save to Files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved a copy of %@"
+          }
+        }
+      }
+    },
+    "mobile.select" : {
+      "comment" : "iOS: start choosing files in the grid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select"
+          }
+        }
+      }
+    },
+    "mobile.select.help" : {
+      "comment" : "iOS: accessibility hint for Select",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose files to rotate, remove or turn into a PDF"
+          }
+        }
+      }
+    },
+    "mobile.selectItems" : {
+      "comment" : "iOS title while choosing files, before any is chosen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Items"
+          }
+        }
+      }
+    },
+    "mobile.selected" : {
+      "comment" : "iOS: VoiceOver value of a chosen file",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected"
+          }
+        }
+      }
+    },
+    "mobile.selectedTitle" : {
+      "comment" : "iOS title while choosing files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Selected"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Selected"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "mobile.share" : {
+      "comment" : "iOS: share the saved PDF",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
+          }
+        }
+      }
+    },
+    "mobile.share.help" : {
+      "comment" : "iOS: accessibility hint for Share",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send the PDF with AirDrop, Mail, Messages and more"
+          }
+        }
+      }
+    },
+    "mobile.showInFiles" : {
+      "comment" : "iOS: open the Files app at the saved pages",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Files"
+          }
+        }
+      }
+    },
+    "mobile.showInFiles.help" : {
+      "comment" : "iOS: accessibility hint for Show in Files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the folder with the saved pages in Files"
+          }
+        }
+      }
+    },
     "pages.rotateLeft" : {
       "extractionState" : "manual",
       "localizations" : {

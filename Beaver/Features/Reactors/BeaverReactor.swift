@@ -205,7 +205,7 @@ final class BeaverReactor: AsyncReactor {
     private var exportTask: Task<ExportAlert, Never>?
 
     init(
-        saveLocationProvider: SaveLocationProviding = SavePanelService(),
+        saveLocationProvider: SaveLocationProviding = PlatformSaveLocationService(),
         imageService: ImageServiceProtocol = ImageService(),
         exportService: ExportServiceProtocol = ExportService()
     ) {

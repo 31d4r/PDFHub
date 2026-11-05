@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct BeaverApp: App {
     var body: some Scene {
+        #if os(macOS)
         WindowGroup {
             ReactorView(BeaverReactor()) {
                 MainView()
@@ -21,12 +22,21 @@ struct BeaverApp: App {
             BeaverCommands()
         }
 
-        #if os(macOS)
         Window(DesignSystem.Shortcuts.windowTitle, id: DesignSystem.Shortcuts.windowID) {
             KeyboardShortcutsView()
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)
+        #else
+        WindowGroup {
+            ReactorView(BeaverReactor()) {
+                MobileMainView()
+            }
+        }
+        .commands {
+            // A hardware keyboard on iPad gets the same shortcuts, listed when ⌘ is held.
+            BeaverCommands()
+        }
         #endif
     }
 }
