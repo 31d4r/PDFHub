@@ -4,14 +4,15 @@ import Testing
 
 /// Checks that the string catalog ships with the app and its plural rules apply.
 struct LocalizationTests {
-    @Test func fileCountPluralizes() {
-        #expect(DesignSystem.Text.pdfFilesLoadedCount(1) == "1 file loaded")
-        #expect(DesignSystem.Text.pdfFilesLoadedCount(3) == "3 files loaded")
+    @Test func workspaceSummaryPluralizesEachKind() {
+        #expect(DesignSystem.Workspace.summary(pdfs: 1, images: 0) == "1 PDF")
+        #expect(DesignSystem.Workspace.summary(pdfs: 3, images: 0) == "3 PDFs")
+        #expect(DesignSystem.Workspace.summary(pdfs: 0, images: 1) == "1 image")
+        #expect(DesignSystem.Workspace.summary(pdfs: 2, images: 5) == "2 PDFs and 5 images")
     }
 
-    @Test func imageCountPluralizes() {
-        #expect(DesignSystem.Text.imagesReadyCount(1) == "1 image ready to convert")
-        #expect(DesignSystem.Text.imagesReadyCount(2) == "2 images ready to convert")
+    @Test func selectionSummaryCountsSelected() {
+        #expect(DesignSystem.Workspace.selectionSummary(selected: 2, total: 5) == "2 of 5 selected")
     }
 
     @Test func partialSaveUsesBothPlurals() {
@@ -28,12 +29,12 @@ struct LocalizationTests {
 
     @Test func menuCommandsUseCatalogValues() {
         #expect(DesignSystem.Commands.menuTitle == "PDF")
-        #expect(DesignSystem.Commands.addPDFs == "Add PDFs…")
-        #expect(DesignSystem.Commands.clearAll == "Clear All…")
+        #expect(DesignSystem.Commands.addFiles == "Add Files…")
+        #expect(DesignSystem.Commands.removeAll == "Remove All…")
     }
 
-    @Test func discardTitlePluralizes() {
-        #expect(DesignSystem.Confirmations.discardTitle(count: 1) == "Remove 1 file from Beaver?")
-        #expect(DesignSystem.Confirmations.discardTitle(count: 4) == "Remove 4 files from Beaver?")
+    @Test func removeAllTitlePluralizes() {
+        #expect(DesignSystem.Confirmations.removeAllTitle(count: 1) == "Remove 1 file from Beaver?")
+        #expect(DesignSystem.Confirmations.removeAllTitle(count: 4) == "Remove 4 files from Beaver?")
     }
 }

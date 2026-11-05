@@ -10,6 +10,10 @@ protocol ExportServiceProtocol: Sendable {
     func splitPDFs(urls: [URL], rotations: [PDFRotation], into directory: URL) async -> ExportAlert
     /// `rotations[i]` turns `urls[i]` clockwise before it becomes a page.
     func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert
+    /// Saves PDFs and images as one PDF, in the given order.
+    func combine(sources: [ExportSource], to destination: URL) async -> ExportAlert
+    /// Saves every page of the PDFs, and every image, as its own PDF in `directory`.
+    func split(sources: [ExportSource], into directory: URL) async -> ExportAlert
 }
 
 struct ExportService: ExportServiceProtocol {
@@ -25,6 +29,10 @@ struct ExportService: ExportServiceProtocol {
         self.pdfService = pdfService
         self.imageService = imageService
         self.writer = writer
+    }
+
+    private var composer: DocumentComposer {
+        DocumentComposer(pdfService: pdfService, imageService: imageService)
     }
 
     @concurrent
@@ -111,5 +119,60 @@ struct ExportService: ExportServiceProtocol {
                 isSuccess: false
             )
         }
+    }
+
+    @concurrent
+    func combine(sources: [ExportSource], to destination: URL) async -> ExportAlert {
+        let result = composer.combine(sources)
+
+        guard let document = result.document else {
+            return ExportAlert(
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.failedToCombine,
+                    skipped: result.skippedURLs
+                ),
+                isSuccess: false
+            )
+        }
+
+        do {
+            try writer.savePDFDocument(document, to: destination)
+            return ExportAlert(
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.combinedPDFSaved(fileName: destination.lastPathComponent),
+                    skipped: result.skippedURLs
+                ),
+                isSuccess: true
+            )
+        } catch {
+            return ExportAlert(
+                message: DesignSystem.Alerts.failedToSaveCombinedPDF(error.localizedDescription),
+                isSuccess: false
+            )
+        }
+    }
+
+    @concurrent
+    func split(sources: [ExportSource], into directory: URL) async -> ExportAlert {
+        let result = composer.split(sources)
+
+        guard !result.pages.isEmpty else {
+            return ExportAlert(
+                message: DesignSystem.Alerts.message(
+                    DesignSystem.Alerts.noPagesFoundToSplit,
+                    skipped: result.skippedURLs
+                ),
+                isSuccess: false
+            )
+        }
+
+        let saveResult = writer.savePDFDocuments(result.pages, to: directory)
+        return ExportAlert(
+            message: DesignSystem.Alerts.message(
+                DesignSystem.Alerts.message(for: saveResult),
+                skipped: result.skippedURLs
+            ),
+            isSuccess: !saveResult.isCompleteFailure
+        )
     }
 }

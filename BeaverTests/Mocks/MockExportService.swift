@@ -9,6 +9,8 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
         case merge(urls: [URL], rotations: [PDFRotation], destination: URL)
         case split(urls: [URL], rotations: [PDFRotation], directory: URL)
         case convert(urls: [URL], rotations: [RotationAngle], destination: URL)
+        case combine(sources: [ExportSource], destination: URL)
+        case splitSources(sources: [ExportSource], directory: URL)
     }
 
     private let lock = NSLock()
@@ -46,6 +48,14 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
 
     func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert {
         await record(.convert(urls: urls, rotations: rotations, destination: destination))
+    }
+
+    func combine(sources: [ExportSource], to destination: URL) async -> ExportAlert {
+        await record(.combine(sources: sources, destination: destination))
+    }
+
+    func split(sources: [ExportSource], into directory: URL) async -> ExportAlert {
+        await record(.splitSources(sources: sources, directory: directory))
     }
 
     private func record(_ call: Call) async -> ExportAlert {

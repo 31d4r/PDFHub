@@ -3,28 +3,22 @@ import AsyncReactor
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// The state of Beaver's single window: one ordered list of PDFs and images, a Finder-style
+/// selection, and undo for every change to the list.
 final class BeaverReactor: AsyncReactor {
     enum Action {
-        case selectPDF
-        case addPDFs([URL])
-        case mergePDF([URL])
-        case splitPDF([URL])
-        case deletePDF(UUID)
-        case clearPDFs
+        /// Shows the file importer for PDFs and images.
+        case chooseFiles
+        /// Adds PDFs and images in the given order, skipping ones already listed.
+        case addFiles([URL])
+        /// Saves the targets as one PDF: merged PDFs, converted images, or both combined.
+        case createPDF
+        /// Asks for a folder, then saves every page of the targets as its own PDF.
+        case splitIntoPages
 
-        case selectImages
-        case addImages([URL])
-        case convertImagesToPDF
-        case deleteImage(UUID)
-        case clearImages
-
-        case goBack
-        case navigate(AppScreen)
-
-        /// Asks before discarding the current list; runs immediately when there is nothing to lose.
-        case requestDiscard(DiscardRequest)
-        /// Carries the request shown in the dialog, because dismissing the dialog clears `pendingDiscard` first.
-        case confirmDiscard(DiscardRequest)
+        /// Asks before Remove All; runs immediately when the list is empty.
+        case requestRemoveAll
+        case confirmRemoveAll
 
         /// The user picked files or a folder in the importer for `state.fileImport`.
         case didImportFiles([URL])
@@ -37,20 +31,24 @@ final class BeaverReactor: AsyncReactor {
     }
 
     enum SyncAction {
-        case didUserSelectPDF([PDFItem])
-        case didUserSelectImages([ImageItem])
-        case didChangeScreen(AppScreen)
+        /// Replaces the PDFs in the list (images stay), e.g. for previews and tests.
+        case setPDFs([PDFItem])
         case didDismissAlert
-        case didCancelDiscard
+        case didCancelRemoveAll
         case didChangeFileImporterPresented(Bool)
-        /// Moves a card to `index`. Synchronous so a drop or menu choice applies at once.
-        case movePDF(id: UUID, to: Int)
-        case moveImage(id: UUID, to: Int)
-        /// Rotations are synchronous and carry their target, so a tap applies at once and
-        /// each one can be undone. All are ignored while an export runs.
-        case rotatePDF(id: UUID, direction: RotationDirection)
-        case rotateImage(id: UUID, direction: RotationDirection)
-        /// Turns every file on the current screen.
+
+        case select(UUID, SelectionModifier)
+        case selectAll
+        case deselectAll
+        /// Moves the keyboard focus by `offset` items; ⇧ extends the selection.
+        case moveFocus(offset: Int, extending: Bool)
+
+        /// List changes are synchronous so a click, drop or key press applies at once,
+        /// and each one can be undone. All are ignored while an export runs.
+        case move(id: UUID, to: Int)
+        case remove(Set<UUID>)
+        case rotate(id: UUID, direction: RotationDirection)
+        /// Turns the targets: the selection, or every file when nothing is selected.
         case rotateAll(RotationDirection)
         /// Turns single pages (zero-based) of one PDF on top of its file rotation.
         case rotatePages(id: UUID, pages: [Int], direction: RotationDirection)
@@ -59,12 +57,28 @@ final class BeaverReactor: AsyncReactor {
         /// Opens the page view for one PDF.
         case showPages(id: UUID)
         case didChangePagesPresented(Bool)
+        /// Opens Quick Look for the focused or first selected file, or closes it.
+        case toggleQuickLook
+        case didChangeQuickLook(URL?)
+        /// Shows the page view for a PDF, or Quick Look for an image.
+        case open(id: UUID)
         case undo
         case redo
     }
 
-    /// What a rotation change was, for "Undo …" and "Redo …" menu titles.
-    enum RotationEdit: Equatable, Sendable {
+    /// The modifier keys held during a click.
+    enum SelectionModifier: Sendable {
+        case none
+        case command
+        case shift
+    }
+
+    /// What a change to the list was, for "Undo …" and "Redo …" menu titles.
+    enum Edit: Equatable, Sendable {
+        case add
+        case remove
+        case removeAll
+        case move
         case rotate
         case rotateAll
         case rotatePages
@@ -72,6 +86,10 @@ final class BeaverReactor: AsyncReactor {
 
         var title: String {
             switch self {
+            case .add: return DesignSystem.Commands.addEditName
+            case .remove: return DesignSystem.Commands.removeEditName
+            case .removeAll: return DesignSystem.Commands.removeAllEditName
+            case .move: return DesignSystem.Commands.moveEditName
             case .rotate: return DesignSystem.Commands.rotateEditName
             case .rotateAll: return DesignSystem.Commands.rotateAllEditName
             case .rotatePages: return DesignSystem.Commands.rotatePagesEditName
@@ -80,81 +98,73 @@ final class BeaverReactor: AsyncReactor {
         }
     }
 
-    /// Something that would throw away the files the user has added.
-    enum DiscardRequest: Equatable {
-        case goBack
-        case clearAll
-    }
-
-    /// Long-running work in progress. While set, exports are ignored and the UI is disabled.
+    /// Long-running work in progress. While set, the list can't change and exports are ignored.
     enum Activity: Equatable {
         case merging
         case splitting
         case converting
+        case combining
 
         var title: String {
             switch self {
             case .merging: return DesignSystem.Progress.merging
             case .splitting: return DesignSystem.Progress.splitting
             case .converting: return DesignSystem.Progress.converting
+            case .combining: return DesignSystem.Progress.combining
             }
         }
     }
 
     struct State {
-        var screen: AppScreen = .menu
-        var selectedPDFs: [PDFItem] = []
-        var selectedImages: [ImageItem] = []
+        var items: [WorkspaceItem] = []
+        var selection = ItemSelection<UUID>()
         var exportAlert: ExportAlert?
         var activity: Activity?
-        var pendingDiscard: DiscardRequest?
+        var isConfirmingRemoveAll = false
         /// What the file importer is for. Kept after dismissal so a late completion still applies.
         var fileImport: FileImportRequest?
         var isFileImporterPresented = false
-        var rotationHistory = UndoHistory<RotationSnapshot, RotationEdit>()
+        var history = UndoHistory<[WorkspaceItem], Edit>()
         /// The PDF whose page view is open.
         var pagesPDFID: UUID?
+        /// The file shown in Quick Look.
+        var quickLookURL: URL?
+
+        var pdfs: [PDFItem] { items.pdfs }
+        var images: [ImageItem] { items.images }
+        var isEmpty: Bool { items.isEmpty }
+        var hasSelection: Bool { !selection.isEmpty }
+
+        /// What toolbar and menu actions work on: the selection, or everything when nothing is selected.
+        var targets: [WorkspaceItem] { items.targets(selection: selection.ids) }
+
+        var selectedItems: [WorkspaceItem] { items.filter { selection.contains($0.id) } }
 
         var isPagesPresented: Bool { pagesPDFID != nil }
 
         var pagesPDF: PDFItem? {
-            pagesPDFID.flatMap { id in selectedPDFs.first { $0.id == id } }
+            pagesPDFID.flatMap { id in pdfs.first { $0.id == id } }
         }
 
-        var rotationSnapshot: RotationSnapshot {
-            RotationSnapshot(pdfs: selectedPDFs, images: selectedImages)
-        }
+        var isIdle: Bool { activity == nil && !isConfirmingRemoveAll }
 
-        /// Whether Rotate All has anything to turn right now.
-        var canRotateAll: Bool {
-            guard activity == nil, pagesPDFID == nil else { return false }
-            switch screen {
-            case .pdfWorkflow: return !selectedPDFs.isEmpty
-            case .imageWorkflow: return !selectedImages.isEmpty
-            case .menu: return false
-            }
-        }
+        /// Whether the list can be changed from the main window right now.
+        var canEdit: Bool { isIdle && pagesPDFID == nil }
 
-        var canUndoRotation: Bool { activity == nil && rotationHistory.canUndo }
-        var canRedoRotation: Bool { activity == nil && rotationHistory.canRedo }
+        /// Whether Rotate Left/Right has anything to turn right now.
+        var canRotateAll: Bool { canEdit && !items.isEmpty }
+        var canExport: Bool { canEdit && !items.isEmpty }
+        var canRemoveSelection: Bool { canEdit && hasSelection }
+        var canRemoveAll: Bool { canEdit && !items.isEmpty }
 
-        /// Files on the current screen that a discard would remove.
-        var discardableCount: Int {
-            switch screen {
-            case .pdfWorkflow: return selectedPDFs.count
-            case .imageWorkflow: return selectedImages.count
-            case .menu: return 0
-            }
-        }
+        var canUndo: Bool { activity == nil && history.canUndo }
+        var canRedo: Bool { activity == nil && history.canRedo }
 
-        /// Whether a discard would throw away rotations the user made on the current screen.
-        var hasDiscardableRotations: Bool {
-            switch screen {
-            case .pdfWorkflow: return selectedPDFs.contains { $0.rotationAngle != .zero || $0.hasPageRotations }
-            case .imageWorkflow: return selectedImages.contains { $0.rotationAngle != .zero }
-            case .menu: return false
-            }
-        }
+        /// What Create PDF would do with the current targets.
+        var exportKind: ExportKind { ExportKind(targets) }
+
+        /// Whether Remove All would throw away rotations the user made.
+        var hasDiscardableRotations: Bool { items.contains(where: \.isRotated) }
     }
 
     @Published private(set) var state: State
@@ -177,36 +187,20 @@ final class BeaverReactor: AsyncReactor {
 
     func action(_ action: Action) async {
         switch action {
-        case .selectPDF:
-            requestFileImport(.pdfs)
-        case .addPDFs(let urls):
-            addPDFs(urls)
-        case .mergePDF(let urls):
-            await mergePDFs(urls: urls)
-        case .splitPDF(let urls):
-            requestSplitDestination(for: urls)
-        case .deletePDF(let id):
-            deletePDF(with: id)
-        case .clearPDFs:
-            clearPDFs()
-        case .selectImages:
-            requestFileImport(.images)
-        case .addImages(let urls):
-            await addImages(urls)
-        case .convertImagesToPDF:
-            await convertImagesToPDF()
-        case .deleteImage(let id):
-            deleteImage(with: id)
-        case .clearImages:
-            clearImages()
-        case .goBack:
-            goBack()
-        case .navigate(let screen):
-            state.screen = screen
-        case .requestDiscard(let request):
-            requestDiscard(request)
-        case .confirmDiscard(let request):
-            confirmDiscard(request)
+        case .chooseFiles:
+            requestFileImport(.files)
+        case .addFiles(let urls):
+            await addFiles(urls)
+        case .createPDF:
+            await createPDF()
+        case .splitIntoPages:
+            requestSplitDestination()
+        case .requestRemoveAll:
+            guard state.canRemoveAll else { return }
+            state.isConfirmingRemoveAll = true
+        case .confirmRemoveAll:
+            state.isConfirmingRemoveAll = false
+            recording(.removeAll) { $0.items.removeAll() }
         case .didImportFiles(let urls):
             await completeFileImport(urls)
         case .didFailFileImport(let message):
@@ -223,109 +217,141 @@ final class BeaverReactor: AsyncReactor {
 
     func action(_ action: SyncAction) {
         switch action {
-        case .didUserSelectPDF(let pdfs):
-            state.selectedPDFs = pdfs
-        case .didUserSelectImages(let images):
-            state.selectedImages = images
-        case .didChangeScreen(let screen):
-            state.screen = screen
+        case .setPDFs(let pdfs):
+            state.items = pdfs.map(WorkspaceItem.pdf) + state.items.filter { $0.kind == .image }
+            didChangeItems()
         case .didDismissAlert:
             state.exportAlert = nil
-        case .didCancelDiscard:
-            state.pendingDiscard = nil
+        case .didCancelRemoveAll:
+            state.isConfirmingRemoveAll = false
         case .didChangeFileImporterPresented(let isPresented):
             state.isFileImporterPresented = isPresented
-        case .movePDF(let id, let index):
-            guard state.activity == nil else { return }
-            state.selectedPDFs.move(id: id, to: index)
-        case .moveImage(let id, let index):
-            guard state.activity == nil else { return }
-            state.selectedImages.move(id: id, to: index)
-        case .rotatePDF(let id, let direction):
-            recordingRotation(.rotate) { state in
-                guard let index = state.selectedPDFs.firstIndex(where: { $0.id == id }) else { return }
-                state.selectedPDFs[index].rotationAngle = state.selectedPDFs[index].rotationAngle.rotated(direction)
-            }
-        case .rotateImage(let id, let direction):
-            recordingRotation(.rotate) { state in
-                guard let index = state.selectedImages.firstIndex(where: { $0.id == id }) else { return }
-                state.selectedImages[index].rotate(direction)
+        case .select(let id, let modifier):
+            select(id, modifier)
+        case .selectAll:
+            state.selection.selectAll(state.items.map(\.id))
+        case .deselectAll:
+            state.selection.clear()
+        case .moveFocus(let offset, let extending):
+            state.selection.step(by: offset, in: state.items.map(\.id), extending: extending)
+        case .move(let id, let index):
+            recording(.move) { $0.items.move(id: id, to: index) }
+        case .remove(let ids):
+            recording(.remove) { $0.items.removeAll { ids.contains($0.id) } }
+        case .rotate(let id, let direction):
+            recording(.rotate) { state in
+                guard let index = state.items.firstIndex(where: { $0.id == id }) else { return }
+                state.items[index].rotate(direction)
             }
         case .rotateAll(let direction):
-            rotateAll(direction)
+            let targets = Set(state.targets.map(\.id))
+            recording(state.hasSelection ? .rotate : .rotateAll) { state in
+                for index in state.items.indices where targets.contains(state.items[index].id) {
+                    state.items[index].rotate(direction)
+                }
+            }
         case .rotatePages(let id, let pages, let direction):
-            recordingRotation(.rotatePages) { state in
-                guard let index = state.selectedPDFs.firstIndex(where: { $0.id == id }) else { return }
-                state.selectedPDFs[index].rotatePages(pages, direction)
-            }
+            updatePDF(id, edit: .rotatePages) { $0.rotatePages(pages, direction) }
         case .rotateAllPages(let id, let direction):
-            recordingRotation(.rotateAllPages) { state in
-                guard let index = state.selectedPDFs.firstIndex(where: { $0.id == id }) else { return }
-                state.selectedPDFs[index].rotationAngle = state.selectedPDFs[index].rotationAngle.rotated(direction)
-            }
+            updatePDF(id, edit: .rotateAllPages) { $0.rotationAngle = $0.rotationAngle.rotated(direction) }
         case .showPages(let id):
-            guard state.activity == nil, state.selectedPDFs.contains(where: { $0.id == id }) else { return }
+            guard state.activity == nil, state.pdfs.contains(where: { $0.id == id }) else { return }
             state.pagesPDFID = id
         case .didChangePagesPresented(let isPresented):
             if !isPresented { state.pagesPDFID = nil }
-        case .undo:
-            stepRotationHistory { history, current in history.undo(current: current) }
-        case .redo:
-            stepRotationHistory { history, current in history.redo(current: current) }
-        }
-    }
-
-    /// Applies `change` and, if it turned anything, records the previous rotations for undo.
-    private func recordingRotation(_ edit: RotationEdit, _ change: (inout State) -> Void) {
-        guard state.activity == nil else { return }
-        let before = state.rotationSnapshot
-        change(&state)
-        if state.rotationSnapshot != before {
-            state.rotationHistory.record(before, label: edit)
-        }
-    }
-
-    private func rotateAll(_ direction: RotationDirection) {
-        recordingRotation(.rotateAll) { state in
-            switch state.screen {
-            case .pdfWorkflow:
-                for index in state.selectedPDFs.indices {
-                    state.selectedPDFs[index].rotationAngle = state.selectedPDFs[index].rotationAngle.rotated(direction)
-                }
-            case .imageWorkflow:
-                for index in state.selectedImages.indices {
-                    state.selectedImages[index].rotate(direction)
-                }
-            case .menu:
-                break
+        case .toggleQuickLook:
+            state.quickLookURL = state.quickLookURL == nil ? quickLookCandidate()?.url : nil
+        case .didChangeQuickLook(let url):
+            state.quickLookURL = url
+        case .open(let id):
+            guard let item = state.items.first(where: { $0.id == id }) else { return }
+            switch item {
+            case .pdf: self.action(SyncAction.showPages(id: id))
+            case .image: state.quickLookURL = item.url
             }
+        case .undo:
+            stepHistory { history, current in history.undo(current: current) }
+        case .redo:
+            stepHistory { history, current in history.redo(current: current) }
         }
     }
 
-    /// Undoes or redoes one step, skipping steps that no longer change anything
-    /// (for example, a rotation of a card that has since been removed).
-    private func stepRotationHistory(
-        _ step: (inout UndoHistory<RotationSnapshot, RotationEdit>, RotationSnapshot) -> RotationSnapshot?
-    ) {
-        guard state.activity == nil else { return }
-        while true {
-            let current = state.rotationSnapshot
-            guard let target = step(&state.rotationHistory, current) else { return }
-            target.restore(&state.selectedPDFs)
-            target.restore(&state.selectedImages)
-            if state.rotationSnapshot != current { return }
+    // MARK: - Selection
+
+    private func select(_ id: UUID, _ modifier: SelectionModifier) {
+        guard state.items.contains(id: id) else { return }
+        switch modifier {
+        case .none: state.selection.click(id)
+        case .command: state.selection.commandClick(id)
+        case .shift: state.selection.shiftClick(id, in: state.items.map(\.id))
         }
     }
+
+    /// The focused file when it's selected, else the first selected one, else the first file.
+    private func quickLookCandidate() -> WorkspaceItem? {
+        if let focus = state.selection.focus, state.selection.contains(focus),
+           let item = state.items.first(where: { $0.id == focus }) {
+            return item
+        }
+        return state.selectedItems.first ?? state.items.first
+    }
+
+    // MARK: - Editing and undo
+
+    /// Applies `change` and, if it changed the list, records the previous list for undo.
+    private func recording(_ edit: Edit, _ change: (inout State) -> Void) {
+        guard state.activity == nil else { return }
+        let before = state.items
+        change(&state)
+        guard state.items != before else { return }
+        state.history.record(before, label: edit)
+        didChangeItems()
+    }
+
+    private func updatePDF(_ id: UUID, edit: Edit, _ change: @escaping (inout PDFItem) -> Void) {
+        recording(edit) { state in
+            guard let index = state.items.firstIndex(where: { $0.id == id }),
+                  case .pdf(var pdf) = state.items[index]
+            else { return }
+            change(&pdf)
+            state.items[index] = .pdf(pdf)
+        }
+    }
+
+    private func stepHistory(
+        _ step: (inout UndoHistory<[WorkspaceItem], Edit>, [WorkspaceItem]) -> [WorkspaceItem]?
+    ) {
+        guard state.activity == nil,
+              let target = step(&state.history, state.items)
+        else { return }
+        state.items = target
+        didChangeItems()
+    }
+
+    /// Keeps the selection, the page view and file access in line with the list.
+    private func didChangeItems() {
+        state.selection.prune(keeping: state.items.map(\.id))
+        if let id = state.pagesPDFID, !state.pdfs.contains(where: { $0.id == id }) {
+            state.pagesPDFID = nil
+        }
+        if let url = state.quickLookURL, !state.items.contains(where: { $0.url == url }) {
+            state.quickLookURL = nil
+        }
+        releaseUnusedFileAccess()
+    }
+
+    /// Ends security-scoped access for files that are neither listed nor reachable through undo.
+    private func releaseUnusedFileAccess() {
+        let reachable = ([state.items] + state.history.snapshots).flatMap { $0.map(\.url) }
+        securityScopedAccess.retainOnly(Set(reachable))
+    }
+
+    // MARK: - Adding files
 
     private func requestFileImport(_ request: FileImportRequest) {
-        guard state.activity == nil else { return }
+        guard state.canEdit else { return }
         state.fileImport = request
         state.isFileImporterPresented = true
-    }
-
-    private func requestSplitDestination(for urls: [URL]) {
-        guard !urls.isEmpty else { return }
-        requestFileImport(.splitDestination(urls))
     }
 
     private func completeFileImport(_ urls: [URL]) async {
@@ -334,43 +360,82 @@ final class BeaverReactor: AsyncReactor {
         state.isFileImporterPresented = false
 
         switch request {
-        case .pdfs:
+        case .files:
             securityScopedAccess.begin(urls)
-            addPDFs(urls)
+            await addFiles(urls)
             releaseUnusedFileAccess()
-        case .images:
-            securityScopedAccess.begin(urls)
-            await addImages(urls)
-            releaseUnusedFileAccess()
-        case .splitDestination(let pdfURLs):
+        case .splitDestination(let sources):
             guard let directory = urls.first else { return }
-            await splitPDF(urls: pdfURLs, into: directory)
+            await split(sources, into: directory)
         }
     }
 
-    /// Ends security-scoped access for files that are no longer listed.
-    private func releaseUnusedFileAccess() {
-        let listed = Set(state.selectedPDFs.map(\.url)).union(state.selectedImages.map(\.url))
-        securityScopedAccess.retainOnly(listed)
-    }
-
-    private func addPDFs(_ urls: [URL]) {
+    private func addFiles(_ urls: [URL]) async {
         guard state.activity == nil else { return }
-        var seen = Set(state.selectedPDFs.map(\.url))
-        let newPDFs = urls.compactMap { url -> PDFItem? in
-            guard !seen.contains(url) else { return nil }
-            seen.insert(url)
-            return PDFItem(url: url)
+        var seen = Set(state.items.map(\.url))
+        let candidates = urls.filter { seen.insert($0).inserted }
+        guard !candidates.isEmpty else { return }
+
+        let imageURLs = DroppedFileKind.image.filter(candidates)
+        let loaded = await Self.loadImages(imageURLs, using: imageService)
+
+        // The list may have changed while images were loading.
+        var current = Set(state.items.map(\.url))
+        var unreadableURLs: [URL] = []
+        var newItems: [WorkspaceItem] = []
+        for url in candidates {
+            let item: WorkspaceItem
+            if DroppedFileKind.pdf.accepts(url) {
+                item = .pdf(PDFItem(url: url))
+            } else if let image = loaded[url], let thumbnail = image.thumbnail {
+                item = .image(ImageItem(url: url, thumbnail: thumbnail, pixelSize: image.pixelSize))
+            } else {
+                unreadableURLs.append(url)
+                continue
+            }
+            if current.insert(url).inserted {
+                newItems.append(item)
+            }
         }
 
-        guard !newPDFs.isEmpty else { return }
+        if !unreadableURLs.isEmpty {
+            state.exportAlert = ExportAlert(
+                message: DesignSystem.Alerts.skippedFiles(unreadableURLs),
+                isSuccess: false
+            )
+        }
 
-        state.selectedPDFs.append(contentsOf: newPDFs)
-        state.screen = .pdfWorkflow
+        guard !newItems.isEmpty else { return }
+        recording(.add) { $0.items.append(contentsOf: newItems) }
     }
+
+    private struct LoadedImage: Sendable {
+        let thumbnail: CGImage?
+        let pixelSize: CGSize?
+    }
+
+    @concurrent
+    private nonisolated static func loadImages(
+        _ urls: [URL],
+        using imageService: any ImageServiceProtocol
+    ) async -> [URL: LoadedImage] {
+        Dictionary(
+            urls.map { url in
+                (url, LoadedImage(
+                    thumbnail: imageService.thumbnail(for: url, maxPixelSize: thumbnailMaxPixelSize),
+                    pixelSize: imageService.pixelSize(for: url)
+                ))
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+    }
+
+    /// Twice the largest card (320 pt) plus some room, so previews stay sharp on Retina.
+    private nonisolated static let thumbnailMaxPixelSize = 800
+
+    // MARK: - Export
 
     /// Runs `work` off the main actor with `activity` shown, then presents its result.
-    /// Ignored while another export is running.
     private func runExport(
         _ activity: Activity,
         _ work: () async -> ExportAlert
@@ -381,193 +446,101 @@ final class BeaverReactor: AsyncReactor {
         state.exportAlert = alert
     }
 
-    private func mergePDFs(urls: [URL]) async {
-        guard !urls.isEmpty, state.activity == nil else { return }
+    private func createPDF() async {
+        guard state.canExport else { return }
+        let targets = state.targets
+        let kind = ExportKind(targets)
 
         guard let saveURL = saveLocationProvider.saveLocation(
-            defaultName: DesignSystem.FileNames.mergedPDF,
-            prompt: DesignSystem.FileNames.saveMergedPDFPrompt
+            defaultName: kind.defaultFileName,
+            prompt: kind.savePrompt
         ) else {
             return
         }
 
-        let rotations = PDFRotationMapper.rotations(
-            urls: urls,
-            from: state.selectedPDFs
-        )
         let exportService = exportService
-
-        await runExport(.merging) {
-            await exportService.mergePDFs(urls: urls, rotations: rotations, to: saveURL)
+        switch kind {
+        case .pdfs:
+            let pdfs = targets.pdfs
+            await runExport(.merging) {
+                await exportService.mergePDFs(urls: pdfs.map(\.url), rotations: pdfs.map(\.rotation), to: saveURL)
+            }
+        case .images:
+            let images = targets.images
+            await runExport(.converting) {
+                await exportService.convertImages(
+                    urls: images.map(\.url),
+                    rotations: images.map(\.rotationAngle),
+                    to: saveURL
+                )
+            }
+        case .mixed:
+            let sources = targets.map(\.exportSource)
+            await runExport(.combining) {
+                await exportService.combine(sources: sources, to: saveURL)
+            }
         }
     }
 
-    private func splitPDF(urls: [URL], into directory: URL) async {
-        guard !urls.isEmpty, state.activity == nil else { return }
+    private func requestSplitDestination() {
+        guard state.canExport else { return }
+        requestFileImport(.splitDestination(state.targets.map(\.exportSource)))
+    }
+
+    private func split(_ sources: [ExportSource], into directory: URL) async {
+        guard !sources.isEmpty, state.activity == nil else { return }
 
         let isScoped = directory.startAccessingSecurityScopedResource()
         defer {
             if isScoped { directory.stopAccessingSecurityScopedResource() }
         }
 
-        let rotations = PDFRotationMapper.rotations(
-            urls: urls,
-            from: state.selectedPDFs
-        )
         let exportService = exportService
+        let pdfs: [(URL, PDFRotation)] = sources.compactMap { source in
+            if case .pdf(let url, let rotation) = source { return (url, rotation) }
+            return nil
+        }
 
         await runExport(.splitting) {
-            await exportService.splitPDFs(urls: urls, rotations: rotations, into: directory)
-        }
-    }
-
-    private func deletePDF(
-        with id: UUID
-    ) {
-        state.selectedPDFs.removeAll { $0.id == id }
-        if state.pagesPDFID == id { state.pagesPDFID = nil }
-        releaseUnusedFileAccess()
-        if state.selectedPDFs.isEmpty {
-            state.rotationHistory.removeAll()
-            state.screen = .menu
-        }
-    }
-
-    private func clearPDFs() {
-        state.selectedPDFs.removeAll()
-        state.pagesPDFID = nil
-        state.rotationHistory.removeAll()
-        releaseUnusedFileAccess()
-        state.screen = .menu
-    }
-
-    private func addImages(_ urls: [URL]) async {
-        guard state.activity == nil else { return }
-        var seen = Set(state.selectedImages.map(\.url))
-        let candidates = urls.filter { seen.insert($0).inserted }
-        guard !candidates.isEmpty else { return }
-
-        let loaded = await Self.loadThumbnails(for: candidates, using: imageService)
-
-        // The list may have changed while thumbnails were loading.
-        var current = Set(state.selectedImages.map(\.url))
-        var unreadableURLs: [URL] = []
-        let newItems = loaded.compactMap { url, thumbnail -> ImageItem? in
-            guard let thumbnail else {
-                unreadableURLs.append(url)
-                return nil
+            if pdfs.count == sources.count {
+                return await exportService.splitPDFs(urls: pdfs.map(\.0), rotations: pdfs.map(\.1), into: directory)
             }
-            guard current.insert(url).inserted else { return nil }
-            return ImageItem(url: url, thumbnail: thumbnail)
+            return await exportService.split(sources: sources, into: directory)
         }
-
-        if !unreadableURLs.isEmpty {
-            send(.showAlert(
-                message: DesignSystem.Alerts.skippedFiles(unreadableURLs),
-                success: false
-            ))
-        }
-
-        guard !newItems.isEmpty else { return }
-
-        state.selectedImages.append(contentsOf: newItems)
-        state.screen = .imageWorkflow
     }
+}
 
-    private func convertImagesToPDF() async {
-        guard state.activity == nil else { return }
-        let imageUrls = state.selectedImages.map(\.url)
-        let rotations = state.selectedImages.map(\.rotationAngle)
+/// What Create PDF does with a set of items.
+enum ExportKind: Equatable, Sendable {
+    /// Merge the PDFs into one.
+    case pdfs
+    /// Turn the images into one PDF, a page each.
+    case images
+    /// Combine both, in list order.
+    case mixed
 
-        guard !imageUrls.isEmpty else {
-            state.exportAlert = ExportAlert(
-                message: DesignSystem.Alerts.noImagesSelected,
-                isSuccess: false
-            )
-            return
-        }
-
-        guard let saveURL = saveLocationProvider.saveLocation(
-            defaultName: DesignSystem.FileNames.convertedImagesPDF,
-            prompt: DesignSystem.FileNames.saveConvertedPDFPrompt
-        ) else {
-            return
-        }
-
-        let exportService = exportService
-
-        await runExport(.converting) {
-            await exportService.convertImages(urls: imageUrls, rotations: rotations, to: saveURL)
+    init(_ items: [WorkspaceItem]) {
+        let kinds = Set(items.map(\.kind))
+        switch (kinds.contains(.pdf), kinds.contains(.image)) {
+        case (_, false): self = .pdfs
+        case (false, true): self = .images
+        case (true, true): self = .mixed
         }
     }
 
-    @concurrent
-    private nonisolated static func loadThumbnails(
-        for urls: [URL],
-        using imageService: any ImageServiceProtocol
-    ) async -> [(URL, CGImage?)] {
-        urls.map { url in
-            (url, imageService.thumbnail(for: url, maxPixelSize: thumbnailMaxPixelSize))
+    var defaultFileName: String {
+        switch self {
+        case .pdfs: return DesignSystem.FileNames.mergedPDF
+        case .images: return DesignSystem.FileNames.convertedImagesPDF
+        case .mixed: return DesignSystem.FileNames.combinedPDF
         }
     }
 
-    /// Twice the largest on-screen preview (400 pt), so previews stay sharp on Retina.
-    private nonisolated static let thumbnailMaxPixelSize = 800
-
-    private func deleteImage(
-        with id: UUID
-    ) {
-        state.selectedImages.removeAll { $0.id == id }
-        releaseUnusedFileAccess()
-        if state.selectedImages.isEmpty {
-            state.rotationHistory.removeAll()
-            state.screen = .menu
-        }
-    }
-
-    private func clearImages() {
-        state.selectedImages.removeAll()
-        state.rotationHistory.removeAll()
-        releaseUnusedFileAccess()
-        state.screen = .menu
-    }
-
-    private func requestDiscard(_ request: DiscardRequest) {
-        guard state.activity == nil, state.screen != .menu else { return }
-        if state.discardableCount == 0 {
-            perform(request)
-        } else {
-            state.pendingDiscard = request
-        }
-    }
-
-    private func confirmDiscard(_ request: DiscardRequest) {
-        state.pendingDiscard = nil
-        guard state.activity == nil, state.screen != .menu else { return }
-        perform(request)
-    }
-
-    private func perform(_ request: DiscardRequest) {
-        switch request {
-        case .goBack:
-            goBack()
-        case .clearAll:
-            switch state.screen {
-            case .pdfWorkflow: clearPDFs()
-            case .imageWorkflow: clearImages()
-            case .menu: break
-            }
-        }
-    }
-
-    private func goBack() {
-        switch state.screen {
-        case .pdfWorkflow:
-            clearPDFs()
-        case .imageWorkflow:
-            clearImages()
-        case .menu:
-            break
+    var savePrompt: String {
+        switch self {
+        case .pdfs: return DesignSystem.FileNames.saveMergedPDFPrompt
+        case .images: return DesignSystem.FileNames.saveConvertedPDFPrompt
+        case .mixed: return DesignSystem.FileNames.saveCombinedPDFPrompt
         }
     }
 }

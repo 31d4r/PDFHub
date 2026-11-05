@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%lld files loaded" : {
+    "%lld PDFs" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -10,13 +10,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld file loaded"
+                  "value" : "%lld PDF"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld files loaded"
+                  "value" : "%lld PDFs"
                 }
               }
             }
@@ -24,7 +24,7 @@
         }
       }
     },
-    "%lld images ready to convert" : {
+    "%lld images" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -33,16 +33,27 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld image ready to convert"
+                  "value" : "%lld image"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld images ready to convert"
+                  "value" : "%lld images"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld of %lld selected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld selected"
           }
         }
       }
@@ -81,18 +92,38 @@
         }
       }
     },
-    "+%lld" : {},
-    "Add Images" : {
-      "extractionState" : "manual"
+    "Add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        }
+      }
     },
-    "Add PDF" : {
-      "extractionState" : "manual"
+    "Add Files…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Files…"
+          }
+        }
+      }
     },
-    "Back" : {
-      "extractionState" : "manual"
-    },
-    "Beaver" : {
-      "extractionState" : "manual"
+    "Add PDFs and images" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add PDFs and images"
+          }
+        }
+      }
     },
     "Beaver couldn’t read the pages of this PDF." : {
       "extractionState" : "manual",
@@ -108,8 +139,16 @@
     "Cancel" : {
       "extractionState" : "manual"
     },
-    "Clear All" : {
-      "extractionState" : "manual"
+    "Choose Files…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Files…"
+          }
+        }
+      }
     },
     "Click to select, ⌘-click to add or remove, ⇧-click for a range." : {
       "extractionState" : "manual",
@@ -122,17 +161,63 @@
         }
       }
     },
-    "Convert Images\nto PDF" : {
-      "extractionState" : "manual"
+    "Combine all files into one PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combine all files into one PDF"
+          }
+        }
+      }
     },
-    "Convert to PDF" : {
-      "extractionState" : "manual"
+    "Combine the selected files into one PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combine the selected files into one PDF"
+          }
+        }
+      }
     },
     "Converting images…" : {
       "extractionState" : "manual"
     },
-    "Delete This Image" : {
-      "extractionState" : "manual"
+    "Couldn’t create the PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t create the PDF"
+          }
+        }
+      }
+    },
+    "Create PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create PDF"
+          }
+        }
+      }
+    },
+    "Creating PDF…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creating PDF…"
+          }
+        }
+      }
     },
     "Done" : {
       "extractionState" : "manual",
@@ -141,6 +226,51 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Done"
+          }
+        }
+      }
+    },
+    "Drag" : {
+      "comment" : "Shown like a key cap next to 'Drag to reorder'",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag"
+          }
+        }
+      }
+    },
+    "Drag to reorder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag to reorder"
+          }
+        }
+      }
+    },
+    "Drop PDFs and Images Here" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drop PDFs and Images Here"
+          }
+        }
+      }
+    },
+    "Drop PDFs and images here, or choose files" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drop PDFs and images here, or choose files"
           }
         }
       }
@@ -154,6 +284,17 @@
     "Failed to merge PDFs" : {
       "extractionState" : "manual"
     },
+    "Failed to save PDF: %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to save PDF: %@"
+          }
+        }
+      }
+    },
     "Failed to save any PDF files" : {
       "extractionState" : "manual"
     },
@@ -163,20 +304,67 @@
     "Failed to save merged PDF: %@" : {
       "extractionState" : "manual"
     },
-    "Go Back" : {
-      "extractionState" : "manual"
+    "Files" : {
+      "comment" : "Window title of Beaver's file list",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Files"
+          }
+        }
+      }
     },
-    "Images to PDF" : {
-      "extractionState" : "manual"
+    "Merge PDFs, split them into pages, or turn images into a PDF. Your originals are never changed." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge PDFs, split them into pages, or turn images into a PDF. Your originals are never changed."
+          }
+        }
+      }
     },
-    "Merge PDFs" : {
-      "extractionState" : "manual"
+    "Merge all PDFs into one PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge all PDFs into one PDF"
+          }
+        }
+      }
+    },
+    "Merge the selected PDFs into one PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge the selected PDFs into one PDF"
+          }
+        }
+      }
     },
     "Merged PDF successfully saved at %@" : {
       "extractionState" : "manual"
     },
     "Merging PDFs…" : {
       "extractionState" : "manual"
+    },
+    "More" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More"
+          }
+        }
+      }
     },
     "Move Left" : {
       "extractionState" : "manual",
@@ -222,8 +410,17 @@
         }
       }
     },
-    "No images selected" : {
-      "extractionState" : "manual"
+    "No files" : {
+      "comment" : "Window subtitle when the list is empty",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No files"
+          }
+        }
+      }
     },
     "No pages found to split" : {
       "extractionState" : "manual"
@@ -231,11 +428,16 @@
     "OK" : {
       "extractionState" : "manual"
     },
-    "PDF Document" : {
-      "extractionState" : "manual"
-    },
-    "PDF Documents" : {
-      "extractionState" : "manual"
+    "PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF"
+          }
+        }
+      }
     },
     "Page %lld" : {
       "extractionState" : "manual",
@@ -277,17 +479,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pages rotated"
-          }
-        }
-      }
-    },
-    "Pages…" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pages…"
           }
         }
       }
@@ -345,13 +536,29 @@
         }
       }
     },
-    "Preview of %@" : {
-      "extractionState" : "manual"
+    "Quick Look" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Look"
+          }
+        }
+      }
+    },
+    "Release to Add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release to Add"
+          }
+        }
+      }
     },
     "Remove" : {
-      "extractionState" : "manual"
-    },
-    "Remove %@" : {
       "extractionState" : "manual"
     },
     "Remove %lld files from Beaver?" : {
@@ -377,6 +584,28 @@
         }
       }
     },
+    "Remove All…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove All…"
+          }
+        }
+      }
+    },
+    "Rotate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate"
+          }
+        }
+      }
+    },
     "Rotate %@ left" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -395,17 +624,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rotate %@ right"
-          }
-        }
-      }
-    },
-    "Rotate All" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rotate All"
           }
         }
       }
@@ -443,6 +661,28 @@
         }
       }
     },
+    "Rotate Left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate Left"
+          }
+        }
+      }
+    },
+    "Rotate Right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate Right"
+          }
+        }
+      }
+    },
     "Rotate Selected Left" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -465,11 +705,49 @@
         }
       }
     },
-    "Rotate left" : {
-      "extractionState" : "manual"
+    "Rotate all files left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate all files left"
+          }
+        }
+      }
     },
-    "Rotate right" : {
-      "extractionState" : "manual"
+    "Rotate all files right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate all files right"
+          }
+        }
+      }
+    },
+    "Rotate the selected files left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate the selected files left"
+          }
+        }
+      }
+    },
+    "Rotate the selected files right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate the selected files right"
+          }
+        }
+      }
     },
     "Rotated %lld degrees" : {
       "extractionState" : "manual",
@@ -488,8 +766,52 @@
     "Save Merged PDF" : {
       "extractionState" : "manual"
     },
+    "Save PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save PDF"
+          }
+        }
+      }
+    },
     "Save Split PDFs" : {
       "extractionState" : "manual"
+    },
+    "Save each page of all files as its own PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save each page of all files as its own PDF"
+          }
+        }
+      }
+    },
+    "Save each page of the selected files as its own PDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save each page of the selected files as its own PDF"
+          }
+        }
+      }
+    },
+    "Saved %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved %@"
+          }
+        }
+      }
     },
     "Select All" : {
       "extractionState" : "manual",
@@ -502,13 +824,13 @@
         }
       }
     },
-    "Show and Rotate Pages" : {
+    "Show Pages" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show and Rotate Pages"
+            "value" : "Show Pages"
           }
         }
       }
@@ -557,14 +879,39 @@
         }
       }
     },
-    "Split & Merge\nPDF Files" : {
-      "extractionState" : "manual"
+    "Space" : {
+      "comment" : "The space bar, shown like a key cap",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Space"
+          }
+        }
+      }
     },
-    "Split PDFs" : {
-      "extractionState" : "manual"
+    "Split into Pages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split into Pages"
+          }
+        }
+      }
     },
-    "Splitting PDFs…" : {
-      "extractionState" : "manual"
+    "Splitting into pages…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Splitting into pages…"
+          }
+        }
+      }
     },
     "Success" : {
       "extractionState" : "manual"
@@ -595,66 +942,158 @@
         }
       }
     },
-    "The original files on disk are not changed." : {
-      "extractionState" : "manual"
-    },
-    "The original files on disk are not changed. Rotations you made here will be lost." : {
-      "extractionState" : "manual"
-    },
-    "Your PDF workflow companion" : {
-      "extractionState" : "manual"
-    },
-    "menu.addImages" : {
+    "Thumbnail Size" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add Images…"
+            "value" : "Thumbnail Size"
           }
         }
       }
     },
-    "menu.addPDFs" : {
+    "Turn all images into one PDF" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add PDFs…"
+            "value" : "Turn all images into one PDF"
           }
         }
       }
     },
-    "menu.back" : {
+    "Turn the selected images into one PDF" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back"
+            "value" : "Turn the selected images into one PDF"
           }
         }
       }
     },
-    "menu.clearAll" : {
+    "Your original files aren’t changed. You can undo this, including the rotations you made." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clear All…"
+            "value" : "Your original files aren’t changed. You can undo this, including the rotations you made."
           }
         }
       }
     },
-    "menu.convertToPDF" : {
+    "Your original files aren’t changed. You can undo this." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Convert Images to PDF…"
+            "value" : "Your original files aren’t changed. You can undo this."
+          }
+        }
+      }
+    },
+    "confirm.removeAll" : {
+      "comment" : "Destructive button in the Remove All confirmation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove All"
+          }
+        }
+      }
+    },
+    "hint.choose" : {
+      "comment" : "Empty state shortcut hint next to ⌘O",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose files"
+          }
+        }
+      }
+    },
+    "menu.addFiles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Files…"
+          }
+        }
+      }
+    },
+    "menu.createPDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create PDF…"
+          }
+        }
+      }
+    },
+    "menu.deselectAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deselect All"
+          }
+        }
+      }
+    },
+    "menu.edit.add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Files"
+          }
+        }
+      }
+    },
+    "menu.edit.move" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move"
+          }
+        }
+      }
+    },
+    "menu.edit.remove" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "menu.edit.removeAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove All"
           }
         }
       }
@@ -703,13 +1142,24 @@
         }
       }
     },
-    "menu.mergePDFs" : {
+    "menu.largerThumbnails" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Merge PDFs…"
+            "value" : "Make Thumbnails Larger"
+          }
+        }
+      }
+    },
+    "menu.quickLook" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Look"
           }
         }
       }
@@ -736,6 +1186,28 @@
         }
       }
     },
+    "menu.remove" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "menu.removeAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove All…"
+          }
+        }
+      }
+    },
     "menu.rotateAllLeft" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -758,13 +1230,57 @@
         }
       }
     },
-    "menu.splitPDFs" : {
+    "menu.rotateLeft" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Split PDFs…"
+            "value" : "Rotate Left"
+          }
+        }
+      }
+    },
+    "menu.rotateRight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate Right"
+          }
+        }
+      }
+    },
+    "menu.showPages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Pages"
+          }
+        }
+      }
+    },
+    "menu.smallerThumbnails" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make Thumbnails Smaller"
+          }
+        }
+      }
+    },
+    "menu.splitIntoPages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Split into Pages…"
           }
         }
       }

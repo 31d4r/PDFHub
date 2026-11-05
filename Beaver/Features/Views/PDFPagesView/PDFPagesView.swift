@@ -52,7 +52,7 @@ struct PDFPagesView: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(alignment: .center, spacing: DesignSystem.Spacing.buttonSpacing) {
+        HStack(alignment: .center, spacing: DesignSystem.Spacing.small) {
             VStack(alignment: .leading, spacing: Constants.titleSpacing) {
                 Text(DesignSystem.Pages.title(pdf.url.lastPathComponent))
                     .font(.headline)
@@ -76,7 +76,7 @@ struct PDFPagesView: View {
                 Button {
                     rotateSelection(.left)
                 } label: {
-                    Label(DesignSystem.Pages.rotateSelectedLeft, systemImage: DesignSystem.Icons.rotateLeftIcon)
+                    Label(DesignSystem.Pages.rotateSelectedLeft, systemImage: DesignSystem.Icons.rotateLeft)
                 }
                 .keyboardShortcut("l", modifiers: .command)
                 .help(DesignSystem.Pages.rotateSelectedLeft)
@@ -84,7 +84,7 @@ struct PDFPagesView: View {
                 Button {
                     rotateSelection(.right)
                 } label: {
-                    Label(DesignSystem.Pages.rotateSelectedRight, systemImage: DesignSystem.Icons.rotateRightIcon)
+                    Label(DesignSystem.Pages.rotateSelectedRight, systemImage: DesignSystem.Icons.rotateRight)
                 }
                 .keyboardShortcut("r", modifiers: .command)
                 .help(DesignSystem.Pages.rotateSelectedRight)
@@ -97,7 +97,7 @@ struct PDFPagesView: View {
                 Button(DesignSystem.Pages.rotateAllPagesLeft) { rotateAllPages(.left) }
                 Button(DesignSystem.Pages.rotateAllPagesRight) { rotateAllPages(.right) }
             } label: {
-                Label(DesignSystem.Pages.rotateAllPages, systemImage: DesignSystem.Icons.rotateRightIcon)
+                Label(DesignSystem.Pages.rotateAllPages, systemImage: DesignSystem.Icons.rotateRight)
             }
             .fixedSize()
             .disabled(isDisabled || count == 0)
@@ -267,7 +267,7 @@ private struct PageThumbnailCell: View {
             HStack {
                 Text(DesignSystem.Pages.page(index))
                     .font(.callout.weight(.medium))
-                    .foregroundStyle(DesignSystem.Colors.titleColor)
+                    .foregroundStyle(.primary)
                     .accessibilityHidden(true)
                 Spacer(minLength: 0)
                 RotateControlsView(
@@ -279,8 +279,8 @@ private struct PageThumbnailCell: View {
         }
         .padding(Constants.cellPadding)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.cardSmall, style: .continuous)
-                .fill(DesignSystem.Colors.cardSurface)
+            RoundedRectangle(cornerRadius: DesignSystem.Layout.selectionRadius, style: .continuous)
+                .fill(.quinary)
         )
         .accessibilityElement(children: .contain)
         .task(id: index) {
@@ -290,8 +290,8 @@ private struct PageThumbnailCell: View {
 
     private var thumbnail: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.pdfView, style: .continuous)
-                .fill(DesignSystem.Colors.pdfContainerBackgroundColor)
+            RoundedRectangle(cornerRadius: DesignSystem.Layout.thumbnailRadius, style: .continuous)
+                .fill(.quaternary)
 
             if let image {
                 Image(decorative: image, scale: 1)
@@ -308,7 +308,7 @@ private struct PageThumbnailCell: View {
         }
         .aspectRatio(1, contentMode: .fit)
         .overlay {
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.pdfView, style: .continuous)
+            RoundedRectangle(cornerRadius: DesignSystem.Layout.thumbnailRadius, style: .continuous)
                 .strokeBorder(
                     isSelected ? Color.accentColor : (isFocused ? Color.accentColor.opacity(0.5) : .clear),
                     lineWidth: Constants.selectionLineWidth
@@ -316,7 +316,7 @@ private struct PageThumbnailCell: View {
         }
         .overlay(alignment: .topTrailing) {
             if isSelected {
-                Image(systemName: DesignSystem.Icons.selectedPageIcon)
+                Image(systemName: DesignSystem.Icons.selectedPage)
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(.white, Color.accentColor)
                     .font(.title3)

@@ -1,127 +1,162 @@
+import BeaverCore
 import SwiftUI
 #if os(macOS)
 import AppKit
 #endif
 
-/// Menu bar commands for the focused window. Each one sends the same reactor
-/// action as the matching on-screen button, so confirmations and guards apply.
+/// Menu bar commands for the focused window. Each one sends the same reactor action as the
+/// matching toolbar button, so every toolbar action is also in the menu bar with a shortcut.
 struct BeaverCommands: Commands {
     @FocusedObject private var reactor: BeaverReactor?
+    @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
 
     var body: some Commands {
         CommandGroup(replacing: .undoRedo) {
             Button(undoTitle) {
-                if let reactor, reactor.state.rotationHistory.canUndo {
+                if let reactor, reactor.state.canUndo {
                     reactor.action(.undo)
                 } else {
                     sendToResponderChain("undo:")
                 }
             }
             .keyboardShortcut("z", modifiers: .command)
-            .disabled(isRotationHistoryBlocked)
+            .disabled(isHistoryBlocked)
 
             Button(redoTitle) {
-                if let reactor, reactor.state.rotationHistory.canRedo {
+                if let reactor, reactor.state.canRedo {
                     reactor.action(.redo)
                 } else {
                     sendToResponderChain("redo:")
                 }
             }
             .keyboardShortcut("z", modifiers: [.command, .shift])
-            .disabled(isRotationHistoryBlocked)
+            .disabled(isHistoryBlocked)
         }
 
         CommandGroup(after: .newItem) {
-            Button(DesignSystem.Commands.addPDFs) {
-                reactor?.send(.selectPDF)
+            Button(DesignSystem.Commands.addFiles) {
+                reactor?.send(.chooseFiles)
             }
             .keyboardShortcut("o", modifiers: .command)
-            .disabled(!isIdle)
+            .disabled(!(reactor?.state.canEdit ?? false))
+        }
 
-            Button(DesignSystem.Commands.addImages) {
-                reactor?.send(.selectImages)
+        CommandGroup(after: .pasteboard) {
+            Button(DesignSystem.Commands.deselectAll) {
+                reactor?.action(.deselectAll)
             }
-            .keyboardShortcut("o", modifiers: [.command, .shift])
-            .disabled(!isIdle)
+            .keyboardShortcut("a", modifiers: [.command, .option])
+            .disabled(!(reactor?.state.hasSelection ?? false))
+        }
+
+        CommandGroup(after: .toolbar) {
+            Button(DesignSystem.Commands.largerThumbnails) {
+                resizeThumbnails(by: DesignSystem.Layout.thumbnailSizeStep)
+            }
+            .keyboardShortcut("+", modifiers: .command)
+            .disabled(thumbnailSize >= DesignSystem.Layout.thumbnailSizeRange.upperBound)
+
+            Button(DesignSystem.Commands.smallerThumbnails) {
+                resizeThumbnails(by: -DesignSystem.Layout.thumbnailSizeStep)
+            }
+            .keyboardShortcut("-", modifiers: .command)
+            .disabled(thumbnailSize <= DesignSystem.Layout.thumbnailSizeRange.lowerBound)
+
+            Divider()
         }
 
         CommandMenu(DesignSystem.Commands.menuTitle) {
-            Button(DesignSystem.Commands.mergePDFs) {
-                guard let reactor else { return }
-                reactor.send(.mergePDF(reactor.state.selectedPDFs.map(\.url)))
+            Button(DesignSystem.Commands.createPDF) {
+                reactor?.send(.createPDF)
             }
             .keyboardShortcut("m", modifiers: [.command, .option])
-            .disabled(!canExportPDFs)
+            .disabled(!(reactor?.state.canExport ?? false))
 
-            Button(DesignSystem.Commands.splitPDFs) {
-                guard let reactor else { return }
-                reactor.send(.splitPDF(reactor.state.selectedPDFs.map(\.url)))
+            Button(DesignSystem.Commands.splitIntoPages) {
+                reactor?.send(.splitIntoPages)
             }
             .keyboardShortcut("s", modifiers: [.command, .option])
-            .disabled(!canExportPDFs)
-
-            Button(DesignSystem.Commands.convertToPDF) {
-                reactor?.send(.convertImagesToPDF)
-            }
-            .keyboardShortcut("p", modifiers: [.command, .option])
-            .disabled(!canConvertImages)
+            .disabled(!(reactor?.state.canExport ?? false))
 
             Divider()
 
-            Button(DesignSystem.Commands.rotateAllLeft) {
+            Button(hasSelection ? DesignSystem.Commands.rotateLeft : DesignSystem.Commands.rotateAllLeft) {
                 reactor?.action(.rotateAll(.left))
             }
             .keyboardShortcut("l", modifiers: .command)
-            .disabled(!canRotateAll)
+            .disabled(!(reactor?.state.canRotateAll ?? false))
 
-            Button(DesignSystem.Commands.rotateAllRight) {
+            Button(hasSelection ? DesignSystem.Commands.rotateRight : DesignSystem.Commands.rotateAllRight) {
                 reactor?.action(.rotateAll(.right))
             }
             .keyboardShortcut("r", modifiers: .command)
-            .disabled(!canRotateAll)
+            .disabled(!(reactor?.state.canRotateAll ?? false))
 
             Divider()
 
-            Button(DesignSystem.Commands.back) {
-                reactor?.send(.requestDiscard(.goBack))
+            Button(DesignSystem.Commands.showPages) {
+                guard let reactor, let pdf = focusedPDF(reactor) else { return }
+                reactor.action(.showPages(id: pdf.id))
             }
-            .keyboardShortcut("[", modifiers: .command)
-            .disabled(!isIdle || reactor?.state.screen == .menu)
+            .keyboardShortcut("p", modifiers: [.command, .option])
+            .disabled(reactor.map { !$0.state.canEdit || focusedPDF($0) == nil } ?? true)
 
-            Button(DesignSystem.Commands.clearAll) {
-                reactor?.send(.requestDiscard(.clearAll))
+            Button(DesignSystem.Commands.quickLook) {
+                reactor?.action(.toggleQuickLook)
+            }
+            .keyboardShortcut("y", modifiers: .command)
+            .disabled(reactor?.state.isEmpty ?? true)
+
+            Divider()
+
+            Button(DesignSystem.Commands.remove) {
+                guard let reactor else { return }
+                reactor.action(.remove(reactor.state.selection.ids))
             }
             .keyboardShortcut(.delete, modifiers: .command)
-            .disabled(!isIdle || (reactor?.state.discardableCount ?? 0) == 0)
+            .disabled(!(reactor?.state.canRemoveSelection ?? false))
+
+            Button(DesignSystem.Commands.removeAll) {
+                reactor?.send(.requestRemoveAll)
+            }
+            .keyboardShortcut(.delete, modifiers: [.command, .shift])
+            .disabled(!(reactor?.state.canRemoveAll ?? false))
         }
     }
 
-    private var isIdle: Bool {
-        guard let reactor else { return false }
-        return reactor.state.activity == nil && reactor.state.pendingDiscard == nil
+    private var hasSelection: Bool { reactor?.state.hasSelection ?? false }
+
+    /// The PDF Show Pages opens: the focused file if it's a PDF, else the only selected PDF.
+    private func focusedPDF(_ reactor: BeaverReactor) -> PDFItem? {
+        let state = reactor.state
+        if let focus = state.selection.focus, let pdf = state.items.first(where: { $0.id == focus })?.pdf {
+            return pdf
+        }
+        let selected = state.selectedItems.compactMap(\.pdf)
+        return selected.count == 1 ? selected.first : nil
     }
 
-    private var canExportPDFs: Bool {
-        isIdle && reactor?.state.screen == .pdfWorkflow && !(reactor?.state.selectedPDFs.isEmpty ?? true)
-    }
-
-    private var canRotateAll: Bool {
-        isIdle && (reactor?.state.canRotateAll ?? false)
+    private func resizeThumbnails(by step: Double) {
+        thumbnailSize = GridLayout.clampedSize(
+            thumbnailSize + step,
+            step: DesignSystem.Layout.thumbnailSizeStep,
+            in: DesignSystem.Layout.thumbnailSizeRange
+        )
     }
 
     private var undoTitle: String {
-        guard let label = reactor?.state.rotationHistory.undoLabel else { return DesignSystem.Commands.undo }
+        guard let label = reactor?.state.history.undoLabel else { return DesignSystem.Commands.undo }
         return DesignSystem.Commands.undo(label.title)
     }
 
     private var redoTitle: String {
-        guard let label = reactor?.state.rotationHistory.redoLabel else { return DesignSystem.Commands.redo }
+        guard let label = reactor?.state.history.redoLabel else { return DesignSystem.Commands.redo }
         return DesignSystem.Commands.redo(label.title)
     }
 
-    /// Rotations can't be undone mid-export. Otherwise the items stay enabled so text fields
+    /// Edits can't be undone mid-export. Otherwise the items stay enabled so text fields
     /// (such as a save panel's name field) still get Undo and Redo through the responder chain.
-    private var isRotationHistoryBlocked: Bool {
+    private var isHistoryBlocked: Bool {
         reactor?.state.activity != nil
     }
 
@@ -130,9 +165,5 @@ struct BeaverCommands: Commands {
         #if os(macOS)
         NSApp.sendAction(Selector((selector)), to: nil, from: nil)
         #endif
-    }
-
-    private var canConvertImages: Bool {
-        isIdle && reactor?.state.screen == .imageWorkflow && !(reactor?.state.selectedImages.isEmpty ?? true)
     }
 }

@@ -1,49 +1,35 @@
 import BeaverCore
 import SwiftUI
 
-/// Accepts files of one kind dropped from Finder and highlights the target while hovering.
+/// Accepts PDFs and images dropped from Finder or another app. Reports hovering through
+/// `isTargeted` so the view under the pointer can highlight itself.
 struct FileDropModifier: ViewModifier {
-    let kind: DroppedFileKind
+    @Binding var isTargeted: Bool
     let onDrop: ([URL]) -> Void
 
-    @State private var isTargeted = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
             .dropDestination(for: URL.self) { urls, _ in
-                let accepted = kind.filter(urls)
+                let accepted = urls.filter { DroppedFileKind.pdf.accepts($0) || DroppedFileKind.image.accepts($0) }
                 guard !accepted.isEmpty else { return false }
                 onDrop(accepted)
                 return true
             } isTargeted: { targeted in
-                withAnimation(.easeInOut(duration: Constants.highlightAnimationDuration)) {
+                withAnimation(reduceMotion ? nil : .easeOut(duration: Constants.highlightDuration)) {
                     isTargeted = targeted
-                }
-            }
-            .overlay {
-                if isTargeted {
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.card, style: .continuous)
-                        .strokeBorder(
-                            DesignSystem.Colors.primaryGradientStart,
-                            style: StrokeStyle(lineWidth: Constants.highlightLineWidth, dash: Constants.highlightDash)
-                        )
-                        .padding(Constants.highlightInset)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
                 }
             }
     }
 }
 
 extension View {
-    func fileDrop(_ kind: DroppedFileKind, onDrop: @escaping ([URL]) -> Void) -> some View {
-        modifier(FileDropModifier(kind: kind, onDrop: onDrop))
+    func fileDrop(isTargeted: Binding<Bool>, onDrop: @escaping ([URL]) -> Void) -> some View {
+        modifier(FileDropModifier(isTargeted: isTargeted, onDrop: onDrop))
     }
 }
 
 private enum Constants {
-    static let highlightLineWidth: CGFloat = 3
-    static let highlightDash: [CGFloat] = [10, 6]
-    static let highlightInset: CGFloat = 8
-    static let highlightAnimationDuration: Double = 0.15
+    static let highlightDuration: Double = 0.15
 }

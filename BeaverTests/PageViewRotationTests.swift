@@ -283,76 +283,74 @@ struct ReactorPageRotationTests {
         let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let reactor = BeaverReactor(saveLocationProvider: panels, imageService: MockImageService(), exportService: export)
-        reactor.action(.didUserSelectPDF([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
-        reactor.action(.didChangeScreen(.pdfWorkflow))
+        reactor.action(.setPDFs([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
         return reactor
     }
 
     @Test func rotatePagesChangesOnlyThatPDF() {
         let reactor = makeReactor()
-        let first = reactor.state.selectedPDFs[0]
+        let first = reactor.state.pdfs[0]
 
         reactor.action(.rotatePages(id: first.id, pages: [0, 2], direction: .right))
 
-        #expect(reactor.state.selectedPDFs[0].pageRotations == [0: .ninety, 2: .ninety])
-        #expect(reactor.state.selectedPDFs[0].rotationAngle == .zero)
-        #expect(!reactor.state.selectedPDFs[1].hasPageRotations)
+        #expect(reactor.state.pdfs[0].pageRotations == [0: .ninety, 2: .ninety])
+        #expect(reactor.state.pdfs[0].rotationAngle == .zero)
+        #expect(!reactor.state.pdfs[1].hasPageRotations)
         #expect(reactor.state.hasDiscardableRotations)
-        #expect(reactor.state.rotationHistory.undoLabel == .rotatePages)
+        #expect(reactor.state.history.undoLabel == .rotatePages)
     }
 
     @Test func rotateAllPagesTurnsTheFile() {
         let reactor = makeReactor()
-        let first = reactor.state.selectedPDFs[0]
+        let first = reactor.state.pdfs[0]
         reactor.action(.rotatePages(id: first.id, pages: [1], direction: .right))
 
         reactor.action(.rotateAllPages(id: first.id, direction: .left))
 
-        #expect(reactor.state.selectedPDFs[0].rotationAngle == .twoSeventy)
-        #expect(reactor.state.selectedPDFs[0].pageRotations == [1: .ninety])
-        #expect(reactor.state.selectedPDFs[0].rotation.userRotation(forPage: 1) == .zero)
-        #expect(reactor.state.rotationHistory.undoLabel == .rotateAllPages)
+        #expect(reactor.state.pdfs[0].rotationAngle == .twoSeventy)
+        #expect(reactor.state.pdfs[0].pageRotations == [1: .ninety])
+        #expect(reactor.state.pdfs[0].rotation.userRotation(forPage: 1) == .zero)
+        #expect(reactor.state.history.undoLabel == .rotateAllPages)
     }
 
     @Test func undoAndRedoRestorePageRotations() {
         let reactor = makeReactor()
-        let id = reactor.state.selectedPDFs[0].id
+        let id = reactor.state.pdfs[0].id
         reactor.action(.rotatePages(id: id, pages: [0], direction: .right))
-        reactor.action(.rotatePDF(id: id, direction: .right))
+        reactor.action(.rotate(id: id, direction: .right))
         reactor.action(.rotatePages(id: id, pages: [0, 1], direction: .right))
 
         reactor.action(.undo)
-        #expect(reactor.state.selectedPDFs[0].rotation == PDFRotation(file: .ninety, pages: [0: .ninety]))
+        #expect(reactor.state.pdfs[0].rotation == PDFRotation(file: .ninety, pages: [0: .ninety]))
         reactor.action(.undo)
-        #expect(reactor.state.selectedPDFs[0].rotation == PDFRotation(pages: [0: .ninety]))
+        #expect(reactor.state.pdfs[0].rotation == PDFRotation(pages: [0: .ninety]))
         reactor.action(.undo)
-        #expect(reactor.state.selectedPDFs[0].rotation == .none)
-        #expect(!reactor.state.canUndoRotation)
+        #expect(reactor.state.pdfs[0].rotation == .none)
+        #expect(!reactor.state.canUndo)
 
         reactor.action(.redo)
         reactor.action(.redo)
         reactor.action(.redo)
-        #expect(reactor.state.selectedPDFs[0].rotation == PDFRotation(file: .ninety, pages: [0: .oneEighty, 1: .ninety]))
-        #expect(!reactor.state.canRedoRotation)
+        #expect(reactor.state.pdfs[0].rotation == PDFRotation(file: .ninety, pages: [0: .oneEighty, 1: .ninety]))
+        #expect(!reactor.state.canRedo)
     }
 
     @Test func rotatingNoPagesRecordsNothing() {
         let reactor = makeReactor()
-        let id = reactor.state.selectedPDFs[0].id
+        let id = reactor.state.pdfs[0].id
 
         reactor.action(.rotatePages(id: id, pages: [], direction: .right))
         reactor.action(.rotatePages(id: UUID(), pages: [0], direction: .right))
 
-        #expect(!reactor.state.canUndoRotation)
+        #expect(!reactor.state.canUndo)
     }
 
     @Test func pageRotationsAreIgnoredDuringActivity() async {
         let export = MockExportService(isGated: true)
         let reactor = makeReactor(export: export)
-        let id = reactor.state.selectedPDFs[0].id
-        let urls = reactor.state.selectedPDFs.map(\.url)
+        let id = reactor.state.pdfs[0].id
 
-        let running = Task { await reactor.action(.mergePDF(urls)) }
+        let running = Task { await reactor.action(.createPDF) }
         while reactor.state.activity == nil {
             await Task.yield()
         }
@@ -362,26 +360,26 @@ struct ReactorPageRotationTests {
         export.release()
         await running.value
 
-        #expect(reactor.state.selectedPDFs[0].rotation == .none)
-        #expect(!reactor.state.canUndoRotation)
+        #expect(reactor.state.pdfs[0].rotation == .none)
+        #expect(!reactor.state.canUndo)
         #expect(reactor.state.pagesPDFID == nil)
     }
 
     @Test func reorderKeepsPageRotationsAndExportFollowsTheNewOrder() async {
         let export = MockExportService()
         let reactor = makeReactor(export: export)
-        let first = reactor.state.selectedPDFs[0]
-        let second = reactor.state.selectedPDFs[1]
+        let first = reactor.state.pdfs[0]
+        let second = reactor.state.pdfs[1]
         reactor.action(.rotatePages(id: first.id, pages: [1], direction: .left))
         reactor.action(.rotatePages(id: second.id, pages: [0], direction: .right))
 
-        reactor.action(.movePDF(id: second.id, to: 0))
+        reactor.action(.move(id: second.id, to: 0))
 
-        #expect(reactor.state.selectedPDFs.map(\.id) == [second.id, first.id])
-        #expect(reactor.state.selectedPDFs[0].pageRotations == [0: .ninety])
-        #expect(reactor.state.selectedPDFs[1].pageRotations == [1: .twoSeventy])
+        #expect(reactor.state.pdfs.map(\.id) == [second.id, first.id])
+        #expect(reactor.state.pdfs[0].pageRotations == [0: .ninety])
+        #expect(reactor.state.pdfs[1].pageRotations == [1: .twoSeventy])
 
-        await reactor.action(.mergePDF(reactor.state.selectedPDFs.map(\.url)))
+        await reactor.action(.createPDF)
         #expect(export.calls == [.merge(
             urls: [TestFixtures.sample2PDF, TestFixtures.samplePDF],
             rotations: [PDFRotation(pages: [0: .ninety]), PDFRotation(pages: [1: .twoSeventy])],
@@ -389,31 +387,31 @@ struct ReactorPageRotationTests {
         )])
 
         reactor.action(.undo)
-        #expect(reactor.state.selectedPDFs.map(\.id) == [second.id, first.id])
-        #expect(!reactor.state.selectedPDFs[0].hasPageRotations)
+        #expect(reactor.state.pdfs.map(\.id) == [first.id, second.id])
+        #expect(reactor.state.pdfs[0].pageRotations == [1: .twoSeventy])
     }
 
     @Test func splitSendsPageRotations() async {
         let export = MockExportService()
         let reactor = makeReactor(export: export)
-        let id = reactor.state.selectedPDFs[0].id
-        reactor.action(.rotatePDF(id: id, direction: .right))
+        let id = reactor.state.pdfs[0].id
+        reactor.action(.rotate(id: id, direction: .right))
         reactor.action(.rotatePages(id: id, pages: [0], direction: .right))
         let directory = URL(fileURLWithPath: "/tmp", isDirectory: true)
 
-        await reactor.action(.splitPDF([TestFixtures.samplePDF]))
+        await reactor.action(.splitIntoPages)
         await reactor.action(.didImportFiles([directory]))
 
         #expect(export.calls == [.split(
-            urls: [TestFixtures.samplePDF],
-            rotations: [PDFRotation(file: .ninety, pages: [0: .ninety])],
+            urls: [TestFixtures.samplePDF, TestFixtures.sample2PDF],
+            rotations: [PDFRotation(file: .ninety, pages: [0: .ninety]), PDFRotation()],
             directory: directory
         )])
     }
 
     @Test func pageViewOpensAndCloses() {
         let reactor = makeReactor()
-        let id = reactor.state.selectedPDFs[1].id
+        let id = reactor.state.pdfs[1].id
         #expect(reactor.state.canRotateAll)
 
         reactor.action(.showPages(id: id))
@@ -433,20 +431,21 @@ struct ReactorPageRotationTests {
 
     @Test func deletingOrClearingClosesThePageView() async {
         let reactor = makeReactor()
-        let id = reactor.state.selectedPDFs[0].id
+        let id = reactor.state.pdfs[0].id
         reactor.action(.showPages(id: id))
 
-        await reactor.action(.deletePDF(id))
+        reactor.action(.remove([id]))
         #expect(reactor.state.pagesPDFID == nil)
 
-        reactor.action(.showPages(id: reactor.state.selectedPDFs[0].id))
-        await reactor.action(.clearPDFs)
+        reactor.action(.showPages(id: reactor.state.pdfs[0].id))
+        await reactor.action(.requestRemoveAll)
+        await reactor.action(.confirmRemoveAll)
         #expect(reactor.state.pagesPDFID == nil)
     }
 
     @Test func pageEditTitles() {
-        #expect(BeaverReactor.RotationEdit.rotatePages.title == "Rotate Pages")
-        #expect(BeaverReactor.RotationEdit.rotateAllPages.title == "Rotate All Pages")
+        #expect(BeaverReactor.Edit.rotatePages.title == "Rotate Pages")
+        #expect(BeaverReactor.Edit.rotateAllPages.title == "Rotate All Pages")
         #expect(DesignSystem.Pages.pageAccessibilityLabel(2, rotation: .ninety) == "Page 3, rotated 90 degrees")
         #expect(DesignSystem.Pages.pageAccessibilityLabel(0, rotation: .zero) == "Page 1")
     }
@@ -462,12 +461,12 @@ struct ReactorPageRotationTests {
         let panels = MockSaveLocationProvider()
         panels.saveURL = output
         let reactor = BeaverReactor(saveLocationProvider: panels, imageService: MockImageService(), exportService: ExportService())
-        reactor.action(.didUserSelectPDF([PDFItem(url: source)]))
-        let id = reactor.state.selectedPDFs[0].id
-        reactor.action(.rotatePDF(id: id, direction: .right))
+        reactor.action(.setPDFs([PDFItem(url: source)]))
+        let id = reactor.state.pdfs[0].id
+        reactor.action(.rotate(id: id, direction: .right))
         reactor.action(.rotatePages(id: id, pages: [1], direction: .right))
 
-        await reactor.action(.mergePDF([source]))
+        await reactor.action(.createPDF)
 
         let merged = try #require(PDFDocument(url: output))
         #expect(merged.page(at: 0)?.rotation == 90)    // 0 + 90 + 0

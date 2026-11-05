@@ -17,43 +17,41 @@ struct FileImportTests {
         )
     }
 
-    @Test func selectPDFPresentsImporterAndAddsChosenFiles() async {
+    @Test func chooseFilesPresentsImporterAndAddsChosenFiles() async {
         let reactor = makeReactor()
 
-        await reactor.action(.selectPDF)
-        #expect(reactor.state.fileImport == .pdfs)
+        await reactor.action(.chooseFiles)
+        #expect(reactor.state.fileImport == .files)
         #expect(reactor.state.isFileImporterPresented)
 
         await reactor.action(.didImportFiles([TestFixtures.samplePDF, TestFixtures.sample2PDF]))
 
-        #expect(reactor.state.selectedPDFs.map(\.url) == [TestFixtures.samplePDF, TestFixtures.sample2PDF])
-        #expect(reactor.state.screen == .pdfWorkflow)
+        #expect(reactor.state.pdfs.map(\.url) == [TestFixtures.samplePDF, TestFixtures.sample2PDF])
         #expect(reactor.state.fileImport == nil)
         #expect(!reactor.state.isFileImporterPresented)
     }
 
-    @Test func selectImagesAddsChosenImages() async {
+    @Test func chooseFilesAcceptsImagesAndPDFsTogether() async {
         let images = MockImageService()
         images.thumbnailsByURL[TestFixtures.samplePNG] = TestImages.solid(width: 4, height: 4)
         let reactor = makeReactor(images: images)
 
-        await reactor.action(.selectImages)
-        #expect(reactor.state.fileImport == .images)
+        await reactor.action(.chooseFiles)
+        #expect(reactor.state.fileImport == .files)
 
-        await reactor.action(.didImportFiles([TestFixtures.samplePNG]))
+        await reactor.action(.didImportFiles([TestFixtures.samplePNG, TestFixtures.samplePDF]))
 
-        #expect(reactor.state.selectedImages.map(\.url) == [TestFixtures.samplePNG])
-        #expect(reactor.state.screen == .imageWorkflow)
+        #expect(reactor.state.items.map(\.url) == [TestFixtures.samplePNG, TestFixtures.samplePDF])
     }
 
     @Test func completionStillAppliesAfterImporterIsDismissed() async {
         let reactor = makeReactor()
-        await reactor.action(.selectPDF)
+        await reactor.action(.chooseFiles)
 
         reactor.action(.didChangeFileImporterPresented(false))
         await reactor.action(.didImportFiles([TestFixtures.samplePDF]))
 
-        #expect(reactor.state.selectedPDFs.count == 1)
+        #expect(reactor.state.pdfs.count == 1)
     }
 
     @Test func completionWithoutRequestIsIgnored() async {
@@ -62,18 +60,18 @@ struct FileImportTests {
 
         await reactor.action(.didImportFiles([TestFixtures.samplePDF]))
 
-        #expect(reactor.state.selectedPDFs.isEmpty)
+        #expect(reactor.state.pdfs.isEmpty)
         #expect(export.calls.isEmpty)
     }
 
     @Test func splitAsksForFolderAndDoesNothingUntilChosen() async {
         let export = MockExportService()
         let reactor = makeReactor(export: export)
-        await reactor.action(.addPDFs([TestFixtures.samplePDF]))
+        await reactor.action(.addFiles([TestFixtures.samplePDF]))
 
-        await reactor.action(.splitPDF([TestFixtures.samplePDF]))
+        await reactor.action(.splitIntoPages)
 
-        #expect(reactor.state.fileImport == .splitDestination([TestFixtures.samplePDF]))
+        #expect(reactor.state.fileImport == .splitDestination([.pdf(TestFixtures.samplePDF, .none)]))
         #expect(reactor.state.isFileImporterPresented)
         #expect(export.calls.isEmpty)
     }
@@ -81,7 +79,7 @@ struct FileImportTests {
     @Test func splitIgnoresEmptyList() async {
         let reactor = makeReactor()
 
-        await reactor.action(.splitPDF([]))
+        await reactor.action(.splitIntoPages)
 
         #expect(reactor.state.fileImport == nil)
         #expect(!reactor.state.isFileImporterPresented)
@@ -89,7 +87,7 @@ struct FileImportTests {
 
     @Test func importerFailureShowsAlert() async {
         let reactor = makeReactor()
-        await reactor.action(.selectPDF)
+        await reactor.action(.chooseFiles)
 
         await reactor.action(.didFailFileImport("Couldn't read"))
 
@@ -106,13 +104,13 @@ struct FileImportTests {
             imageService: MockImageService(),
             exportService: export
         )
-        await reactor.action(.addPDFs([TestFixtures.samplePDF]))
-        let running = Task { await reactor.action(.mergePDF([TestFixtures.samplePDF])) }
+        await reactor.action(.addFiles([TestFixtures.samplePDF]))
+        let running = Task { await reactor.action(.createPDF) }
         while reactor.state.activity == nil {
             await Task.yield()
         }
 
-        await reactor.action(.selectPDF)
+        await reactor.action(.chooseFiles)
         #expect(reactor.state.fileImport == nil)
 
         export.release()
@@ -120,12 +118,11 @@ struct FileImportTests {
     }
 
     @Test func requestsDescribeTheImporter() {
-        #expect(FileImportRequest.pdfs.allowedContentTypes == [.pdf])
-        #expect(FileImportRequest.images.allowedContentTypes == SupportedImageType.allUTTypes)
+        #expect(FileImportRequest.files.allowedContentTypes == [.pdf] + SupportedImageType.allUTTypes)
         #expect(FileImportRequest.splitDestination([]).allowedContentTypes == [.folder])
-        #expect(FileImportRequest.pdfs.allowsMultipleSelection)
+        #expect(FileImportRequest.files.allowsMultipleSelection)
         #expect(!FileImportRequest.splitDestination([]).allowsMultipleSelection)
-        #expect(FileImportRequest.pdfs.confirmationLabel == nil)
+        #expect(FileImportRequest.files.confirmationLabel == DesignSystem.FileNames.addFilesPrompt)
         #expect(FileImportRequest.splitDestination([]).confirmationLabel == DesignSystem.FileNames.saveSplitPDFsPrompt)
     }
 }

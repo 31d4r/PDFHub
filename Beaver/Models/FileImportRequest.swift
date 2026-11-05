@@ -4,22 +4,21 @@ import UniformTypeIdentifiers
 
 /// What the system file importer is currently being shown for.
 enum FileImportRequest: Equatable, Sendable {
-    case pdfs
-    case images
-    /// A folder to save the pages of these PDFs into.
-    case splitDestination([URL])
+    /// PDFs and images to add.
+    case files
+    /// A folder to save the pages of these files into.
+    case splitDestination([ExportSource])
 
     var allowedContentTypes: [UTType] {
         switch self {
-        case .pdfs: return [.pdf]
-        case .images: return SupportedImageType.allUTTypes
+        case .files: return [.pdf] + SupportedImageType.allUTTypes
         case .splitDestination: return [.folder]
         }
     }
 
     var allowsMultipleSelection: Bool {
         switch self {
-        case .pdfs, .images: return true
+        case .files: return true
         case .splitDestination: return false
         }
     }
@@ -27,7 +26,7 @@ enum FileImportRequest: Equatable, Sendable {
     /// The importer's confirm button label, or `nil` for the system default.
     var confirmationLabel: String? {
         switch self {
-        case .pdfs, .images: return nil
+        case .files: return DesignSystem.FileNames.addFilesPrompt
         case .splitDestination: return DesignSystem.FileNames.saveSplitPDFsPrompt
         }
     }

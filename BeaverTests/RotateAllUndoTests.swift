@@ -50,8 +50,7 @@ struct RotateAllUndoTests {
         let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let reactor = BeaverReactor(saveLocationProvider: panels, imageService: MockImageService(), exportService: export)
-        reactor.action(.didUserSelectPDF([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
-        reactor.action(.didChangeScreen(.pdfWorkflow))
+        reactor.action(.setPDFs([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
         return reactor
     }
 
@@ -61,23 +60,23 @@ struct RotateAllUndoTests {
             images.thumbnailsByURL[url] = TestImages.solid(width: 30, height: 10)
         }
         let reactor = BeaverReactor(saveLocationProvider: MockSaveLocationProvider(), imageService: images)
-        await reactor.action(.addImages(imageURLs))
+        await reactor.action(.addFiles(imageURLs))
         return reactor
     }
 
     private func pdfAngles(_ reactor: BeaverReactor) -> [RotationAngle] {
-        reactor.state.selectedPDFs.map(\.rotationAngle)
+        reactor.state.pdfs.map(\.rotationAngle)
     }
 
     private func imageAngles(_ reactor: BeaverReactor) -> [RotationAngle] {
-        reactor.state.selectedImages.map(\.rotationAngle)
+        reactor.state.images.map(\.rotationAngle)
     }
 
     // MARK: - Rotate all
 
     @Test func rotateAllTurnsEveryPDF() {
         let reactor = makePDFReactor()
-        reactor.action(.rotatePDF(id: reactor.state.selectedPDFs[0].id, direction: .right))
+        reactor.action(.rotate(id: reactor.state.pdfs[0].id, direction: .right))
 
         reactor.action(.rotateAll(.right))
         #expect(pdfAngles(reactor) == [.oneEighty, .ninety])
@@ -93,16 +92,16 @@ struct RotateAllUndoTests {
         reactor.action(.rotateAll(.left))
 
         #expect(imageAngles(reactor) == [.twoSeventy, .twoSeventy, .twoSeventy])
-        #expect(reactor.state.selectedImages.allSatisfy { $0.preview.width == 10 && $0.preview.height == 30 })
+        #expect(reactor.state.images.allSatisfy { $0.preview.width == 10 && $0.preview.height == 30 })
     }
 
-    @Test func rotateAllOnlyTouchesTheCurrentScreen() async {
+    @Test func rotateAllTurnsEveryKindWhenNothingIsSelected() async {
         let reactor = await makeImageReactor()
-        reactor.action(.didUserSelectPDF([PDFItem(url: TestFixtures.samplePDF)]))
+        reactor.action(.setPDFs([PDFItem(url: TestFixtures.samplePDF)]))
 
         reactor.action(.rotateAll(.right))
 
-        #expect(pdfAngles(reactor) == [.zero])
+        #expect(pdfAngles(reactor) == [.ninety])
         #expect(imageAngles(reactor) == [.ninety, .ninety, .ninety])
     }
 
@@ -110,7 +109,7 @@ struct RotateAllUndoTests {
         let reactor = BeaverReactor(saveLocationProvider: MockSaveLocationProvider(), imageService: MockImageService())
         #expect(!reactor.state.canRotateAll)
         reactor.action(.rotateAll(.right))
-        #expect(!reactor.state.rotationHistory.canUndo)
+        #expect(!reactor.state.history.canUndo)
     }
 
     // MARK: - Undo
@@ -118,11 +117,11 @@ struct RotateAllUndoTests {
     @Test func undoAndRedoRotateAll() {
         let reactor = makePDFReactor()
         reactor.action(.rotateAll(.right))
-        #expect(reactor.state.rotationHistory.undoLabel == .rotateAll)
+        #expect(reactor.state.history.undoLabel == .rotateAll)
 
         reactor.action(.undo)
         #expect(pdfAngles(reactor) == [.zero, .zero])
-        #expect(reactor.state.rotationHistory.redoLabel == .rotateAll)
+        #expect(reactor.state.history.redoLabel == .rotateAll)
 
         reactor.action(.redo)
         #expect(pdfAngles(reactor) == [.ninety, .ninety])
@@ -130,10 +129,10 @@ struct RotateAllUndoTests {
 
     @Test func everyRotationIsUndoableInOrder() async {
         let reactor = await makeImageReactor()
-        let first = reactor.state.selectedImages[0].id
-        reactor.action(.rotateImage(id: first, direction: .right))
+        let first = reactor.state.images[0].id
+        reactor.action(.rotate(id: first, direction: .right))
         reactor.action(.rotateAll(.right))
-        reactor.action(.rotateImage(id: first, direction: .left))
+        reactor.action(.rotate(id: first, direction: .left))
         #expect(imageAngles(reactor) == [.ninety, .ninety, .ninety])
 
         reactor.action(.undo)
@@ -142,56 +141,67 @@ struct RotateAllUndoTests {
         #expect(imageAngles(reactor) == [.ninety, .zero, .zero])
         reactor.action(.undo)
         #expect(imageAngles(reactor) == [.zero, .zero, .zero])
-        #expect(reactor.state.selectedImages[0].preview.width == 30)
-        #expect(!reactor.state.rotationHistory.canUndo)
+        #expect(reactor.state.images[0].preview.width == 30)
+        #expect(reactor.state.history.undoLabel == .add)
 
         reactor.action(.redo)
         reactor.action(.redo)
         #expect(imageAngles(reactor) == [.oneEighty, .ninety, .ninety])
     }
 
-    @Test func undoKeepsTheCardOrder() {
+    @Test func undoRevertsTheMoveBeforeTheRotation() {
         let reactor = makePDFReactor()
-        let second = reactor.state.selectedPDFs[1]
+        let second = reactor.state.pdfs[1]
         reactor.action(.rotateAll(.right))
-        reactor.action(.movePDF(id: second.id, to: 0))
+        reactor.action(.move(id: second.id, to: 0))
+        #expect(reactor.state.history.undoLabel == .move)
 
         reactor.action(.undo)
+        #expect(reactor.state.pdfs.map(\.url) == [TestFixtures.samplePDF, TestFixtures.sample2PDF])
+        #expect(pdfAngles(reactor) == [.ninety, .ninety])
 
-        #expect(reactor.state.selectedPDFs.map(\.url) == [TestFixtures.sample2PDF, TestFixtures.samplePDF])
+        reactor.action(.undo)
         #expect(pdfAngles(reactor) == [.zero, .zero])
     }
 
-    @Test func undoSkipsRotationsOfRemovedCards() async {
+    @Test func undoBringsBackARemovedCardWithItsRotation() async {
         let reactor = makePDFReactor()
-        let first = reactor.state.selectedPDFs[0].id
-        let second = reactor.state.selectedPDFs[1].id
-        reactor.action(.rotatePDF(id: second, direction: .right))
-        reactor.action(.rotatePDF(id: first, direction: .right))
-        await reactor.action(.deletePDF(first))
+        let first = reactor.state.pdfs[0].id
+        let second = reactor.state.pdfs[1].id
+        reactor.action(.rotate(id: second, direction: .right))
+        reactor.action(.rotate(id: first, direction: .right))
+        reactor.action(.remove([first]))
+        #expect(reactor.state.pdfs.map(\.id) == [second])
 
         reactor.action(.undo)
+        #expect(reactor.state.pdfs.map(\.id) == [first, second])
+        #expect(pdfAngles(reactor) == [.ninety, .ninety])
 
-        #expect(reactor.state.selectedPDFs.map(\.id) == [second])
-        #expect(pdfAngles(reactor) == [.zero])
-        #expect(!reactor.state.rotationHistory.canUndo)
+        reactor.action(.undo)
+        reactor.action(.undo)
+        #expect(pdfAngles(reactor) == [.zero, .zero])
     }
 
     @Test func newRotationClearsRedo() {
         let reactor = makePDFReactor()
         reactor.action(.rotateAll(.right))
         reactor.action(.undo)
-        reactor.action(.rotatePDF(id: reactor.state.selectedPDFs[0].id, direction: .left))
-        #expect(!reactor.state.rotationHistory.canRedo)
-        #expect(reactor.state.rotationHistory.undoLabel == .rotate)
+        reactor.action(.rotate(id: reactor.state.pdfs[0].id, direction: .left))
+        #expect(!reactor.state.history.canRedo)
+        #expect(reactor.state.history.undoLabel == .rotate)
     }
 
-    @Test func clearingTheListForgetsHistory() async {
+    @Test func removeAllCanBeUndoneWithRotationsIntact() async {
         let reactor = makePDFReactor()
         reactor.action(.rotateAll(.right))
-        await reactor.action(.confirmDiscard(.clearAll))
-        #expect(!reactor.state.rotationHistory.canUndo)
-        #expect(!reactor.state.rotationHistory.canRedo)
+        await reactor.action(.requestRemoveAll)
+        await reactor.action(.confirmRemoveAll)
+        #expect(reactor.state.isEmpty)
+        #expect(reactor.state.history.undoLabel == .removeAll)
+
+        reactor.action(.undo)
+        #expect(pdfAngles(reactor) == [.ninety, .ninety])
+        #expect(reactor.state.history.undoLabel == .rotateAll)
     }
 
     // MARK: - Activity
@@ -200,23 +210,23 @@ struct RotateAllUndoTests {
         let export = MockExportService(isGated: true)
         let reactor = makePDFReactor(export: export)
         reactor.action(.rotateAll(.right))
-        let urls = reactor.state.selectedPDFs.map(\.url)
+        let urls = reactor.state.pdfs.map(\.url)
 
-        let running = Task { await reactor.action(.mergePDF(urls)) }
+        let running = Task { await reactor.action(.createPDF) }
         while reactor.state.activity == nil {
             await Task.yield()
         }
 
         #expect(!reactor.state.canRotateAll)
-        #expect(!reactor.state.canUndoRotation)
+        #expect(!reactor.state.canUndo)
         reactor.action(.rotateAll(.right))
-        reactor.action(.rotatePDF(id: reactor.state.selectedPDFs[0].id, direction: .left))
+        reactor.action(.rotate(id: reactor.state.pdfs[0].id, direction: .left))
         reactor.action(.undo)
         #expect(pdfAngles(reactor) == [.ninety, .ninety])
 
         export.release()
         await running.value
-        #expect(reactor.state.canUndoRotation)
+        #expect(reactor.state.canUndo)
         #expect(export.calls == [.merge(
             urls: urls,
             rotations: [PDFRotation(file: .ninety), PDFRotation(file: .ninety)],
@@ -227,8 +237,8 @@ struct RotateAllUndoTests {
     // MARK: - Menu titles
 
     @Test func menuTitlesNameTheChange() {
-        #expect(DesignSystem.Commands.undo(BeaverReactor.RotationEdit.rotateAll.title) == "Undo Rotate All")
-        #expect(DesignSystem.Commands.redo(BeaverReactor.RotationEdit.rotate.title) == "Redo Rotate")
+        #expect(DesignSystem.Commands.undo(BeaverReactor.Edit.rotateAll.title) == "Undo Rotate All")
+        #expect(DesignSystem.Commands.redo(BeaverReactor.Edit.rotate.title) == "Redo Rotate")
         #expect(DesignSystem.Commands.rotateAllLeft == "Rotate All Left")
     }
 }

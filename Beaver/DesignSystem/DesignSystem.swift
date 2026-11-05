@@ -1,149 +1,151 @@
 import BeaverCore
 import SwiftUI
 
+/// Beaver's look and words. Colors, materials and type come from the system so the app
+/// follows Dark Mode, the accent color, Increase Contrast and Reduce Transparency for free;
+/// what's left here is sizing and every string people see.
 enum DesignSystem {
-    /// Named colours from the asset catalog. Neutrals have Dark Mode variants;
-    /// brand and action colours are the same in both appearances.
-    enum Colors {
-        static let backgroundGradientStart = Color(.backgroundStart)
-        static let backgroundGradientEnd = Color(.backgroundEnd)
-        static let primaryGradientStart = Color(.brandOrange)
-        static let primaryGradientMiddle = Color(.brandAmber)
-        static let primaryGradientEnd = Color(.brandYellow)
-        static let titleColor = Color(.titleText)
-        static let subtitleColor = Color(.subtitleText)
-
-        static let addButtonColor = Color(.actionBlue)
-        static let splitButtonColor = Color(.actionGreen)
-        static let mergeButtonColor = Color(.brandAmber)
-        static let convertButtonColor = Color(.actionGreen)
-        static let destructiveButtonColor = Color(.destructive)
-        static let rotateButtonColor = Color(.actionBlue)
-
-        static let cardSurface = Color(.cardSurface)
-        static let pdfContainerBackgroundColor = Color(.pdfContainer)
-    }
-
     enum Spacing {
         static let small: CGFloat = 8
         static let medium: CGFloat = 16
-        static let large: CGFloat = 32
-        static let extraLarge: CGFloat = 40
-
-        static let buttonSpacing: CGFloat = 12
-        static let buttonHorizontalPadding: CGFloat = 16
-        static let buttonVerticalPadding: CGFloat = 10
-        static let contentPadding: CGFloat = 16
-        static let headerHorizontalPadding: CGFloat = 32
-        static let headerTopPadding: CGFloat = 20
-        static let headerBottomPadding: CGFloat = 20
-        static let headerSpacing: CGFloat = 16
-    }
-
-    enum Typography {
-        static let titleFontSize: CGFloat = 28
-        static let subtitleFontSize: CGFloat = 16
-        static let buttonFontSize: CGFloat = 14
-        static let fileNameFontSize: CGFloat = 16
-        static let documentTypeFontSize: CGFloat = 12
-        static let counterFontSize: CGFloat = 12
-    }
-
-    enum Shadows {
-        static let defaultOpacity: Double = 0.3
-        static let backgroundOpacity: Double = 0.08
-        static let defaultRadius: CGFloat = 8
-        static let backgroundRadius: CGFloat = 12
-        static let defaultOffset = CGSize(width: 0, height: 4)
-        static let backgroundOffset: CGFloat = 4
-
-        static let iconButtonOpacity: Double = 0.3
-        static let iconButtonRadius: CGFloat = 6
-        static let iconButtonOffset: CGFloat = 3
-    }
-
-    enum CornerRadius {
-        static let button: CGFloat = 12
-        static let card: CGFloat = 20
-        static let cardSmall: CGFloat = 12
-        static let pdfContainer: CGFloat = 16
-        static let pdfView: CGFloat = 12
-    }
-
-    enum Opacity {
-        static let disabled: Double = 0.4
-        static let circleStart: Double = 0.05
-        static let circleEnd: Double = 0.02
-        static let separatorStart: Double = 0.3
-        static let separatorEnd: Double = 0.1
-        static let cardBorderStart: Double = 0.2
-        static let cardBorderEnd: Double = 0.1
+        static let large: CGFloat = 24
+        static let contentPadding: CGFloat = 20
+        static let gridSpacing: CGFloat = 20
     }
 
     enum Layout {
-        static let decorativeCircleBlurRadius: CGFloat = 2
-        static let separatorHeight: CGFloat = 2
-        static let buttonIconSize: CGFloat = 16
-        static let deleteButtonSize: CGFloat = 32
-        static let deleteIconSize: CGFloat = 16
-        static let rotateButtonSize: CGFloat = 32
-        static let rotateIconSize: CGFloat = 14
-        static let rotateButtonSpacing: CGFloat = 8
+        static let windowDefaultSize = CGSize(width: 1080, height: 720)
+        static let windowMinimumSize = CGSize(width: 640, height: 460)
+        static let thumbnailRadius: CGFloat = 8
+        static let selectionRadius: CGFloat = 10
         static let rotateAnimationDuration: Double = 0.3
+        /// The thumbnail edge in points, and the steps of the size slider and ⌘+ / ⌘-.
+        static let thumbnailSizeRange: ClosedRange<Double> = 96...320
+        static let thumbnailSizeStep: Double = 32
+        static let defaultThumbnailSize: Double = 160
+        static let thumbnailSizeKey = "thumbnailSize"
+        /// Twice the largest thumbnail, for Retina.
+        static let previewPixelSize = 640
     }
 
     enum Icons {
-        static let addButtonIcon = "plus.circle.fill"
-        static let splitButtonIcon = "rectangle.split.2x1.fill"
-        static let mergeButtonIcon = "arrow.triangle.merge"
-        static let convertButtonIcon = "arrow.down.doc.fill"
-        static let clearButtonIcon = "trash.fill"
-        static let deleteIconFill = "trash.fill"
-        static let rotateLeftIconFill = "rotate.left.fill"
-        static let rotateRightIconFill = "rotate.right.fill"
-        static let rotateLeftIcon = "rotate.left"
-        static let rotateRightIcon = "rotate.right"
-        static let pdfButtonIcon = "doc.text.fill"
-        static let imageButtonIcon = "photo.stack.fill"
-        static let headerIcon = "photo.stack.fill"
-        static let backButtonIcon = "chevron.left"
-        static let pagesIcon = "square.grid.2x2"
-        static let selectedPageIcon = "checkmark.circle.fill"
+        static let addFiles = "plus"
+        static let rotateLeft = "rotate.left"
+        static let rotateRight = "rotate.right"
+        static let remove = "trash"
+        static let more = "ellipsis.circle"
+        static let createPDF = "doc.badge.plus"
+        static let splitIntoPages = "square.split.2x1"
+        static let pages = "square.grid.2x2"
+        static let quickLook = "eye"
+        static let pdf = "doc.richtext"
+        static let image = "photo"
+        static let thumbnailSmall = "square.grid.3x3"
+        static let thumbnailLarge = "square.grid.2x2"
+        static let selectedPage = "checkmark.circle.fill"
+        static let pagesRotated = "rotate.right.fill"
+        static let unreadable = "doc.questionmark"
     }
 
-    enum ButtonLabels {
-        static var addPDF: String { String(localized: "Add PDF") }
-        static var addImages: String { String(localized: "Add Images") }
-        static var splitPDFs: String { String(localized: "Split PDFs") }
-        static var mergePDFs: String { String(localized: "Merge PDFs") }
-        static var convertToPDF: String { String(localized: "Convert to PDF") }
-        static var clearAll: String { String(localized: "Clear All") }
-        static var back: String { String(localized: "Back") }
-        static var rotateAll: String { String(localized: "Rotate All") }
-    }
+    /// The window and its toolbar.
+    enum Workspace {
+        static var title: String { String(localized: "Files", comment: "Window title of Beaver's file list") }
+        static var emptySubtitle: String { String(localized: "No files", comment: "Window subtitle when the list is empty") }
 
-    enum Text {
-        static var pdfDocument: String { String(localized: "PDF Document") }
-        static var beaverTitle: String { String(localized: "Beaver") }
-        static var beaverSubtitle: String { String(localized: "Your PDF workflow companion") }
-        static var pdfDocumentsTitle: String { String(localized: "PDF Documents") }
-        static var imagesToPDFTitle: String { String(localized: "Images to PDF") }
-        static var pdfButtonDescription: String { String(localized: "Split & Merge\nPDF Files") }
-        static var imageButtonDescription: String { String(localized: "Convert Images\nto PDF") }
-
-        static func pdfFilesLoadedCount(_ count: Int) -> String {
-            String(localized: "\(count) files loaded")
+        /// "3 PDFs and 2 images"
+        static func summary(pdfs: Int, images: Int) -> String {
+            var parts: [String] = []
+            if pdfs > 0 { parts.append(String(localized: "\(pdfs) PDFs")) }
+            if images > 0 { parts.append(String(localized: "\(images) images")) }
+            return parts.formatted(.list(type: .and))
         }
 
-        static func imagesReadyCount(_ count: Int) -> String {
-            String(localized: "\(count) images ready to convert")
+        /// "2 of 5 selected"
+        static func selectionSummary(selected: Int, total: Int) -> String {
+            String(localized: "\(selected) of \(total) selected")
+        }
+
+        static var addFiles: String { String(localized: "Add Files…") }
+        static var addFilesHelp: String { String(localized: "Add PDFs and images") }
+        static var rotateLeft: String { String(localized: "Rotate Left") }
+        static var rotateRight: String { String(localized: "Rotate Right") }
+        static var rotate: String { String(localized: "Rotate") }
+        static var remove: String { String(localized: "Remove") }
+        static var removeAll: String { String(localized: "Remove All…") }
+        static var more: String { String(localized: "More") }
+        static var thumbnailSize: String { String(localized: "Thumbnail Size") }
+        static var createPDF: String { String(localized: "Create PDF") }
+        static var splitIntoPages: String { String(localized: "Split into Pages") }
+        static var quickLook: String { String(localized: "Quick Look") }
+
+        static func rotateHelp(_ direction: RotationDirection, selection: Bool) -> String {
+            switch (direction, selection) {
+            case (.left, true): return String(localized: "Rotate the selected files left")
+            case (.left, false): return String(localized: "Rotate all files left")
+            case (.right, true): return String(localized: "Rotate the selected files right")
+            case (.right, false): return String(localized: "Rotate all files right")
+            }
+        }
+
+
+        static func createPDFHelp(_ kind: ExportKind, selection: Bool) -> String {
+            switch (kind, selection) {
+            case (.pdfs, true): return String(localized: "Merge the selected PDFs into one PDF")
+            case (.pdfs, false): return String(localized: "Merge all PDFs into one PDF")
+            case (.images, true): return String(localized: "Turn the selected images into one PDF")
+            case (.images, false): return String(localized: "Turn all images into one PDF")
+            case (.mixed, true): return String(localized: "Combine the selected files into one PDF")
+            case (.mixed, false): return String(localized: "Combine all files into one PDF")
+            }
+        }
+
+        static func splitHelp(selection: Bool) -> String {
+            selection
+                ? String(localized: "Save each page of the selected files as its own PDF")
+                : String(localized: "Save each page of all files as its own PDF")
+        }
+    }
+
+    /// The first-run drop target.
+    enum EmptyState {
+        static var title: String { String(localized: "Drop PDFs and Images Here") }
+        static var message: String {
+            String(localized: "Merge PDFs, split them into pages, or turn images into a PDF. Your originals are never changed.")
+        }
+        static var chooseFiles: String { String(localized: "Choose Files…") }
+        static var dropToAdd: String { String(localized: "Release to Add") }
+        static var hintChoose: String { String(localized: "hint.choose", defaultValue: "Choose files", comment: "Empty state shortcut hint next to ⌘O") }
+        static var hintReorder: String { String(localized: "Drag to reorder") }
+        static var hintQuickLook: String { String(localized: "Quick Look") }
+        static var hintDragKey: String { String(localized: "Drag", comment: "Shown like a key cap next to 'Drag to reorder'") }
+        static var hintSpaceKey: String { String(localized: "Space", comment: "The space bar, shown like a key cap") }
+    }
+
+    /// One file in the grid.
+    enum Card {
+        static var pdfKind: String { String(localized: "PDF") }
+        static var pagesRotatedBadge: String { String(localized: "Pages rotated") }
+
+        /// "PDF · 12 pages"
+        static func pdfMeta(pageCount: Int?) -> String {
+            guard let pageCount else { return pdfKind }
+            return "\(pdfKind) · \(Pages.pageCount(pageCount))"
+        }
+
+        /// "PNG · 1200 × 800"
+        static func imageMeta(fileExtension: String, pixelSize: CGSize?) -> String {
+            let kind = fileExtension.uppercased()
+            guard let pixelSize else { return kind }
+            return "\(kind) · \(Int(pixelSize.width)) × \(Int(pixelSize.height))"
+        }
+
+        /// "report.pdf, PDF · 12 pages, Rotated 90 degrees"
+        static func accessibilityLabel(name: String, meta: String, rotation: RotationAngle) -> String {
+            [name, meta, Accessibility.rotation(rotation)].filter { !$0.isEmpty }.joined(separator: ", ")
         }
     }
 
     enum Accessibility {
-        static var rotateLeft: String { String(localized: "Rotate left") }
-        static var rotateRight: String { String(localized: "Rotate right") }
-
         static func rotateLeft(_ fileName: String) -> String {
             String(localized: "Rotate \(fileName) left")
         }
@@ -156,22 +158,14 @@ enum DesignSystem {
         static func rotation(_ angle: RotationAngle) -> String {
             angle == .zero ? "" : String(localized: "Rotated \(angle.degrees) degrees")
         }
-        static var remove: String { String(localized: "Remove") }
-        static var deleteImageHelp: String { String(localized: "Delete This Image") }
 
-        static func delete(_ fileName: String) -> String {
-            String(localized: "Remove \(fileName)")
-        }
-
-        static func preview(_ fileName: String) -> String {
-            String(localized: "Preview of \(fileName)")
-        }
+        static var fileList: String { String(localized: "Files") }
+        static var dropTargetHint: String { String(localized: "Drop PDFs and images here, or choose files") }
     }
 
     /// The page view of one PDF.
     enum Pages {
-        static var showPages: String { String(localized: "Pages…") }
-        static var showPagesHelp: String { String(localized: "Show and Rotate Pages") }
+        static var showPages: String { String(localized: "Show Pages") }
         static var selectAll: String { String(localized: "Select All") }
         static var rotateSelectedLeft: String { String(localized: "Rotate Selected Left") }
         static var rotateSelectedRight: String { String(localized: "Rotate Selected Right") }
@@ -221,18 +215,27 @@ enum DesignSystem {
 
     enum Commands {
         static var menuTitle: String { String(localized: "menu.title", defaultValue: "PDF", comment: "Menu bar menu with Beaver's PDF actions") }
-        static var addPDFs: String { String(localized: "menu.addPDFs", defaultValue: "Add PDFs…") }
-        static var addImages: String { String(localized: "menu.addImages", defaultValue: "Add Images…") }
-        static var mergePDFs: String { String(localized: "menu.mergePDFs", defaultValue: "Merge PDFs…") }
-        static var splitPDFs: String { String(localized: "menu.splitPDFs", defaultValue: "Split PDFs…") }
-        static var convertToPDF: String { String(localized: "menu.convertToPDF", defaultValue: "Convert Images to PDF…") }
-        static var back: String { String(localized: "menu.back", defaultValue: "Back") }
-        static var clearAll: String { String(localized: "menu.clearAll", defaultValue: "Clear All…") }
+        static var addFiles: String { String(localized: "menu.addFiles", defaultValue: "Add Files…") }
+        static var createPDF: String { String(localized: "menu.createPDF", defaultValue: "Create PDF…") }
+        static var splitIntoPages: String { String(localized: "menu.splitIntoPages", defaultValue: "Split into Pages…") }
+        static var showPages: String { String(localized: "menu.showPages", defaultValue: "Show Pages") }
+        static var quickLook: String { String(localized: "menu.quickLook", defaultValue: "Quick Look") }
+        static var rotateLeft: String { String(localized: "menu.rotateLeft", defaultValue: "Rotate Left") }
+        static var rotateRight: String { String(localized: "menu.rotateRight", defaultValue: "Rotate Right") }
         static var rotateAllLeft: String { String(localized: "menu.rotateAllLeft", defaultValue: "Rotate All Left") }
         static var rotateAllRight: String { String(localized: "menu.rotateAllRight", defaultValue: "Rotate All Right") }
+        static var remove: String { String(localized: "menu.remove", defaultValue: "Remove") }
+        static var removeAll: String { String(localized: "menu.removeAll", defaultValue: "Remove All…") }
+        static var deselectAll: String { String(localized: "menu.deselectAll", defaultValue: "Deselect All") }
+        static var largerThumbnails: String { String(localized: "menu.largerThumbnails", defaultValue: "Make Thumbnails Larger") }
+        static var smallerThumbnails: String { String(localized: "menu.smallerThumbnails", defaultValue: "Make Thumbnails Smaller") }
         static var undo: String { String(localized: "menu.undo", defaultValue: "Undo") }
         static var redo: String { String(localized: "menu.redo", defaultValue: "Redo") }
         /// The name of an undoable change, shown after "Undo" or "Redo".
+        static var addEditName: String { String(localized: "menu.edit.add", defaultValue: "Add Files") }
+        static var removeEditName: String { String(localized: "menu.edit.remove", defaultValue: "Remove") }
+        static var removeAllEditName: String { String(localized: "menu.edit.removeAll", defaultValue: "Remove All") }
+        static var moveEditName: String { String(localized: "menu.edit.move", defaultValue: "Move") }
         static var rotateEditName: String { String(localized: "menu.edit.rotate", defaultValue: "Rotate") }
         static var rotateAllEditName: String { String(localized: "menu.edit.rotateAll", defaultValue: "Rotate All") }
         static var rotatePagesEditName: String { String(localized: "menu.edit.rotatePages", defaultValue: "Rotate Pages") }
@@ -249,21 +252,21 @@ enum DesignSystem {
 
     enum Progress {
         static var merging: String { String(localized: "Merging PDFs…") }
-        static var splitting: String { String(localized: "Splitting PDFs…") }
+        static var splitting: String { String(localized: "Splitting into pages…") }
         static var converting: String { String(localized: "Converting images…") }
+        static var combining: String { String(localized: "Creating PDF…") }
     }
 
     enum Confirmations {
-        static func discardTitle(count: Int) -> String {
+        static func removeAllTitle(count: Int) -> String {
             String(localized: "Remove \(count) files from Beaver?")
         }
-        static func discardMessage(includesRotations: Bool) -> String {
+        static func removeAllMessage(includesRotations: Bool) -> String {
             includesRotations
-                ? String(localized: "The original files on disk are not changed. Rotations you made here will be lost.")
-                : String(localized: "The original files on disk are not changed.")
+                ? String(localized: "Your original files aren’t changed. You can undo this, including the rotations you made.")
+                : String(localized: "Your original files aren’t changed. You can undo this.")
         }
-        static var goBack: String { String(localized: "Go Back") }
-        static var clearAll: String { String(localized: "Clear All") }
+        static var removeAll: String { String(localized: "confirm.removeAll", defaultValue: "Remove All", comment: "Destructive button in the Remove All confirmation") }
         static var cancel: String { String(localized: "Cancel") }
     }
 
@@ -274,13 +277,21 @@ enum DesignSystem {
 
         static var failedToMergePDFs: String { String(localized: "Failed to merge PDFs") }
         static var noPagesFoundToSplit: String { String(localized: "No pages found to split") }
-        static var noImagesSelected: String { String(localized: "No images selected") }
+        static var failedToCombine: String { String(localized: "Couldn’t create the PDF") }
         static var failedToConvertImages: String { String(localized: "Failed to convert images to PDF") }
         static var convertedImagesSuccess: String { String(localized: "Successfully converted images to PDF file") }
         static var failedToSaveAnyPDFs: String { String(localized: "Failed to save any PDF files") }
 
         static func mergedPDFSaved(fileName: String) -> String {
             String(localized: "Merged PDF successfully saved at \(fileName)")
+        }
+
+        static func combinedPDFSaved(fileName: String) -> String {
+            String(localized: "Saved \(fileName)")
+        }
+
+        static func failedToSaveCombinedPDF(_ errorDescription: String) -> String {
+            String(localized: "Failed to save PDF: \(errorDescription)")
         }
 
         static func failedToSaveMergedPDF(_ errorDescription: String) -> String {
@@ -329,8 +340,11 @@ enum DesignSystem {
     enum FileNames {
         static let mergedPDF = "merged.pdf"
         static let convertedImagesPDF = "ConvertedImages.pdf"
+        static let combinedPDF = "Combined.pdf"
         static var saveMergedPDFPrompt: String { String(localized: "Save Merged PDF") }
         static var saveSplitPDFsPrompt: String { String(localized: "Save Split PDFs") }
         static var saveConvertedPDFPrompt: String { String(localized: "Save Converted PDF") }
+        static var saveCombinedPDFPrompt: String { String(localized: "Save PDF") }
+        static var addFilesPrompt: String { String(localized: "Add") }
     }
 }

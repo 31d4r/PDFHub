@@ -262,29 +262,29 @@ struct ReactorImageRotationTests {
         let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let reactor = BeaverReactor(saveLocationProvider: panels, imageService: images, exportService: export)
-        await reactor.action(.addImages(urls))
+        await reactor.action(.addFiles(urls))
         return reactor
     }
 
     @Test func rotatesOnlyTheChosenImage() async {
         let reactor = await makeReactor()
-        let first = reactor.state.selectedImages[0]
+        let first = reactor.state.images[0]
 
-        reactor.action(.rotateImage(id: first.id, direction: .right))
-        reactor.action(.rotateImage(id: first.id, direction: .right))
-        reactor.action(.rotateImage(id: UUID(), direction: .right))
+        reactor.action(.rotate(id: first.id, direction: .right))
+        reactor.action(.rotate(id: first.id, direction: .right))
+        reactor.action(.rotate(id: UUID(), direction: .right))
 
-        #expect(reactor.state.selectedImages.map(\.rotationAngle) == [.oneEighty, .zero])
+        #expect(reactor.state.images.map(\.rotationAngle) == [.oneEighty, .zero])
     }
 
     @Test func convertSendsRotationsInListOrder() async {
         let export = MockExportService()
         let reactor = await makeReactor(export: export)
-        let second = reactor.state.selectedImages[1]
+        let second = reactor.state.images[1]
 
-        reactor.action(.rotateImage(id: second.id, direction: .left))
-        reactor.action(.moveImage(id: second.id, to: 0))
-        await reactor.action(.convertImagesToPDF)
+        reactor.action(.rotate(id: second.id, direction: .left))
+        reactor.action(.move(id: second.id, to: 0))
+        await reactor.action(.createPDF)
 
         #expect(export.calls == [.convert(urls: [urls[1], urls[0]], rotations: [.twoSeventy, .zero], destination: destination)])
     }
@@ -293,12 +293,12 @@ struct ReactorImageRotationTests {
         let export = MockExportService(isGated: true)
         let reactor = await makeReactor(export: export)
 
-        let running = Task { await reactor.action(.convertImagesToPDF) }
+        let running = Task { await reactor.action(.createPDF) }
         while reactor.state.activity == nil {
             await Task.yield()
         }
-        reactor.action(.rotateImage(id: reactor.state.selectedImages[0].id, direction: .right))
-        #expect(reactor.state.selectedImages.map(\.rotationAngle) == [.zero, .zero])
+        reactor.action(.rotate(id: reactor.state.images[0].id, direction: .right))
+        #expect(reactor.state.images.map(\.rotationAngle) == [.zero, .zero])
 
         export.release()
         await running.value
@@ -307,7 +307,7 @@ struct ReactorImageRotationTests {
     @Test func discardMentionsImageRotations() async {
         let reactor = await makeReactor()
         #expect(!reactor.state.hasDiscardableRotations)
-        reactor.action(.rotateImage(id: reactor.state.selectedImages[0].id, direction: .right))
+        reactor.action(.rotate(id: reactor.state.images[0].id, direction: .right))
         #expect(reactor.state.hasDiscardableRotations)
     }
 }

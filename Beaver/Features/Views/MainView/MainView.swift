@@ -1,15 +1,14 @@
 import AsyncReactor
+import BeaverCore
+import QuickLook
 import SwiftUI
 
+/// Beaver's one window. PDFs and images share a single grid, in output order, so there's no
+/// mode to pick first: what Create PDF does follows from what's in the list.
 struct MainView: View {
     @EnvironmentObject private var reactor: BeaverReactor
-
-    @ActionBinding(
-        BeaverReactor.self,
-        keyPath: \.screen,
-        action: BeaverReactor.SyncAction.didChangeScreen
-    )
-    private var screen: AppScreen
+    @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
+    @State private var isDropTargeted = false
 
     @ActionBinding(
         BeaverReactor.self,
@@ -18,145 +17,147 @@ struct MainView: View {
     )
     private var isFileImporterPresented: Bool
 
+    @ActionBinding(
+        BeaverReactor.self,
+        keyPath: \.isPagesPresented,
+        action: BeaverReactor.SyncAction.didChangePagesPresented
+    )
+    private var isPagesPresented: Bool
+
+    @ActionBinding(
+        BeaverReactor.self,
+        keyPath: \.quickLookURL,
+        action: BeaverReactor.SyncAction.didChangeQuickLook
+    )
+    private var quickLookURL: URL?
+
     var body: some View {
-        Group {
-            switch screen {
-            case .menu:
-                menuView()
-            case .pdfWorkflow:
-                PDFGridListView()
-            case .imageWorkflow:
-                ImageToPDFView()
+        presentations(window)
+            .focusedSceneObject(reactor)
+            .fileImporter(
+                isPresented: $isFileImporterPresented,
+                allowedContentTypes: reactor.state.fileImport?.allowedContentTypes ?? [],
+                allowsMultipleSelection: reactor.state.fileImport?.allowsMultipleSelection ?? false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    reactor.send(.didImportFiles(urls))
+                case .failure(let error):
+                    reactor.send(.didFailFileImport(error.localizedDescription))
+                }
             }
-        }
-        .focusedSceneObject(reactor)
-        .fileImporter(
-            isPresented: $isFileImporterPresented,
-            allowedContentTypes: reactor.state.fileImport?.allowedContentTypes ?? [],
-            allowsMultipleSelection: reactor.state.fileImport?.allowsMultipleSelection ?? false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                reactor.send(.didImportFiles(urls))
-            case .failure(let error):
-                reactor.send(.didFailFileImport(error.localizedDescription))
-            }
-        }
-        .modifier(FileDialogConfirmationLabel(label: reactor.state.fileImport?.confirmationLabel))
+            .modifier(FileDialogConfirmationLabel(label: reactor.state.fileImport?.confirmationLabel))
     }
 
-    private func menuView() -> some View {
-        BackgroundShellView(
-            circles: [
-                BackgroundShellView.DecorativeCircle(
-                    size: Constants.leftCircleSize,
-                    offset: Constants.leftCircleOffset,
-                    blurRadius: Constants.circleBlurRadius,
-                    startColor: DesignSystem.Colors.primaryGradientStart,
-                    endColor: DesignSystem.Colors.primaryGradientEnd,
-                    startOpacity: Constants.leftCircleStartOpacity,
-                    endOpacity: Constants.leftCircleEndOpacity,
-                    startPoint: .center,
-                    endPoint: .trailing
-                ),
-                BackgroundShellView.DecorativeCircle(
-                    size: Constants.rightCircleSize,
-                    offset: Constants.rightCircleOffset,
-                    blurRadius: Constants.circleBlurRadius,
-                    startColor: DesignSystem.Colors.primaryGradientMiddle,
-                    endColor: DesignSystem.Colors.primaryGradientStart,
-                    startOpacity: Constants.rightCircleStartOpacity,
-                    endOpacity: Constants.rightCircleEndOpacity,
-                    startPoint: .center,
-                    endPoint: .leading
-                )
-            ]
-        ) {
-            VStack(spacing: Constants.mainVerticalSpacing) {
-                VStack(spacing: Constants.titleVerticalSpacing) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        DesignSystem.Colors.primaryGradientStart,
-                                        DesignSystem.Colors.primaryGradientMiddle,
-                                        DesignSystem.Colors.primaryGradientEnd
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(
-                                width: Constants.iconCircleSize,
-                                height: Constants.iconCircleSize
-                            )
-                            .shadow(
-                                color: DesignSystem.Colors.primaryGradientStart
-                                    .opacity(Constants.iconShadowOpacity),
-                                radius: Constants.iconShadowRadius,
-                                x: Constants.iconShadowOffset.width,
-                                y: Constants.iconShadowOffset.height
-                            )
-
-                        Image(.beaverIcon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(
-                                width: Constants.iconSize,
-                                height: Constants.iconSize
-                            )
-                            .foregroundColor(.white)
-                    }
-                    .accessibilityHidden(true)
-
-                    VStack(spacing: Constants.titleSubtitleSpacing) {
-                        Text(DesignSystem.Text.beaverTitle)
-                            .accessibilityAddTraits(.isHeader)
-                            .scaledFont(size: Constants.titleFontSize, weight: .bold, design: .rounded)
-                            .foregroundColor(DesignSystem.Colors.titleColor)
-
-                        Text(DesignSystem.Text.beaverSubtitle)
-                            .scaledFont(size: Constants.subtitleFontSize, weight: .medium, design: .rounded)
-                            .foregroundColor(DesignSystem.Colors.subtitleColor)
-                    }
+    /// The content with the drop target, the progress bar, the title and the toolbar.
+    private var window: some View {
+        droppableContent
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if let activity = reactor.state.activity {
+                    ActivityBar(title: activity.title)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-                .padding(.top, Constants.topPadding)
-
-                HStack(spacing: Constants.buttonsHorizontalSpacing) {
-                    menuButton(
-                        description: DesignSystem.Text.pdfButtonDescription,
-                        icon: DesignSystem.Icons.pdfButtonIcon,
-                        acceptsPDF: true,
-                        action: { reactor.send(.selectPDF) }
-                    )
-
-                    menuButton(
-                        description: DesignSystem.Text.imageButtonDescription,
-                        icon: DesignSystem.Icons.imageButtonIcon,
-                        acceptsPDF: false,
-                        action: { reactor.send(.selectImages) }
-                    )
-                }
-                .padding(.bottom, Constants.bottomPadding)
             }
+            .animation(.snappy, value: reactor.state.activity)
+            .navigationTitle(DesignSystem.Workspace.title)
+            .windowSubtitle(subtitle)
+            .toolbar {
+                WorkspaceToolbar(reactor: reactor, thumbnailSize: $thumbnailSize)
+            }
+    }
+
+    private var droppableContent: some View {
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.background)
+            .fileDrop(isTargeted: $isDropTargeted) { urls in
+                reactor.send(.addFiles(urls))
+            }
+            .overlay {
+                if isDropTargeted && !reactor.state.isEmpty {
+                    DropHighlight()
+                }
+            }
+    }
+
+    private func presentations(_ view: some View) -> some View {
+        view
+            .quickLookPreview($quickLookURL, in: reactor.state.items.map(\.url))
+            .sheet(isPresented: $isPagesPresented) {
+                if let pdf = reactor.state.pagesPDF {
+                    PDFPagesView(pdf: pdf)
+                        .environmentObject(reactor)
+                }
+            }
+            .removeAllConfirmation(reactor: reactor)
+            .exportAlert(reactor: reactor)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if reactor.state.isEmpty {
+            EmptyStateView(isTargeted: isDropTargeted) {
+                reactor.send(.chooseFiles)
+            }
+        } else {
+            WorkspaceGridView()
         }
     }
 
-    private func menuButton(
-        description: String,
-        icon: String,
-        acceptsPDF: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        GridMenuButtonView(
-            description: description,
-            icon: icon,
-            action: action
-        )
-        .fileDrop(acceptsPDF ? .pdf : .image) { urls in
-            reactor.send(acceptsPDF ? .addPDFs(urls) : .addImages(urls))
+    /// "2 of 5 selected", "3 PDFs, 2 images", or "No files".
+    private var subtitle: String {
+        let state = reactor.state
+        if state.isEmpty { return DesignSystem.Workspace.emptySubtitle }
+        if state.hasSelection {
+            return DesignSystem.Workspace.selectionSummary(selected: state.selection.count, total: state.items.count)
         }
+        return DesignSystem.Workspace.summary(pdfs: state.pdfs.count, images: state.images.count)
+    }
+}
+
+/// Outlines the window while files are dragged over a non-empty list.
+private struct DropHighlight: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: DesignSystem.Layout.selectionRadius, style: .continuous)
+            .strokeBorder(Color.accentColor, lineWidth: 3)
+            .background(Color.accentColor.opacity(0.06))
+            .padding(4)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+}
+
+/// Inline progress under the grid while an export runs, instead of a modal overlay.
+private struct ActivityBar: View {
+    let title: String
+
+    var body: some View {
+        HStack(spacing: DesignSystem.Spacing.small) {
+            ProgressView()
+                .controlSize(.small)
+            Text(title)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, DesignSystem.Spacing.medium)
+        .padding(.vertical, DesignSystem.Spacing.small)
+        .background(.bar)
+        .overlay(alignment: .top) { Divider() }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.updatesFrequently)
+    }
+}
+
+private extension View {
+    /// The window subtitle on the Mac; other platforms have none.
+    @ViewBuilder
+    func windowSubtitle(_ subtitle: String) -> some View {
+        #if os(macOS)
+        navigationSubtitle(subtitle)
+        #else
+        self
+        #endif
     }
 }
 
@@ -171,32 +172,4 @@ private struct FileDialogConfirmationLabel: ViewModifier {
             content
         }
     }
-}
-
-private enum Constants {
-    static let leftCircleSize: CGFloat = 300
-    static let rightCircleSize: CGFloat = 200
-    static let leftCircleOffset = CGSize(width: -200, height: -150)
-    static let rightCircleOffset = CGSize(width: 300, height: 200)
-    static let leftCircleStartOpacity: Double = 0.1
-    static let leftCircleEndOpacity: Double = 0.05
-    static let rightCircleStartOpacity: Double = 0.08
-    static let rightCircleEndOpacity: Double = 0.03
-    static let circleBlurRadius: CGFloat = 1
-
-    static let iconCircleSize: CGFloat = 120
-    static let iconSize: CGFloat = 80
-    static let iconShadowOpacity: Double = 0.3
-    static let iconShadowRadius: CGFloat = 20
-    static let iconShadowOffset = CGSize(width: 0, height: 10)
-
-    static let titleFontSize: CGFloat = 48
-    static let subtitleFontSize: CGFloat = 18
-
-    static let mainVerticalSpacing: CGFloat = 40
-    static let titleVerticalSpacing: CGFloat = 20
-    static let titleSubtitleSpacing: CGFloat = 8
-    static let buttonsHorizontalSpacing: CGFloat = 40
-    static let topPadding: CGFloat = 40
-    static let bottomPadding: CGFloat = 60
 }

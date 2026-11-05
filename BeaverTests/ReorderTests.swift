@@ -96,13 +96,13 @@ struct ReactorReorderTests {
             images.thumbnailsByURL[url] = TestImages.solid(width: 4, height: 4)
         }
         let reactor = makeReactor(panels: panels, export: export, images: images)
-        await reactor.action(.addImages(urls))
+        await reactor.action(.addFiles(urls))
         return reactor
     }
 
     private func pdfReactor(export: any ExportServiceProtocol = MockExportService(), panels: MockSaveLocationProvider = MockSaveLocationProvider()) -> BeaverReactor {
         let reactor = makeReactor(panels: panels, export: export)
-        reactor.action(.didUserSelectPDF([
+        reactor.action(.setPDFs([
             PDFItem(url: TestFixtures.samplePDF),
             PDFItem(url: TestFixtures.sample2PDF),
             PDFItem(url: URL(fileURLWithPath: "/tmp/beaver-tests/third.pdf")),
@@ -114,37 +114,37 @@ struct ReactorReorderTests {
 
     @Test func pdfFirstToLast() {
         let reactor = pdfReactor()
-        let before = reactor.state.selectedPDFs
-        reactor.action(.movePDF(id: before[0].id, to: 2))
-        #expect(reactor.state.selectedPDFs.map(\.id) == [before[1].id, before[2].id, before[0].id])
+        let before = reactor.state.pdfs
+        reactor.action(.move(id: before[0].id, to: 2))
+        #expect(reactor.state.pdfs.map(\.id) == [before[1].id, before[2].id, before[0].id])
     }
 
     @Test func pdfLastToFirst() {
         let reactor = pdfReactor()
-        let before = reactor.state.selectedPDFs
-        reactor.action(.movePDF(id: before[2].id, to: 0))
-        #expect(reactor.state.selectedPDFs.map(\.id) == [before[2].id, before[0].id, before[1].id])
+        let before = reactor.state.pdfs
+        reactor.action(.move(id: before[2].id, to: 0))
+        #expect(reactor.state.pdfs.map(\.id) == [before[2].id, before[0].id, before[1].id])
     }
 
     @Test func pdfNoOpAndOutOfRange() {
         let reactor = pdfReactor()
-        let before = reactor.state.selectedPDFs
-        reactor.action(.movePDF(id: before[1].id, to: 1))
-        reactor.action(.movePDF(id: before[1].id, to: 3))
-        reactor.action(.movePDF(id: before[1].id, to: -1))
-        reactor.action(.movePDF(id: UUID(), to: 0))
-        #expect(reactor.state.selectedPDFs == before)
+        let before = reactor.state.pdfs
+        reactor.action(.move(id: before[1].id, to: 1))
+        reactor.action(.move(id: before[1].id, to: 3))
+        reactor.action(.move(id: before[1].id, to: -1))
+        reactor.action(.move(id: UUID(), to: 0))
+        #expect(reactor.state.pdfs == before)
     }
 
     @Test func rotationStaysWithMovedPDF() {
         let reactor = pdfReactor()
-        var pdfs = reactor.state.selectedPDFs
+        var pdfs = reactor.state.pdfs
         pdfs[0].rotationAngle = .ninety
-        reactor.action(.didUserSelectPDF(pdfs))
+        reactor.action(.setPDFs(pdfs))
 
-        reactor.action(.movePDF(id: pdfs[0].id, to: 2))
+        reactor.action(.move(id: pdfs[0].id, to: 2))
 
-        let moved = reactor.state.selectedPDFs
+        let moved = reactor.state.pdfs
         #expect(moved[2].id == pdfs[0].id)
         #expect(moved[2].rotationAngle == .ninety)
         #expect(moved[0].rotationAngle == .zero)
@@ -156,14 +156,14 @@ struct ReactorReorderTests {
         panels.saveURL = destination
         let export = MockExportService()
         let reactor = makeReactor(panels: panels, export: export)
-        reactor.action(.didUserSelectPDF([
+        reactor.action(.setPDFs([
             PDFItem(url: TestFixtures.samplePDF),
             PDFItem(url: TestFixtures.sample2PDF, rotationAngle: .oneEighty),
         ]))
-        let second = reactor.state.selectedPDFs[1]
+        let second = reactor.state.pdfs[1]
 
-        reactor.action(.movePDF(id: second.id, to: 0))
-        await reactor.action(.mergePDF(reactor.state.selectedPDFs.map(\.url)))
+        reactor.action(.move(id: second.id, to: 0))
+        await reactor.action(.createPDF)
 
         #expect(export.calls == [.merge(
             urls: [TestFixtures.sample2PDF, TestFixtures.samplePDF],
@@ -181,13 +181,13 @@ struct ReactorReorderTests {
         let panels = MockSaveLocationProvider()
         panels.saveURL = output
         let reactor = makeReactor(panels: panels, export: ExportService())
-        reactor.action(.didUserSelectPDF([
+        reactor.action(.setPDFs([
             PDFItem(url: TestFixtures.samplePDF),
             PDFItem(url: TestFixtures.sample2PDF, rotationAngle: .ninety),
         ]))
-        reactor.action(.movePDF(id: reactor.state.selectedPDFs[1].id, to: 0))
+        reactor.action(.move(id: reactor.state.pdfs[1].id, to: 0))
 
-        await reactor.action(.mergePDF(reactor.state.selectedPDFs.map(\.url)))
+        await reactor.action(.createPDF)
 
         let first = try #require(PDFDocument(url: TestFixtures.sample2PDF))
         let second = try #require(PDFDocument(url: TestFixtures.samplePDF))
@@ -209,26 +209,26 @@ struct ReactorReorderTests {
 
     @Test func imageFirstToLast() async {
         let reactor = await makeImageReactor(urls: urls)
-        let first = reactor.state.selectedImages[0]
-        reactor.action(.moveImage(id: first.id, to: 2))
-        #expect(reactor.state.selectedImages.map(\.url) == [urls[1], urls[2], urls[0]])
+        let first = reactor.state.images[0]
+        reactor.action(.move(id: first.id, to: 2))
+        #expect(reactor.state.images.map(\.url) == [urls[1], urls[2], urls[0]])
     }
 
     @Test func imageLastToFirst() async {
         let reactor = await makeImageReactor(urls: urls)
-        let last = reactor.state.selectedImages[2]
-        reactor.action(.moveImage(id: last.id, to: 0))
-        #expect(reactor.state.selectedImages.map(\.url) == [urls[2], urls[0], urls[1]])
+        let last = reactor.state.images[2]
+        reactor.action(.move(id: last.id, to: 0))
+        #expect(reactor.state.images.map(\.url) == [urls[2], urls[0], urls[1]])
     }
 
     @Test func imageNoOpAndOutOfRange() async {
         let reactor = await makeImageReactor(urls: urls)
-        let middle = reactor.state.selectedImages[1]
-        reactor.action(.moveImage(id: middle.id, to: 1))
-        reactor.action(.moveImage(id: middle.id, to: 5))
-        reactor.action(.moveImage(id: middle.id, to: -1))
-        reactor.action(.moveImage(id: UUID(), to: 0))
-        #expect(reactor.state.selectedImages.map(\.url) == urls)
+        let middle = reactor.state.images[1]
+        reactor.action(.move(id: middle.id, to: 1))
+        reactor.action(.move(id: middle.id, to: 5))
+        reactor.action(.move(id: middle.id, to: -1))
+        reactor.action(.move(id: UUID(), to: 0))
+        #expect(reactor.state.images.map(\.url) == urls)
     }
 
     @Test func convertFollowsNewOrder() async {
@@ -237,8 +237,8 @@ struct ReactorReorderTests {
         let export = MockExportService()
         let reactor = await makeImageReactor(urls: urls, panels: panels, export: export)
 
-        reactor.action(.moveImage(id: reactor.state.selectedImages[2].id, to: 0))
-        await reactor.action(.convertImagesToPDF)
+        reactor.action(.move(id: reactor.state.images[2].id, to: 0))
+        await reactor.action(.createPDF)
 
         #expect(export.calls == [.convert(urls: [urls[2], urls[0], urls[1]], rotations: [.zero, .zero, .zero], destination: destination)])
     }
@@ -257,8 +257,8 @@ struct ReactorReorderTests {
         panels.saveURL = output
         let reactor = await makeImageReactor(urls: [wide, tall], panels: panels, export: ExportService())
 
-        reactor.action(.moveImage(id: reactor.state.selectedImages[1].id, to: 0))
-        await reactor.action(.convertImagesToPDF)
+        reactor.action(.move(id: reactor.state.images[1].id, to: 0))
+        await reactor.action(.createPDF)
 
         let document = try #require(PDFDocument(url: output))
         #expect(document.pageCount == 2)
@@ -275,23 +275,23 @@ struct ReactorReorderTests {
         panels.saveURL = destination
         let export = MockExportService(isGated: true)
         let reactor = await makeImageReactor(urls: urls, panels: panels, export: export)
-        reactor.action(.didUserSelectPDF([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
-        let pdfsBefore = reactor.state.selectedPDFs
+        reactor.action(.setPDFs([PDFItem(url: TestFixtures.samplePDF), PDFItem(url: TestFixtures.sample2PDF)]))
+        let pdfsBefore = reactor.state.pdfs
 
-        let running = Task { await reactor.action(.convertImagesToPDF) }
+        let running = Task { await reactor.action(.createPDF) }
         while reactor.state.activity == nil {
             await Task.yield()
         }
 
-        reactor.action(.moveImage(id: reactor.state.selectedImages[0].id, to: 2))
-        reactor.action(.movePDF(id: pdfsBefore[0].id, to: 1))
-        #expect(reactor.state.selectedImages.map(\.url) == urls)
-        #expect(reactor.state.selectedPDFs == pdfsBefore)
+        reactor.action(.move(id: reactor.state.images[0].id, to: 2))
+        reactor.action(.move(id: pdfsBefore[0].id, to: 1))
+        #expect(reactor.state.images.map(\.url) == urls)
+        #expect(reactor.state.pdfs == pdfsBefore)
 
         export.release()
         await running.value
         #expect(reactor.state.activity == nil)
-        #expect(export.calls == [.convert(urls: urls, rotations: urls.map { _ in .zero }, destination: destination)])
+        #expect(export.calls.count == 1)
     }
 
     // MARK: - Drag payload

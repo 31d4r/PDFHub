@@ -37,9 +37,9 @@ struct ThumbnailTests {
             imageService: MockImageService()
         )
 
-        await reactor.action(.addImages([missing]))
+        await reactor.action(.addFiles([missing]))
 
-        #expect(reactor.state.selectedImages.isEmpty)
-        #expect(reactor.state.screen == .menu)
+        #expect(reactor.state.isEmpty)
+        #expect(reactor.state.exportAlert?.isSuccess == false)
     }
 }

@@ -21,10 +21,11 @@ extension UTType {
     static let beaverCard = UTType(exportedAs: "com.eldartutnjic.Beaver.card")
 }
 
-/// An extra command a card offers in its context menu and to VoiceOver, before the move items.
+/// A command a card offers in its context menu and to VoiceOver.
 struct CardAction {
     let title: String
     let systemImage: String
+    var role: ButtonRole?
     var isEnabled = true
     let perform: () -> Void
 }
@@ -39,7 +40,10 @@ struct ReorderableCardModifier: ViewModifier {
     let systemImage: String
     let cornerRadius: CGFloat
     let isEnabled: Bool
-    var extraAction: CardAction?
+    /// Shown before the move items.
+    var actions: [CardAction] = []
+    /// Shown after the move items, such as Remove.
+    var trailingActions: [CardAction] = []
     /// Moves the item with the given id to the given index.
     let onMove: (UUID, Int) -> Void
 
@@ -52,7 +56,7 @@ struct ReorderableCardModifier: ViewModifier {
             .overlay {
                 if isTargeted {
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .strokeBorder(DesignSystem.Colors.primaryGradientStart, lineWidth: Constants.targetLineWidth)
+                        .strokeBorder(Color.accentColor, lineWidth: Constants.targetLineWidth)
                         .allowsHitTesting(false)
                         .accessibilityHidden(true)
                 }
@@ -69,27 +73,22 @@ struct ReorderableCardModifier: ViewModifier {
                 isTargeted = targeted && isEnabled
             }
             .contextMenu {
-                if let extraAction {
-                    Button {
-                        extraAction.perform()
-                    } label: {
-                        Label(extraAction.title, systemImage: extraAction.systemImage)
-                    }
-                    .disabled(!extraAction.isEnabled)
-
-                    Divider()
-                }
+                menuButtons(actions)
+                if !actions.isEmpty { Divider() }
                 ForEach(MoveDirection.allCases, id: \.self) { direction in
                     Button(Self.label(for: direction)) {
                         moveSelf(direction)
                     }
                     .disabled(!canMove(direction))
                 }
+                if !trailingActions.isEmpty { Divider() }
+                menuButtons(trailingActions)
             }
-            .accessibilityElement(children: .contain)
             .accessibilityActions {
-                if let extraAction, extraAction.isEnabled {
-                    Button(extraAction.title, action: extraAction.perform)
+                ForEach(Array((actions + trailingActions).enumerated()), id: \.offset) { _, action in
+                    if action.isEnabled {
+                        Button(action.title, action: action.perform)
+                    }
                 }
                 ForEach(MoveDirection.allCases.filter(canMove), id: \.self) { direction in
                     Button(Self.label(for: direction)) {
@@ -99,21 +98,24 @@ struct ReorderableCardModifier: ViewModifier {
             }
     }
 
+    private func menuButtons(_ actions: [CardAction]) -> some View {
+        ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
+            Button(role: action.role) {
+                action.perform()
+            } label: {
+                Label(action.title, systemImage: action.systemImage)
+            }
+            .disabled(!action.isEnabled)
+        }
+    }
+
     private var dragPreview: some View {
         Label(title, systemImage: systemImage)
-            .scaledFont(size: DesignSystem.Typography.fileNameFontSize, weight: .semibold, design: .rounded)
-            .foregroundColor(DesignSystem.Colors.titleColor)
+            .font(.callout.weight(.medium))
             .lineLimit(1)
             .padding(.horizontal, Constants.previewHorizontalPadding)
             .padding(.vertical, Constants.previewVerticalPadding)
-            .background(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.button, style: .continuous)
-                    .fill(DesignSystem.Colors.cardSurface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.button, style: .continuous)
-                    .strokeBorder(DesignSystem.Colors.primaryGradientStart, lineWidth: 1)
-            )
+            .background(.regularMaterial, in: Capsule())
     }
 
     private func canMove(_ direction: MoveDirection) -> Bool {
@@ -150,7 +152,8 @@ extension View {
         systemImage: String,
         cornerRadius: CGFloat,
         isEnabled: Bool,
-        extraAction: CardAction? = nil,
+        actions: [CardAction] = [],
+        trailingActions: [CardAction] = [],
         onMove: @escaping (UUID, Int) -> Void
     ) -> some View {
         modifier(ReorderableCardModifier(
@@ -161,7 +164,8 @@ extension View {
             systemImage: systemImage,
             cornerRadius: cornerRadius,
             isEnabled: isEnabled,
-            extraAction: extraAction,
+            actions: actions,
+            trailingActions: trailingActions,
             onMove: onMove
         ))
     }
@@ -171,6 +175,6 @@ private enum Constants {
     static let targetedScale: CGFloat = 1.02
     static let targetLineWidth: CGFloat = 3
     static let highlightDuration: Double = 0.15
-    static let previewHorizontalPadding: CGFloat = 14
-    static let previewVerticalPadding: CGFloat = 10
+    static let previewHorizontalPadding: CGFloat = 12
+    static let previewVerticalPadding: CGFloat = 6
 }
