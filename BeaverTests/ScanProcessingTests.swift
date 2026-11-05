@@ -135,6 +135,110 @@ struct ScanFilterTests {
     }
 }
 
+/// A letter like the ones that came out too harsh: light pink and faint grey lines and a navy
+/// footer band on off-white paper, lit from the left and falling to 70% on the right.
+struct GentleEnhanceTests {
+    static let paper = (red: 0.95, green: 0.95, blue: 0.93)
+    static let pink = (red: 0.95, green: 0.65, blue: 0.72)
+    static let faintGrey = (red: 0.78, green: 0.78, blue: 0.78)
+    static let navy = (red: 0.1, green: 0.13, blue: 0.3)
+
+    /// Rows from the top of each part, on a 400 × 300 page.
+    static let pinkRows = 60..<68
+    static let greyRows = 120..<128
+    static let bandRows = 240..<300
+
+    static func letter() -> CGImage {
+        ScanImages.make(width: 400, height: 300) { column, row in
+            let base: (red: Double, green: Double, blue: Double)
+            if pinkRows.contains(row) {
+                base = pink
+            } else if greyRows.contains(row) {
+                base = faintGrey
+            } else if bandRows.contains(row) {
+                base = navy
+            } else {
+                base = paper
+            }
+            let light = 1 - 0.3 * Double(column) / 399
+            return (base.red * light, base.green * light, base.blue * light)
+        }
+    }
+
+    private static func y(_ rows: Range<Int>) -> Double {
+        (Double(rows.lowerBound + rows.upperBound) / 2) / 300
+    }
+
+    /// Lit and shadowed sides of the page.
+    static let columns = [0.15, 0.85]
+
+    private func enhanced() throws -> CGImage {
+        try #require(ScanImageProcessor().process(Self.letter(), filter: .enhanced))
+    }
+
+    @Test(arguments: columns)
+    func paperTurnsWhiteEvenInTheShadow(x: Double) throws {
+        let page = try enhanced()
+        for y in [30.0 / 300, 180.0 / 300] {
+            #expect(ScanImages.pixel(of: page, x: x, y: y).brightness >= 237)
+        }
+    }
+
+    @Test(arguments: columns)
+    func lightAndFaintLinesStayReadable(x: Double) throws {
+        let page = try enhanced()
+        let paper = ScanImages.pixel(of: page, x: x, y: 30.0 / 300)
+        let pink = ScanImages.pixel(of: page, x: x, y: Self.y(Self.pinkRows))
+        let grey = ScanImages.pixel(of: page, x: x, y: Self.y(Self.greyRows))
+        #expect(pink.contrast(with: paper) >= 1.5)
+        #expect(grey.contrast(with: paper) >= 1.4)
+    }
+
+    @Test(arguments: columns)
+    func pinkKeepsItsHueAndSaturation(x: Double) throws {
+        let page = try enhanced()
+        let original = ScanImages.Pixel(red: 242, green: 166, blue: 184).hueAndSaturation
+        let pink = ScanImages.pixel(of: page, x: x, y: Self.y(Self.pinkRows)).hueAndSaturation
+        #expect(hueDistance(pink.hue, original.hue) <= 10)
+        #expect(abs(pink.saturation - original.saturation) <= 0.1)
+    }
+
+    /// The old filter took a dark band for a shadow and lifted it towards white.
+    @Test(arguments: columns)
+    func aDarkBandStaysDarkAndBlue(x: Double) throws {
+        let page = try enhanced()
+        let paper = ScanImages.pixel(of: page, x: x, y: 180.0 / 300)
+        let band = ScanImages.pixel(of: page, x: x, y: Self.y(Self.bandRows))
+        #expect(band.luminance < 0.1)
+        #expect(paper.contrast(with: band) >= 5)
+        let original = ScanImages.Pixel(red: 26, green: 33, blue: 77).hueAndSaturation
+        #expect(hueDistance(band.hueAndSaturation.hue, original.hue) <= 10)
+    }
+
+    @Test func grayscaleKeepsFaintLines() throws {
+        let page = try #require(ScanImageProcessor().process(Self.letter(), filter: .grayscale))
+        for x in Self.columns {
+            let paper = ScanImages.pixel(of: page, x: x, y: 30.0 / 300)
+            let grey = ScanImages.pixel(of: page, x: x, y: Self.y(Self.greyRows))
+            let pink = ScanImages.pixel(of: page, x: x, y: Self.y(Self.pinkRows))
+            #expect(paper.brightness >= 237)
+            #expect(grey.contrast(with: paper) >= 1.4)
+            #expect(pink.contrast(with: paper) >= 1.4)
+        }
+    }
+
+    @Test func blackAndWhiteKeepsFaintLinesAndSolidAreas() throws {
+        let page = try #require(ScanImageProcessor().process(Self.letter(), filter: .blackAndWhite))
+        for x in Self.columns {
+            #expect(ScanImages.pixel(of: page, x: x, y: 30.0 / 300).brightness == 255)
+            #expect(ScanImages.pixel(of: page, x: x, y: 180.0 / 300).brightness == 255)
+            #expect(ScanImages.pixel(of: page, x: x, y: Self.y(Self.pinkRows)).brightness == 0)
+            #expect(ScanImages.pixel(of: page, x: x, y: Self.y(Self.greyRows)).brightness == 0)
+            #expect(ScanImages.pixel(of: page, x: x, y: Self.y(Self.bandRows)).brightness == 0)
+        }
+    }
+}
+
 struct ScanPDFWriterTests {
     @Test func writesOnePageAPaperSizedPerImage() throws {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).pdf")
