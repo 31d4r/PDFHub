@@ -150,9 +150,12 @@ struct MobileWorkspaceToolbar: ToolbarContent {
                 .disabled(!availability.isAvailable)
             }
         } label: {
-            Label(DesignSystem.Mobile.actions, systemImage: DesignSystem.Icons.actions)
-                .labelStyle(.titleAndIcon)
+            // Words, not an icon: iOS 26 draws bottom bar labels as their icon only, and no
+            // symbol says Merge, Split, Convert and Combine.
+            Text(DesignSystem.Mobile.actions)
+                .fontWeight(.semibold)
         }
+        .accessibilityLabel(DesignSystem.Mobile.actions)
         .accessibilityHint(DesignSystem.Mobile.actionsHelp)
         .disabled(state.isEmpty || state.activity != nil)
     }

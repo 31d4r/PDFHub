@@ -52,7 +52,6 @@ enum DesignSystem {
         static let open = "arrow.up.forward.app"
         static let dismiss = "xmark"
         static let share = "square.and.arrow.up"
-        static let actions = "doc.badge.gearshape"
         static let select = "checkmark.circle"
         static let selectionEmpty = "circle"
         static let photos = "photo.on.rectangle"
