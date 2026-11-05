@@ -15,7 +15,7 @@
 		A1B2C3D42D848628003F6708 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CE2251802D848628003F6736 /* Project object */;
-			tproxyType = 1;
+			proxyType = 1;
 			remoteGlobalIDString = CE2251872D848628003F6736;
 			remoteInfo = Beaver;
 		};
