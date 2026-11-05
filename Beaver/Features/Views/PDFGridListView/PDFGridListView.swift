@@ -197,10 +197,27 @@ struct PDFGridListView: View {
                         )
                         .fill(DesignSystem.Colors.cardSurface)
                     )
+                    .reorderableCard(
+                        id: pdf.id,
+                        index: index(of: pdf.id),
+                        count: selectedPDFs.count,
+                        title: pdf.url.lastPathComponent,
+                        systemImage: DesignSystem.Icons.pdfButtonIcon,
+                        cornerRadius: DesignSystem.CornerRadius.card,
+                        isEnabled: reactor.state.activity == nil
+                    ) { id, destination in
+                        reactor.action(.movePDF(id: id, to: destination))
+                    }
                 }
             }
             .padding(DesignSystem.Spacing.contentPadding)
         }
+    }
+}
+
+private extension PDFGridListView {
+    func index(of id: UUID) -> Int {
+        selectedPDFs.firstIndex { $0.id == id } ?? 0
     }
 }
 

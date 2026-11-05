@@ -43,6 +43,9 @@ final class BeaverReactor: AsyncReactor {
         case didDismissAlert
         case didCancelDiscard
         case didChangeFileImporterPresented(Bool)
+        /// Moves a card to `index`. Synchronous so a drop or menu choice applies at once.
+        case movePDF(id: UUID, to: Int)
+        case moveImage(id: UUID, to: Int)
     }
 
     /// Something that would throw away the files the user has added.
@@ -170,6 +173,12 @@ final class BeaverReactor: AsyncReactor {
             state.pendingDiscard = nil
         case .didChangeFileImporterPresented(let isPresented):
             state.isFileImporterPresented = isPresented
+        case .movePDF(let id, let index):
+            guard state.activity == nil else { return }
+            state.selectedPDFs.move(id: id, to: index)
+        case .moveImage(let id, let index):
+            guard state.activity == nil else { return }
+            state.selectedImages.move(id: id, to: index)
         }
     }
 

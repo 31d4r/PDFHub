@@ -244,10 +244,27 @@ struct ImageToPDFView: View {
                             lineWidth: Constants.cardBorderWidth
                         )
                     )
+                    .reorderableCard(
+                        id: item.id,
+                        index: index(of: item.id),
+                        count: selectedImages.count,
+                        title: item.url.lastPathComponent,
+                        systemImage: DesignSystem.Icons.imageButtonIcon,
+                        cornerRadius: DesignSystem.CornerRadius.cardSmall,
+                        isEnabled: reactor.state.activity == nil
+                    ) { id, destination in
+                        reactor.action(.moveImage(id: id, to: destination))
+                    }
                 }
             }
             .padding(DesignSystem.Spacing.contentPadding)
         }
+    }
+}
+
+private extension ImageToPDFView {
+    func index(of id: UUID) -> Int {
+        selectedImages.firstIndex { $0.id == id } ?? 0
     }
 }
 

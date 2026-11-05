@@ -149,6 +149,14 @@ enum DesignSystem {
         }
     }
 
+    /// Labels for moving a card. "Left" and "Right" follow the grid's reading order.
+    enum Reorder {
+        static var moveToBeginning: String { String(localized: "Move to Beginning") }
+        static var moveLeft: String { String(localized: "Move Left") }
+        static var moveRight: String { String(localized: "Move Right") }
+        static var moveToEnd: String { String(localized: "Move to End") }
+    }
+
     enum Commands {
         static var menuTitle: String { String(localized: "menu.title", defaultValue: "PDF", comment: "Menu bar menu with Beaver's PDF actions") }
         static var addPDFs: String { String(localized: "menu.addPDFs", defaultValue: "Add PDFs…") }
