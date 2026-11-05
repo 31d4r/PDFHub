@@ -1,3 +1,4 @@
+#if os(macOS)
 import AsyncReactor
 import BeaverCore
 import QuickLook
@@ -32,9 +33,21 @@ struct MainView: View {
     )
     private var quickLookURL: URL?
 
+    private var recognizedTextBinding: Binding<RecognizedTextSheet.Content?> {
+        Binding(
+            get: { reactor.state.recognizedText },
+            set: { value in
+                if value == nil {
+                    reactor.action(.dismissRecognizedText)
+                }
+            }
+        )
+    }
+
     var body: some View {
         presentations(window)
             .focusedSceneObject(reactor)
+            .task { UITestLaunch.prepareWorkspace(reactor: reactor) }
             .fileImporter(
                 isPresented: $isFileImporterPresented,
                 allowedContentTypes: reactor.state.fileImport?.allowedContentTypes ?? [],
@@ -74,7 +87,7 @@ struct MainView: View {
             .animation(reduceMotion ? nil : .snappy, value: reactor.state.activity)
             .animation(reduceMotion ? nil : .snappy, value: reactor.state.exportAlert)
             .navigationTitle(DesignSystem.Workspace.title)
-            .windowSubtitle(subtitle)
+            .navigationSubtitle(subtitle)
             .toolbar {
                 WorkspaceToolbar(reactor: reactor)
             }
@@ -110,6 +123,9 @@ struct MainView: View {
             }
             .removeAllConfirmation(reactor: reactor)
             .exportAlert(reactor: reactor)
+            .sheet(item: recognizedTextBinding) { _ in
+                RecognizedTextSheet(content: recognizedTextBinding)
+            }
     }
 
     @ViewBuilder
@@ -133,76 +149,4 @@ struct MainView: View {
         )
     }
 }
-
-/// Outlines the window while files are dragged over a non-empty list.
-private struct DropHighlight: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: DesignSystem.Layout.selectionRadius, style: .continuous)
-            .strokeBorder(Color.accentColor, lineWidth: 3)
-            .background(Color.accentColor.opacity(0.06))
-            .padding(4)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-    }
-}
-
-/// Inline progress under the grid while an export runs, instead of a modal overlay.
-/// Cancel (⌘.) stops it before anything is written.
-private struct ActivityBar: View {
-    let title: String
-    let onCancel: () -> Void
-
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-
-    var body: some View {
-        HStack(spacing: DesignSystem.Spacing.small) {
-            ProgressView()
-                .controlSize(.small)
-                .accessibilityHidden(true)
-            Text(title)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .accessibilityAddTraits(.updatesFrequently)
-            Spacer()
-            Button(DesignSystem.Export.cancel, action: onCancel)
-                .keyboardShortcut(".", modifiers: .command)
-                .help(DesignSystem.Export.cancelHelp)
-        }
-        .padding(.horizontal, DesignSystem.Spacing.medium)
-        .padding(.vertical, DesignSystem.Spacing.small)
-        .background {
-            if reduceTransparency {
-                Rectangle().fill(.background)
-            } else {
-                Rectangle().fill(.bar)
-            }
-        }
-        .overlay(alignment: .top) { Divider() }
-        .accessibilityElement(children: .contain)
-    }
-}
-
-private extension View {
-    /// The window subtitle on the Mac; other platforms have none.
-    @ViewBuilder
-    func windowSubtitle(_ subtitle: String) -> some View {
-        #if os(macOS)
-        navigationSubtitle(subtitle)
-        #else
-        self
-        #endif
-    }
-}
-
-/// Sets the importer's confirm button where the OS supports it (macOS 15, iOS 18).
-private struct FileDialogConfirmationLabel: ViewModifier {
-    let label: String?
-
-    func body(content: Content) -> some View {
-        if #available(macOS 15.0, iOS 18.0, *) {
-            content.fileDialogConfirmationLabel(label.map { Text($0) })
-        } else {
-            content
-        }
-    }
-}
+#endif

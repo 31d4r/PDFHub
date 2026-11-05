@@ -97,4 +97,106 @@ struct LocalizationTests {
             #expect(pair.help.hasPrefix(pair.label), "\(pair.help) doesn't start with \(pair.label)")
         }
     }
+
+
+    // MARK: - Catalog completeness
+
+    /// Every user-facing key must ship de, bs, hr and sr-Latn with matching format
+    /// tokens. South-Slavic locales use one/few/other; German uses one/other.
+    @Test func everyKeyHasGermanBosnianCroatianAndSerbianLatin() throws {
+        let catalogURL = try #require(Self.localizableCatalogURL())
+        let data = try Data(contentsOf: catalogURL)
+        let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let strings = try #require(json["strings"] as? [String: Any])
+        let required = ["de", "bs", "hr", "sr-Latn"]
+        var problems: [String] = []
+        for (key, raw) in strings {
+            guard let entry = raw as? [String: Any] else { continue }
+            let locs = entry["localizations"] as? [String: Any] ?? [:]
+            guard let en = locs["en"] as? [String: Any] else {
+                problems.append("\(key): missing en")
+                continue
+            }
+            let enTokens = Self.formatTokens(in: Self.primaryValue(en))
+            for lang in required {
+                guard let loc = locs[lang] as? [String: Any] else {
+                    problems.append("\(key): missing \(lang)")
+                    continue
+                }
+                if let variations = loc["variations"] as? [String: Any],
+                   let plural = variations["plural"] as? [String: Any] {
+                    let needed: Set<String> = lang == "de" ? ["one", "other"] : ["one", "few", "other"]
+                    let have = Set(plural.keys)
+                    if !needed.isSubset(of: have) {
+                        problems.append("\(key): \(lang) forms \(have.sorted()) missing \(needed.subtracting(have))")
+                    }
+                    for form in needed {
+                        guard let node = plural[form] as? [String: Any],
+                              let unit = node["stringUnit"] as? [String: Any],
+                              let value = unit["value"] as? String else {
+                            problems.append("\(key): \(lang).\(form) missing value")
+                            continue
+                        }
+                        let tokens = Self.formatTokens(in: value)
+                        // Compare against the English form of the same name when present, else "other".
+                        let enPlural = (en["variations"] as? [String: Any])?["plural"] as? [String: Any]
+                        let enForm = (enPlural?[form] ?? enPlural?["other"] ?? enPlural?["one"]) as? [String: Any]
+                        let enValue = (enForm?["stringUnit"] as? [String: Any])?["value"] as? String
+                            ?? Self.primaryValue(en)
+                        if Self.formatTokens(in: enValue) != tokens {
+                            problems.append("\(key): \(lang).\(form) tokens \(tokens) != \(Self.formatTokens(in: enValue))")
+                        }
+                        if value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !enValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            problems.append("\(key): \(lang).\(form) empty")
+                        }
+                    }
+                } else if let unit = loc["stringUnit"] as? [String: Any], let value = unit["value"] as? String {
+                    if Self.formatTokens(in: value) != enTokens {
+                        problems.append("\(key): \(lang) tokens \(Self.formatTokens(in: value)) != \(enTokens)")
+                    }
+                    let enValue = Self.primaryValue(en)
+                    if value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                       !enValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        problems.append("\(key): \(lang) empty")
+                    }
+                } else {
+                    problems.append("\(key): \(lang) has no stringUnit or plural")
+                }
+            }
+        }
+        #expect(problems.isEmpty, "\(problems.prefix(20).joined(separator: "\n"))\(problems.count > 20 ? "\n… +\(problems.count - 20) more" : "")")
+    }
+
+    private static func localizableCatalogURL() -> URL? {
+        var url = URL(fileURLWithPath: #filePath)
+        for _ in 0..<5 {
+            url.deleteLastPathComponent()
+            let candidate = url.appendingPathComponent("Beaver/Localizable.xcstrings")
+            if FileManager.default.fileExists(atPath: candidate.path) { return candidate }
+        }
+        return nil
+    }
+
+    private static func primaryValue(_ localization: [String: Any]) -> String {
+        if let unit = localization["stringUnit"] as? [String: Any], let value = unit["value"] as? String {
+            return value
+        }
+        if let variations = localization["variations"] as? [String: Any],
+           let plural = variations["plural"] as? [String: Any],
+           let other = plural["other"] as? [String: Any],
+           let unit = other["stringUnit"] as? [String: Any],
+           let value = unit["value"] as? String {
+            return value
+        }
+        return ""
+    }
+
+    private static func formatTokens(in string: String) -> [String] {
+        let pattern = "%(?:\\d+\\$)?[#0-9]*\\.?\\d*[a-zA-Z@]|%#@[A-Za-z0-9_]+@|%%"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+        let range = NSRange(string.startIndex..<string.endIndex, in: string)
+        return regex.matches(in: string, range: range).compactMap { match in
+            Range(match.range, in: string).map { String(string[$0]) }
+        }
+    }
 }

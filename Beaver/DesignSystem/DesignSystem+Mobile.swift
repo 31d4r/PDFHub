@@ -1,0 +1,75 @@
+import BeaverCore
+import SwiftUI
+
+/// Words and sizes for iPhone and iPad. They are not behind `#if os(iOS)` so the Mac build
+/// keeps them in the String Catalog too.
+extension DesignSystem {
+    enum Mobile {
+        static let gridSpacing: CGFloat = 12
+        static let contentPadding: CGFloat = 16
+        /// The narrowest card, before Dynamic Type scales it.
+        static let minimumCardWidth: CGFloat = 150
+        static let selectionBadgeSize: CGFloat = 28
+
+        static var add: String { String(localized: "mobile.add", defaultValue: "Add", comment: "iOS toolbar menu that adds photos or files") }
+        static var browseFiles: String { String(localized: "mobile.browseFiles", defaultValue: "Browse Files", comment: "iOS: add PDFs or images from the Files app") }
+        static var select: String { String(localized: "mobile.select", defaultValue: "Select", comment: "iOS: start choosing files in the grid") }
+        static var done: String { String(localized: "mobile.done", defaultValue: "Done", comment: "iOS: stop choosing files in the grid") }
+        static var actions: String { String(localized: "mobile.actions", defaultValue: "Actions", comment: "iOS toolbar menu with Merge, Split, Convert and Combine") }
+        static var selectItems: String { String(localized: "mobile.selectItems", defaultValue: "Select Items", comment: "iOS title while choosing files, before any is chosen") }
+
+        /// "3 Selected", the title while choosing files.
+        static func selectedTitle(_ count: Int) -> String {
+            String(localized: "mobile.selectedTitle", defaultValue: "\(count) Selected", comment: "iOS title while choosing files")
+        }
+
+        static var addHelp: String {
+            String(localized: "mobile.add.help", defaultValue: "Adds photos, or PDFs and images from Files.", comment: "iOS: accessibility hint for the Add menu")
+        }
+        static var filesHelp: String {
+            String(localized: "mobile.files.help", defaultValue: "Adds PDFs and images from Files.", comment: "iOS: accessibility hint for Browse Files")
+        }
+        static var selectHelp: String {
+            String(localized: "mobile.select.help", defaultValue: "Choose files to rotate, remove or turn into a PDF", comment: "iOS: accessibility hint for Select")
+        }
+        static var actionsHelp: String {
+            String(localized: "mobile.actions.help", defaultValue: "Merge, split or convert the selected files, or all of them", comment: "iOS: accessibility hint for the Actions menu")
+        }
+
+        static var emptyTitle: String { String(localized: "mobile.empty.title", defaultValue: "Add Your First Document", comment: "iOS empty state title") }
+        static var emptyMessage: String {
+            String(
+                localized: "mobile.empty.message",
+                defaultValue: "Scan paper or add PDFs and photos, then merge them, split them into pages or turn them into one PDF. Your originals are never changed.",
+                comment: "iOS empty state message"
+            )
+        }
+
+        // The export banner on iOS.
+        static var share: String { String(localized: "mobile.share", defaultValue: "Share", comment: "iOS: share the saved PDF") }
+        static var shareHelp: String {
+            String(localized: "mobile.share.help", defaultValue: "Send the PDF with AirDrop, Mail, Messages and more", comment: "iOS: accessibility hint for Share")
+        }
+        static var showInFiles: String { String(localized: "mobile.showInFiles", defaultValue: "Show in Files", comment: "iOS: open the Files app at the saved pages") }
+        static var showInFilesHelp: String {
+            String(localized: "mobile.showInFiles.help", defaultValue: "Open the folder with the saved pages in Files", comment: "iOS: accessibility hint for Show in Files")
+        }
+        static var showFileInFilesHelp: String {
+            String(localized: "mobile.showFileInFiles.help", defaultValue: "Open Beaver’s folder in Files, where the PDF was saved", comment: "iOS: accessibility hint for Show in Files after one PDF is saved")
+        }
+        static var photos: String { String(localized: "mobile.photos", defaultValue: "Photos", comment: "iOS: add images from the photo library") }
+        static var choosePhotos: String { String(localized: "mobile.choosePhotos", defaultValue: "Choose Photos", comment: "iOS empty state button that opens the photo library") }
+        static var photosHelp: String {
+            String(localized: "mobile.photos.help", defaultValue: "Adds photos in the order you pick them.", comment: "iOS: hint for adding photos")
+        }
+        static var addingPhotos: String { String(localized: "mobile.addingPhotos", defaultValue: "Adding Photos…", comment: "iOS: shown while picked photos load") }
+        static func photosFailed(_ count: Int) -> String {
+            String(
+                localized: "mobile.photosFailed",
+                defaultValue: "\(count) photos couldn't be added. If they're in iCloud, try again when they've downloaded.",
+                comment: "iOS alert when picked photos can't be loaded; count of photos"
+            )
+        }
+        static var selectedBadge: String { String(localized: "mobile.selected", defaultValue: "Selected", comment: "iOS: VoiceOver value of a chosen file") }
+    }
+}

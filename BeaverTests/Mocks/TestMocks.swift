@@ -1,5 +1,4 @@
 import BeaverCore
-import AppKit
 import Foundation
 import PDFKit
 import UniformTypeIdentifiers

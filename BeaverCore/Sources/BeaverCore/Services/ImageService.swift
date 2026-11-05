@@ -11,6 +11,13 @@ public protocol ImageServiceProtocol: Sendable {
     /// its EXIF orientation, and quarter turns swap the page size. Matched by position, so the same
     /// file added twice can be turned two ways; missing entries mean no rotation.
     func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult
+    /// Like `convertImagesToPDF(imageUrls:rotations:)`, and when `recognizeText` is true each page
+    /// gets an invisible searchable text layer from Vision.
+    func convertImagesToPDF(
+        imageUrls: [URL],
+        rotations: [RotationAngle],
+        recognizeText: Bool
+    ) async -> ImageConversionResult
     /// The image's size in pixels, upright by its EXIF orientation. `nil` when it can't be read.
     func pixelSize(for url: URL) -> CGSize?
 }
@@ -20,6 +27,16 @@ public extension ImageServiceProtocol {
 
     func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
         convertImagesToPDF(imageUrls: imageUrls, rotations: [])
+    }
+
+    func convertImagesToPDF(
+        imageUrls: [URL],
+        rotations: [RotationAngle],
+        recognizeText: Bool
+    ) async -> ImageConversionResult {
+        // Mocks and callers that skip OCR keep the synchronous path.
+        _ = recognizeText
+        return convertImagesToPDF(imageUrls: imageUrls, rotations: rotations)
     }
 }
 
@@ -61,9 +78,39 @@ public struct ImageService: ImageServiceProtocol {
     }
 
     public func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult {
+        convertSync(imageUrls: imageUrls, rotations: rotations, text: nil)
+    }
+
+    public func convertImagesToPDF(
+        imageUrls: [URL],
+        rotations: [RotationAngle],
+        recognizeText: Bool
+    ) async -> ImageConversionResult {
+        guard recognizeText else {
+            return convertImagesToPDF(imageUrls: imageUrls, rotations: rotations)
+        }
+        // One RecognizedText per readable page, in the same order convertSync draws them.
+        var texts: [RecognizedText?] = []
+        for (index, imageUrl) in imageUrls.enumerated() {
+            try? Task.checkCancellation()
+            guard let page = fullSizePage(for: imageUrl) else { continue }
+            let rotation = rotations.indices.contains(index) ? rotations[index] : .zero
+            let imageForOCR = Self.rotatedPixelImage(page.image, by: rotation) ?? page.image
+            let recognized = (try? await TextRecognizer.recognize(in: imageForOCR)) ?? RecognizedText(runs: [])
+            texts.append(recognized)
+        }
+        return convertSync(imageUrls: imageUrls, rotations: rotations, text: texts)
+    }
+
+    private func convertSync(
+        imageUrls: [URL],
+        rotations: [RotationAngle],
+        text: [RecognizedText?]?
+    ) -> ImageConversionResult {
         let data = NSMutableData()
         var skippedURLs: [URL] = []
         var pageCount = 0
+        var textIndex = 0
 
         guard
             let consumer = CGDataConsumer(data: data as CFMutableData),
@@ -89,6 +136,10 @@ public struct ImageService: ImageServiceProtocol {
             context.concatenate(rotation.drawingTransform(for: page.size))
             context.draw(page.image, in: CGRect(origin: .zero, size: page.size))
             context.restoreGState()
+            if let text, text.indices.contains(textIndex), let recognized = text[textIndex], !recognized.isEmpty {
+                ScanPDFWriter.drawInvisibleText(recognized, in: mediaBox, context: context)
+            }
+            textIndex += 1
             context.endPDFPage()
             pageCount += 1
         }
@@ -96,6 +147,27 @@ public struct ImageService: ImageServiceProtocol {
 
         let document = pageCount > 0 ? PDFDocument(data: data as Data) : nil
         return ImageConversionResult(document: document, skippedURLs: skippedURLs)
+    }
+
+    /// Pixels turned the same way the PDF page is, so Vision's boxes match the media box.
+    private static func rotatedPixelImage(_ image: CGImage, by rotation: RotationAngle) -> CGImage? {
+        guard rotation != .zero else { return image }
+        let size = CGSize(width: image.width, height: image.height)
+        let rotated = rotation.rotatedSize(size)
+        let width = Int(rotated.width.rounded())
+        let height = Int(rotated.height.rounded())
+        guard let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: image.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        context.concatenate(rotation.drawingTransform(for: size))
+        context.draw(image, in: CGRect(origin: .zero, size: size))
+        return context.makeImage()
     }
 
     // MARK: - Private

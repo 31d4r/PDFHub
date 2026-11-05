@@ -1,8 +1,7 @@
-import BeaverCore
-import SwiftUI
 #if os(macOS)
 import AppKit
-#endif
+import BeaverCore
+import SwiftUI
 
 /// Every file in one grid, in output order. Click, ⌘-click and ⇧-click select; arrows move the
 /// selection; Delete removes (with undo); Space is Quick Look; Return or a double-click opens.
@@ -68,6 +67,7 @@ struct WorkspaceGridView: View {
                 )
                 .onAppear { isFocused = true }
                 .accessibilityLabel(DesignSystem.Accessibility.fileList)
+                .accessibilityIdentifier(UITestID.workspaceGrid)
             }
         }
     }
@@ -85,6 +85,7 @@ struct WorkspaceGridView: View {
 
     private func card(_ item: WorkspaceItem, index: Int) -> some View {
         let isSelected = reactor.state.selection.contains(item.id)
+        let cardActions = WorkspaceCardActions(reactor: reactor, item: item, isSelected: isSelected)
         return ItemCardView(
             item: item,
             size: size,
@@ -101,6 +102,10 @@ struct WorkspaceGridView: View {
             isFocused = true
             reactor.action(.select(item.id, Self.currentModifier))
         })
+        .accessibilityAction(.default) {
+            isFocused = true
+            reactor.action(.select(item.id, Self.currentModifier))
+        }
         .reorderableCard(
             id: item.id,
             index: index,
@@ -109,76 +114,11 @@ struct WorkspaceGridView: View {
             systemImage: item.kind == .pdf ? DesignSystem.Icons.pdf : DesignSystem.Icons.image,
             cornerRadius: DesignSystem.Layout.selectionRadius,
             isEnabled: isEnabled,
-            actions: actions(for: item, isSelected: isSelected),
-            trailingActions: [
-                CardAction(
-                    title: DesignSystem.Workspace.remove,
-                    systemImage: DesignSystem.Icons.remove,
-                    role: .destructive,
-                    isEnabled: isEnabled,
-                    help: DesignSystem.Help.remove
-                ) {
-                    reactor.action(.remove(contextTargets(item, isSelected: isSelected)))
-                }
-            ],
+            actions: cardActions.leading,
+            trailingActions: cardActions.trailing,
             onMove: { id, destination in reactor.action(.move(id: id, to: destination)) }
         )
         .id(item.id)
-    }
-
-    /// Context menu commands. Like Finder, they apply to the whole selection when the clicked
-    /// file is part of it, and to that file alone otherwise.
-    private func actions(for item: WorkspaceItem, isSelected: Bool) -> [CardAction] {
-        var actions: [CardAction] = []
-        if item.kind == .pdf {
-            actions.append(CardAction(
-                title: DesignSystem.Pages.showPages,
-                systemImage: DesignSystem.Icons.pages,
-                isEnabled: isEnabled,
-                help: DesignSystem.Help.showPages
-            ) { reactor.action(.showPages(id: item.id)) })
-        }
-        actions.append(CardAction(
-            title: DesignSystem.Workspace.quickLook,
-            systemImage: DesignSystem.Icons.quickLook,
-            help: DesignSystem.Help.quickLook
-        ) {
-            reactor.action(.didChangeQuickLook(item.url))
-        })
-        for direction in [RotationDirection.left, .right] {
-            actions.append(CardAction(
-                title: direction == .left ? DesignSystem.Workspace.rotateLeft : DesignSystem.Workspace.rotateRight,
-                systemImage: direction == .left ? DesignSystem.Icons.rotateLeft : DesignSystem.Icons.rotateRight,
-                isEnabled: isEnabled,
-                help: DesignSystem.Help.rotate(direction)
-            ) {
-                if isSelected && reactor.state.selection.count > 1 {
-                    reactor.action(.rotateSelection(direction))
-                } else {
-                    reactor.action(.rotate(id: item.id, direction: direction))
-                }
-            })
-        }
-        // Merge, Split, Convert and Combine for the same files, only the ones that apply.
-        let targets = contextTargets(item, isSelected: isSelected)
-        let available = DocumentAction.allCases.filter {
-            reactor.state.availability(of: $0, ids: targets).isAvailable
-        }
-        for (index, action) in available.enumerated() {
-            actions.append(CardAction(
-                title: DesignSystem.Actions.menuTitle(action),
-                systemImage: DesignSystem.Actions.icon(action),
-                help: DesignSystem.Help.action(action, reactor.state.availability(of: action, ids: targets)),
-                startsGroup: index == 0
-            ) {
-                reactor.send(.perform(action, ids: targets))
-            })
-        }
-        return actions
-    }
-
-    private func contextTargets(_ item: WorkspaceItem, isSelected: Bool) -> Set<UUID> {
-        isSelected ? reactor.state.selection.ids : [item.id]
     }
 
     private func removeSelection() {
@@ -239,3 +179,4 @@ private enum Constants {
     /// How far a column may widen to spread cards across the row.
     static let cellStretch: CGFloat = 1.6
 }
+#endif

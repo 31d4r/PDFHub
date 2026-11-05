@@ -9,10 +9,14 @@ import AppKit
 /// The Actions menu's items come from `ActionsMenu`.
 struct BeaverCommands: Commands {
     @FocusedObject private var reactor: BeaverReactor?
+    @AppStorage(TextSearchablePreference.key) private var makeTextSearchable = true
+    #if os(macOS)
     @AppStorage(DesignSystem.Layout.thumbnailSizeKey) private var thumbnailSize = DesignSystem.Layout.defaultThumbnailSize
     @Environment(\.openWindow) private var openWindow
+    #endif
 
     var body: some Commands {
+        #if os(macOS)
         // There's no Help Book, so replace the item that would only say "Help isn't available"
         // with a shortcut reference that opens when asked for.
         CommandGroup(replacing: .help) {
@@ -21,6 +25,7 @@ struct BeaverCommands: Commands {
             }
             .keyboardShortcut("/", modifiers: .command)
         }
+        #endif
 
         CommandGroup(replacing: .undoRedo) {
             Button(undoTitle) {
@@ -52,6 +57,8 @@ struct BeaverCommands: Commands {
             .disabled(!(reactor?.state.hasSelection ?? false))
         }
 
+        #if os(macOS)
+        // The iOS grid sizes its cards to the screen instead.
         CommandGroup(after: .toolbar) {
             Button(DesignSystem.Commands.largerThumbnails) {
                 resizeThumbnails(by: DesignSystem.Layout.thumbnailSizeStep)
@@ -67,6 +74,7 @@ struct BeaverCommands: Commands {
 
             Divider()
         }
+        #endif
 
         CommandMenu(DesignSystem.Commands.menuTitle) {
             ForEach(ActionsMenu.items(for: reactor?.state)) { item in
@@ -81,6 +89,7 @@ struct BeaverCommands: Commands {
         }
     }
 
+    #if os(macOS)
     private func resizeThumbnails(by step: Double) {
         thumbnailSize = GridLayout.clampedSize(
             thumbnailSize + step,
@@ -88,6 +97,7 @@ struct BeaverCommands: Commands {
             in: DesignSystem.Layout.thumbnailSizeRange
         )
     }
+    #endif
 
     private var undoTitle: String {
         guard let label = reactor?.state.history.undoLabel else { return DesignSystem.Commands.undo }

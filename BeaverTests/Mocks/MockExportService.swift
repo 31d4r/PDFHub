@@ -46,8 +46,14 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
         await record(.split(urls: urls, rotations: rotations, directory: directory))
     }
 
-    func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert {
-        await record(.convert(urls: urls, rotations: rotations, destination: destination))
+    func convertImages(
+        urls: [URL],
+        rotations: [RotationAngle],
+        to destination: URL,
+        recognizeText: Bool
+    ) async -> ExportAlert {
+        _ = recognizeText
+        return await record(.convert(urls: urls, rotations: rotations, destination: destination))
     }
 
     func combine(sources: [ExportSource], to destination: URL) async -> ExportAlert {
