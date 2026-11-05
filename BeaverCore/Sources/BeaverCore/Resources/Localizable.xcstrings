@@ -1,10 +1,42 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "The PDF data could not be created." : {
-      "comment" : "Error shown when a PDF could not be turned into data for saving.",
-      "extractionState" : "manual"
+  "sourceLanguage": "en",
+  "strings": {
+    "The PDF data could not be created.": {
+      "comment": "Error shown when a PDF could not be turned into data for saving.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The PDF data could not be created."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die PDF-Daten konnten nicht erstellt werden."
+          }
+        },
+        "bs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF podaci nisu mogli biti kreirani."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF podaci nisu mogli biti stvoreni."
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF podaci nisu mogli biti kreirani."
+          }
+        }
+      }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
