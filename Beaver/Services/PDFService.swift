@@ -4,7 +4,19 @@ import PDFKit
 protocol PDFServiceProtocol {
     func loadPDF(from url: URL) -> PDFDocument?
     func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFDocument?
-    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> [PDFDocument]
+    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> [SplitPage]
+}
+
+/// One page split out of a source PDF, with the file name it should be saved under.
+struct SplitPage {
+    let document: PDFDocument
+    let fileName: String
+
+    /// `<source name>_page-<n>.pdf`, with `n` starting at 1.
+    static func fileName(sourceURL: URL, pageNumber: Int) -> String {
+        let stem = sourceURL.deletingPathExtension().lastPathComponent
+        return "\(stem)_page-\(pageNumber).pdf"
+    }
 }
 
 struct PDFService: PDFServiceProtocol {
@@ -27,18 +39,23 @@ struct PDFService: PDFServiceProtocol {
         return mergedPDF.pageCount > 0 ? mergedPDF : nil
     }
     
-    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> [PDFDocument] {
-        var allSplitPDFs: [PDFDocument] = []
-        
+    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> [SplitPage] {
+        var allSplitPages: [SplitPage] = []
+
         for url in urls {
             guard let pdf = loadPDF(from: url) else { continue }
             let rotationAngle = rotationAngles[url] ?? 0
-            
+
             let splitDocuments = createSinglePagePDFs(from: pdf, withRotation: rotationAngle)
-            allSplitPDFs.append(contentsOf: splitDocuments)
+            for (index, document) in splitDocuments.enumerated() {
+                allSplitPages.append(SplitPage(
+                    document: document,
+                    fileName: SplitPage.fileName(sourceURL: url, pageNumber: index + 1)
+                ))
+            }
         }
-        
-        return allSplitPDFs
+
+        return allSplitPages
     }
     
     private func addPages(from sourcePDF: PDFDocument, to targetPDF: PDFDocument, withRotation rotation: Int) {

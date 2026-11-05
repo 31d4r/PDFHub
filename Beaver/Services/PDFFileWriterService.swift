@@ -7,9 +7,8 @@ protocol PDFFileWriterServiceProtocol {
         to url: URL
     ) throws
     func savePDFDocuments(
-        _ documents: [PDFDocument],
-        to directory: URL,
-        fileNamePrefix: String
+        _ pages: [SplitPage],
+        to directory: URL
     ) -> SaveResult
 }
 
@@ -31,20 +30,20 @@ struct PDFFileWriterService: PDFFileWriterServiceProtocol {
     }
 
     func savePDFDocuments(
-        _ documents: [PDFDocument],
-        to directory: URL,
-        fileNamePrefix: String
+        _ pages: [SplitPage],
+        to directory: URL
     ) -> SaveResult {
         var successCount = 0
         var failureCount = 0
         var errors: [Error] = []
+        var usedNames: Set<String> = []
 
-        for (index, document) in documents.enumerated() {
-            let fileName = "\(fileNamePrefix)_\(index).pdf"
-            let fileURL = directory.appendingPathComponent(fileName)
+        for page in pages {
+            let fileURL = uniqueURL(for: page.fileName, in: directory, excluding: usedNames)
+            usedNames.insert(fileURL.lastPathComponent)
 
             do {
-                try savePDFDocument(document, to: fileURL)
+                try savePDFDocument(page.document, to: fileURL)
                 successCount += 1
             } catch {
                 failureCount += 1
@@ -57,6 +56,29 @@ struct PDFFileWriterService: PDFFileWriterServiceProtocol {
             failureCount: failureCount,
             errors: errors
         )
+    }
+
+    /// Returns `directory/fileName`, or `name (2).pdf`, `name (3).pdf`, … when that
+    /// name already exists on disk or was used earlier in the same batch.
+    func uniqueURL(
+        for fileName: String,
+        in directory: URL,
+        excluding usedNames: Set<String> = []
+    ) -> URL {
+        let base = (fileName as NSString).deletingPathExtension
+        let pathExtension = (fileName as NSString).pathExtension
+        var candidate = fileName
+        var counter = 2
+
+        while usedNames.contains(candidate)
+            || fileIOService.fileExists(at: directory.appendingPathComponent(candidate)) {
+            candidate = pathExtension.isEmpty
+                ? "\(base) (\(counter))"
+                : "\(base) (\(counter)).\(pathExtension)"
+            counter += 1
+        }
+
+        return directory.appendingPathComponent(candidate)
     }
 }
 

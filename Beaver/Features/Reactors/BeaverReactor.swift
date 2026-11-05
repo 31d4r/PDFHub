@@ -75,7 +75,7 @@ class BeaverReactor: AsyncReactor {
         case .mergePDF(let urls):
             state.mergedPDF = mergePDFs(urls: urls)
         case .splitPDF(let urls):
-            state.splitPDFs = splitPDF(urls: urls)
+            state.splitPDFs = splitPDF(urls: urls).map(\.document)
         case .deletePDF(let id):
             deletePDF(with: id)
         case .clearPDFs:
@@ -197,7 +197,7 @@ class BeaverReactor: AsyncReactor {
 
     private func splitPDF(
         urls: [URL]
-    ) -> [PDFDocument] {
+    ) -> [SplitPage] {
         guard !urls.isEmpty else { return [] }
 
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
@@ -222,7 +222,7 @@ class BeaverReactor: AsyncReactor {
         return allSplitPDFs
     }
 
-    private func saveSplitPDFs(_ splitPDFs: [PDFDocument]) {
+    private func saveSplitPDFs(_ splitPDFs: [SplitPage]) {
         guard let selectedURL = filePanelService.showDirectoryPanel(
             prompt: DesignSystem.FileNames.saveSplitPDFsPrompt
         ) else {
@@ -231,8 +231,7 @@ class BeaverReactor: AsyncReactor {
 
         let result = pdfFileWriterService.savePDFDocuments(
             splitPDFs,
-            to: selectedURL,
-            fileNamePrefix: DesignSystem.FileNames.splitPrefix
+            to: selectedURL
         )
 
         send(.showAlert(

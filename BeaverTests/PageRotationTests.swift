@@ -39,7 +39,7 @@ struct PageRotationTests {
         let split = service.splitPDF(urls: [url], rotationAngles: [url: 270])
 
         #expect(split.count == 2)
-        #expect(split.allSatisfy { $0.page(at: 0)?.rotation == 0 })
+        #expect(split.allSatisfy { $0.document.page(at: 0)?.rotation == 0 })
     }
 
     @Test("Merging the same file twice keeps every page")

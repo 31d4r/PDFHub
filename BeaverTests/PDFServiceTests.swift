@@ -35,8 +35,8 @@ final class PDFServiceTests: XCTestCase {
         )
 
         XCTAssertEqual(split.count, 2)
-        XCTAssertEqual(split[0].pageCount, 1)
-        XCTAssertEqual(split[0].page(at: 0)?.rotation, 270)
+        XCTAssertEqual(split[0].document.pageCount, 1)
+        XCTAssertEqual(split[0].document.page(at: 0)?.rotation, 270)
     }
 
     func testMergeEmptyURLsReturnsNil() {

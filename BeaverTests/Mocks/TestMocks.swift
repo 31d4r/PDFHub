@@ -31,7 +31,12 @@ final class MockFilePanelService: FilePanelServiceProtocol {
 
 final class MockFileIOService: FileIOServiceProtocol {
     var writtenURLs: [URL] = []
+    var existingURLs: Set<URL> = []
     var shouldFail = false
+
+    func fileExists(at url: URL) -> Bool {
+        existingURLs.contains(url)
+    }
 
     func write(
         data: Data,

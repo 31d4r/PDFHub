@@ -182,7 +182,6 @@ enum DesignSystem {
     enum FileNames {
         static let mergedPDF = "merged.pdf"
         static let convertedImagesPDF = "ConvertedImages.pdf"
-        static let splitPrefix = "split"
         static let saveMergedPDFPrompt = "Save Merged PDF"
         static let saveSplitPDFsPrompt = "Save Split PDFs"
         static let saveConvertedPDFPrompt = "Save Converted PDF"
