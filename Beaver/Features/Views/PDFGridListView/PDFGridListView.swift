@@ -35,6 +35,9 @@ struct PDFGridListView: View {
                 headerView()
                 content()
             }
+            .fileDrop(.pdf) { urls in
+                reactor.send(.addPDFs(urls))
+            }
         }
         .processingOverlay(reactor.state.activity)
         .discardConfirmation(reactor: reactor)

@@ -134,58 +134,9 @@ struct MainView: View {
             icon: icon,
             action: action
         )
-        .onDrop(of: [DesignSystem.FileTypes.fileURLType], isTargeted: nil) { providers in
-            handleFileDrop(
-                providers: providers,
-                acceptsPDF: acceptsPDF
-            )
+        .fileDrop(acceptsPDF ? .pdf : .image) { urls in
+            reactor.send(acceptsPDF ? .addPDFs(urls) : .addImages(urls))
         }
-    }
-
-    private func handleFileDrop(
-        providers: [NSItemProvider],
-        acceptsPDF: Bool
-    ) -> Bool {
-        let acceptedProviders = providers.filter {
-            $0.hasItemConformingToTypeIdentifier(DesignSystem.FileTypes.fileURLType)
-        }
-
-        for provider in acceptedProviders {
-            provider.loadItem(
-                forTypeIdentifier: DesignSystem.FileTypes.fileURLType,
-                options: nil
-            ) { item, _ in
-                guard
-                    let data = item as? Data,
-                    let url = URL(dataRepresentation: data, relativeTo: nil)
-                else { return }
-
-                let extensionMatches: Bool
-                if acceptsPDF {
-                    extensionMatches = DesignSystem.FileTypes.pdfExtensions.contains(
-                        url.pathExtension.lowercased()
-                    )
-                } else {
-                    extensionMatches = SupportedImageType.contains(
-                        fileExtension: url.pathExtension
-                    )
-                }
-
-                guard extensionMatches else { return }
-
-                Task {
-                    await MainActor.run {
-                        if acceptsPDF {
-                            reactor.send(.addPDFs([url]))
-                        } else {
-                            reactor.send(.addImages([url]))
-                        }
-                    }
-                }
-            }
-        }
-
-        return !acceptedProviders.isEmpty
     }
 }
 

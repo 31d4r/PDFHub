@@ -38,6 +38,9 @@ struct ImageToPDFView: View {
                 headerView()
                 content()
             }
+            .fileDrop(.image) { urls in
+                reactor.send(.addImages(urls))
+            }
         }
         .processingOverlay(reactor.state.activity)
         .discardConfirmation(reactor: reactor)

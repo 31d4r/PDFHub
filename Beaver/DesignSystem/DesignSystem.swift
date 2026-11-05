@@ -241,9 +241,4 @@ enum DesignSystem {
         static var saveSplitPDFsPrompt: String { String(localized: "Save Split PDFs") }
         static var saveConvertedPDFPrompt: String { String(localized: "Save Converted PDF") }
     }
-
-    enum FileTypes {
-        static let pdfExtensions = ["pdf"]
-        static let fileURLType = "public.file-url"
-    }
 }
