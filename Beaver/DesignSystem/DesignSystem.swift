@@ -114,8 +114,8 @@ enum DesignSystem {
 
     enum Text {
         static let pdfDocument = "PDF Document"
-        static let pdfHubTitle = "PDF HUB"
-        static let pdfHubSubtitle = "Your PDF workflow companion"
+        static let beaverTitle = "Beaver"
+        static let beaverSubtitle = "Your PDF workflow companion"
         static let pdfDocumentsTitle = "PDF Documents"
         static let imagesToPDFTitle = "Images to PDF"
         static let pdfButtonDescription = "Split & Merge\nPDF Files"

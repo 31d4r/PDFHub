@@ -1,5 +1,5 @@
 import XCTest
-@testable import PDFHub
+@testable import Beaver
 
 final class ImageServiceTests: XCTestCase {
     private let service = ImageService()

@@ -1,6 +1,6 @@
 import PDFKit
 import XCTest
-@testable import PDFHub
+@testable import Beaver
 
 final class PDFServiceTests: XCTestCase {
     private let service = PDFService()

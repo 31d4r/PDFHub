@@ -1,13 +1,13 @@
 import PDFKit
 import XCTest
-@testable import PDFHub
+@testable import Beaver
 
 final class PDFFileWriterServiceTests: XCTestCase {
     func testSavePDFDocumentWritesData() throws {
         let mockIO = MockFileIOService()
         let writer = PDFFileWriterService(fileIOService: mockIO)
         let document = PDFDocument(url: TestFixtures.samplePDF)!
-        let destination = URL(fileURLWithPath: "/tmp/pdfhub-test-output.pdf")
+        let destination = URL(fileURLWithPath: "/tmp/beaver-test-output.pdf")
 
         try writer.savePDFDocument(document, to: destination)
 

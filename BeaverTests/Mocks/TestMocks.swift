@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 import PDFKit
 import UniformTypeIdentifiers
-@testable import PDFHub
+@testable import Beaver
 
 final class MockFilePanelService: FilePanelServiceProtocol {
     var openURLs: [URL] = []

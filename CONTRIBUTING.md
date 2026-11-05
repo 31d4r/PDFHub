@@ -1,6 +1,6 @@
-# Contributing to PDF HUB
+# Contributing to Beaver
 
-Thank you for thinking about contributing to PDF HUB!
+Thank you for thinking about contributing to Beaver!
 
 We welcome:
 

@@ -3,7 +3,7 @@ import PDFKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-class PDFHubReactor: AsyncReactor {
+class BeaverReactor: AsyncReactor {
     enum Action {
         case selectPDF
         case addPDFs([URL])

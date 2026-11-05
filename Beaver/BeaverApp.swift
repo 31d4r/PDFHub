@@ -2,10 +2,10 @@ import AsyncReactor
 import SwiftUI
 
 @main
-struct PDFHubApp: App {
+struct BeaverApp: App {
     var body: some Scene {
         WindowGroup {
-            ReactorView(PDFHubReactor()) {
+            ReactorView(BeaverReactor()) {
                 MainView()
                     .frame(
                         maxWidth: .infinity,
