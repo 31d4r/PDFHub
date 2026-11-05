@@ -5,28 +5,13 @@ import PDFKit
 import UniformTypeIdentifiers
 @testable import Beaver
 
-final class MockFilePanelService: FilePanelServiceProtocol {
-    var openURLs: [URL] = []
+final class MockSaveLocationProvider: SaveLocationProviding {
     var saveURL: URL?
-    var directoryURL: URL?
+    private(set) var requestedNames: [String] = []
 
-    func openFilePanel(
-        contentTypes: [UTType],
-        multipleSelection: Bool
-    ) -> [URL] {
-        openURLs
-    }
-
-    func showSavePanel(
-        defaultName: String,
-        prompt: String,
-        allowedTypes: [UTType]
-    ) -> URL? {
-        saveURL
-    }
-
-    func showDirectoryPanel(prompt: String) -> URL? {
-        directoryURL
+    func saveLocation(defaultName: String, prompt: String) -> URL? {
+        requestedNames.append(defaultName)
+        return saveURL
     }
 }
 
@@ -88,7 +73,7 @@ enum TestImages {
 
 enum TestFixtures {
     static var directory: URL {
-        let bundle = Bundle(for: MockFilePanelService.self)
+        let bundle = Bundle(for: MockSaveLocationProvider.self)
         if let url = bundle.url(
             forResource: "sample",
             withExtension: "pdf",

@@ -6,7 +6,7 @@ import Testing
 struct ExportAlertStateTests {
     @Test func alertStaysUntilDismissed() async {
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: MockImageService()
         )
 

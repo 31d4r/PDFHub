@@ -33,7 +33,7 @@ struct ThumbnailTests {
     @Test func unreadableImagesAreReportedAndNotAdded() async {
         let missing = URL(fileURLWithPath: "/tmp/does-not-exist-\(UUID().uuidString).png")
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: MockImageService()
         )
 

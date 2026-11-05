@@ -9,15 +9,15 @@ struct ReactorExportTests {
     private let directory = URL(fileURLWithPath: "/tmp/beaver-tests/split", isDirectory: true)
 
     private func makeReactor(
-        panels: MockFilePanelService = MockFilePanelService(),
+        panels: MockSaveLocationProvider = MockSaveLocationProvider(),
         export: MockExportService = MockExportService(),
         images: MockImageService = MockImageService()
     ) -> BeaverReactor {
-        BeaverReactor(filePanelService: panels, imageService: images, exportService: export)
+        BeaverReactor(saveLocationProvider: panels, imageService: images, exportService: export)
     }
 
     @Test func mergePassesURLsRotationsAndDestination() async {
-        let panels = MockFilePanelService()
+        let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let export = MockExportService(result: ExportAlert(message: "merged", isSuccess: true))
         let reactor = makeReactor(panels: panels, export: export)
@@ -47,7 +47,7 @@ struct ReactorExportTests {
     }
 
     @Test func mergeIgnoresEmptyList() async {
-        let panels = MockFilePanelService()
+        let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let export = MockExportService()
         let reactor = makeReactor(panels: panels, export: export)
@@ -58,14 +58,13 @@ struct ReactorExportTests {
     }
 
     @Test func splitUsesChosenDirectory() async {
-        let panels = MockFilePanelService()
-        panels.directoryURL = directory
         let failure = ExportAlert(message: "failed", isSuccess: false)
         let export = MockExportService(result: failure)
-        let reactor = makeReactor(panels: panels, export: export)
+        let reactor = makeReactor(export: export)
         await reactor.action(.addPDFs([TestFixtures.samplePDF]))
 
         await reactor.action(.splitPDF([TestFixtures.samplePDF]))
+        await reactor.action(.didImportFiles([directory]))
 
         #expect(export.calls == [.split(
             urls: [TestFixtures.samplePDF],
@@ -76,7 +75,7 @@ struct ReactorExportTests {
     }
 
     @Test func convertSendsSelectedImagesInOrder() async {
-        let panels = MockFilePanelService()
+        let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let images = MockImageService()
         let second = URL(fileURLWithPath: "/tmp/second.png")
@@ -102,7 +101,7 @@ struct ReactorExportTests {
     }
 
     @Test func secondExportIsIgnoredWhileOneIsRunning() async {
-        let panels = MockFilePanelService()
+        let panels = MockSaveLocationProvider()
         panels.saveURL = destination
         let export = MockExportService(isGated: true)
         let reactor = makeReactor(panels: panels, export: export)

@@ -31,7 +31,7 @@ build in Swift 6 language mode.
   `@Test`, `#expect`). A few older tests still use XCTest; both run in the same target.
 - Tests that touch `BeaverReactor` are `@MainActor`.
 - Inject the mocks in `BeaverTests/Mocks` instead of showing real panels or writing files:
-  `MockFilePanelService`, `MockImageService`, `MockFileIOService` and `MockExportService`.
+  `MockSaveLocationProvider`, `MockImageService`, `MockFileIOService` and `MockExportService`.
   `MockExportService(isGated: true)` holds each export until `release()`, so a test can check
   the in-progress state.
 - Tests that write real files create a unique folder under `FileManager.default.temporaryDirectory`

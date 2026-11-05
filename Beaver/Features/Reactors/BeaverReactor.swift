@@ -25,6 +25,10 @@ final class BeaverReactor: AsyncReactor {
         case requestDiscard(DiscardRequest)
         case confirmDiscard
 
+        /// The user picked files or a folder in the importer for `state.fileImport`.
+        case didImportFiles([URL])
+        case didFailFileImport(String)
+
         case showAlert(
             message: String,
             success: Bool
@@ -37,6 +41,7 @@ final class BeaverReactor: AsyncReactor {
         case didChangeScreen(AppScreen)
         case didDismissAlert
         case didCancelDiscard
+        case didChangeFileImporterPresented(Bool)
     }
 
     /// Something that would throw away the files the user has added.
@@ -67,6 +72,9 @@ final class BeaverReactor: AsyncReactor {
         var exportAlert: ExportAlert?
         var activity: Activity?
         var pendingDiscard: DiscardRequest?
+        /// What the file importer is for. Kept after dismissal so a late completion still applies.
+        var fileImport: FileImportRequest?
+        var isFileImporterPresented = false
 
         /// Files on the current screen that a discard would remove.
         var discardableCount: Int {
@@ -80,17 +88,18 @@ final class BeaverReactor: AsyncReactor {
 
     @Published private(set) var state: State
 
-    private let filePanelService: FilePanelServiceProtocol
+    private let saveLocationProvider: SaveLocationProviding
     private let imageService: ImageServiceProtocol
     private let exportService: ExportServiceProtocol
+    private let securityScopedAccess = SecurityScopedAccess()
 
     init(
-        filePanelService: FilePanelServiceProtocol = FilePanelService(),
+        saveLocationProvider: SaveLocationProviding = SavePanelService(),
         imageService: ImageServiceProtocol = ImageService(),
         exportService: ExportServiceProtocol = ExportService()
     ) {
         self.state = State()
-        self.filePanelService = filePanelService
+        self.saveLocationProvider = saveLocationProvider
         self.imageService = imageService
         self.exportService = exportService
     }
@@ -98,19 +107,19 @@ final class BeaverReactor: AsyncReactor {
     func action(_ action: Action) async {
         switch action {
         case .selectPDF:
-            selectPDF()
+            requestFileImport(.pdfs)
         case .addPDFs(let urls):
             addPDFs(urls)
         case .mergePDF(let urls):
             await mergePDFs(urls: urls)
         case .splitPDF(let urls):
-            await splitPDF(urls: urls)
+            requestSplitDestination(for: urls)
         case .deletePDF(let id):
             deletePDF(with: id)
         case .clearPDFs:
             clearPDFs()
         case .selectImages:
-            await selectImages()
+            requestFileImport(.images)
         case .addImages(let urls):
             await addImages(urls)
         case .convertImagesToPDF:
@@ -127,6 +136,12 @@ final class BeaverReactor: AsyncReactor {
             requestDiscard(request)
         case .confirmDiscard:
             confirmDiscard()
+        case .didImportFiles(let urls):
+            await completeFileImport(urls)
+        case .didFailFileImport(let message):
+            state.fileImport = nil
+            state.isFileImporterPresented = false
+            state.exportAlert = ExportAlert(message: message, isSuccess: false)
         case .showAlert(let message, let success):
             state.exportAlert = ExportAlert(
                 message: message,
@@ -147,16 +162,46 @@ final class BeaverReactor: AsyncReactor {
             state.exportAlert = nil
         case .didCancelDiscard:
             state.pendingDiscard = nil
+        case .didChangeFileImporterPresented(let isPresented):
+            state.isFileImporterPresented = isPresented
         }
     }
 
-    private func selectPDF() {
+    private func requestFileImport(_ request: FileImportRequest) {
         guard state.activity == nil else { return }
-        let urls = filePanelService.openFilePanel(
-            contentTypes: [.pdf],
-            multipleSelection: true
-        )
-        addPDFs(urls)
+        state.fileImport = request
+        state.isFileImporterPresented = true
+    }
+
+    private func requestSplitDestination(for urls: [URL]) {
+        guard !urls.isEmpty else { return }
+        requestFileImport(.splitDestination(urls))
+    }
+
+    private func completeFileImport(_ urls: [URL]) async {
+        guard let request = state.fileImport else { return }
+        state.fileImport = nil
+        state.isFileImporterPresented = false
+
+        switch request {
+        case .pdfs:
+            securityScopedAccess.begin(urls)
+            addPDFs(urls)
+            releaseUnusedFileAccess()
+        case .images:
+            securityScopedAccess.begin(urls)
+            await addImages(urls)
+            releaseUnusedFileAccess()
+        case .splitDestination(let pdfURLs):
+            guard let directory = urls.first else { return }
+            await splitPDF(urls: pdfURLs, into: directory)
+        }
+    }
+
+    /// Ends security-scoped access for files that are no longer listed.
+    private func releaseUnusedFileAccess() {
+        let listed = Set(state.selectedPDFs.map(\.url)).union(state.selectedImages.map(\.url))
+        securityScopedAccess.retainOnly(listed)
     }
 
     private func addPDFs(_ urls: [URL]) {
@@ -189,10 +234,9 @@ final class BeaverReactor: AsyncReactor {
     private func mergePDFs(urls: [URL]) async {
         guard !urls.isEmpty, state.activity == nil else { return }
 
-        guard let saveURL = filePanelService.showSavePanel(
+        guard let saveURL = saveLocationProvider.saveLocation(
             defaultName: DesignSystem.FileNames.mergedPDF,
-            prompt: DesignSystem.FileNames.saveMergedPDFPrompt,
-            allowedTypes: [.pdf]
+            prompt: DesignSystem.FileNames.saveMergedPDFPrompt
         ) else {
             return
         }
@@ -208,13 +252,12 @@ final class BeaverReactor: AsyncReactor {
         }
     }
 
-    private func splitPDF(urls: [URL]) async {
+    private func splitPDF(urls: [URL], into directory: URL) async {
         guard !urls.isEmpty, state.activity == nil else { return }
 
-        guard let directory = filePanelService.showDirectoryPanel(
-            prompt: DesignSystem.FileNames.saveSplitPDFsPrompt
-        ) else {
-            return
+        let isScoped = directory.startAccessingSecurityScopedResource()
+        defer {
+            if isScoped { directory.stopAccessingSecurityScopedResource() }
         }
 
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
@@ -232,6 +275,7 @@ final class BeaverReactor: AsyncReactor {
         with id: UUID
     ) {
         state.selectedPDFs.removeAll { $0.id == id }
+        releaseUnusedFileAccess()
         if state.selectedPDFs.isEmpty {
             state.screen = .menu
         }
@@ -239,16 +283,8 @@ final class BeaverReactor: AsyncReactor {
 
     private func clearPDFs() {
         state.selectedPDFs.removeAll()
+        releaseUnusedFileAccess()
         state.screen = .menu
-    }
-
-    private func selectImages() async {
-        guard state.activity == nil else { return }
-        let urls = filePanelService.openFilePanel(
-            contentTypes: SupportedImageType.allUTTypes,
-            multipleSelection: true
-        )
-        await addImages(urls)
     }
 
     private func addImages(_ urls: [URL]) async {
@@ -296,10 +332,9 @@ final class BeaverReactor: AsyncReactor {
             return
         }
 
-        guard let saveURL = filePanelService.showSavePanel(
+        guard let saveURL = saveLocationProvider.saveLocation(
             defaultName: DesignSystem.FileNames.convertedImagesPDF,
-            prompt: DesignSystem.FileNames.saveConvertedPDFPrompt,
-            allowedTypes: [.pdf]
+            prompt: DesignSystem.FileNames.saveConvertedPDFPrompt
         ) else {
             return
         }
@@ -328,6 +363,7 @@ final class BeaverReactor: AsyncReactor {
         with id: UUID
     ) {
         state.selectedImages.removeAll { $0.id == id }
+        releaseUnusedFileAccess()
         if state.selectedImages.isEmpty {
             state.screen = .menu
         }
@@ -335,6 +371,7 @@ final class BeaverReactor: AsyncReactor {
 
     private func clearImages() {
         state.selectedImages.removeAll()
+        releaseUnusedFileAccess()
         state.screen = .menu
     }
 

@@ -11,6 +11,13 @@ struct MainView: View {
     )
     private var screen: AppScreen
 
+    @ActionBinding(
+        BeaverReactor.self,
+        keyPath: \.isFileImporterPresented,
+        action: BeaverReactor.SyncAction.didChangeFileImporterPresented
+    )
+    private var isFileImporterPresented: Bool
+
     var body: some View {
         Group {
             switch screen {
@@ -23,6 +30,19 @@ struct MainView: View {
             }
         }
         .focusedSceneObject(reactor)
+        .fileImporter(
+            isPresented: $isFileImporterPresented,
+            allowedContentTypes: reactor.state.fileImport?.allowedContentTypes ?? [],
+            allowsMultipleSelection: reactor.state.fileImport?.allowsMultipleSelection ?? false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                reactor.send(.didImportFiles(urls))
+            case .failure(let error):
+                reactor.send(.didFailFileImport(error.localizedDescription))
+            }
+        }
+        .modifier(FileDialogConfirmationLabel(label: reactor.state.fileImport?.confirmationLabel))
     }
 
     private func menuView() -> some View {
@@ -136,6 +156,19 @@ struct MainView: View {
         )
         .fileDrop(acceptsPDF ? .pdf : .image) { urls in
             reactor.send(acceptsPDF ? .addPDFs(urls) : .addImages(urls))
+        }
+    }
+}
+
+/// Sets the importer's confirm button where the OS supports it (macOS 15, iOS 18).
+private struct FileDialogConfirmationLabel: ViewModifier {
+    let label: String?
+
+    func body(content: Content) -> some View {
+        if #available(macOS 15.0, iOS 18.0, *) {
+            content.fileDialogConfirmationLabel(label.map { Text($0) })
+        } else {
+            content
         }
     }
 }

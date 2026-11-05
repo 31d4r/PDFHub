@@ -7,7 +7,7 @@ import XCTest
 final class BeaverReactorTests: XCTestCase {
     func testAddPDFsDeduplicatesAndNavigates() async {
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: MockImageService()
         )
         let url = TestFixtures.samplePDF
@@ -21,7 +21,7 @@ final class BeaverReactorTests: XCTestCase {
 
     func testDeletePDFReturnsToMenuWhenEmpty() async {
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: MockImageService()
         )
         await reactor.action(.addPDFs([TestFixtures.samplePDF]))
@@ -38,7 +38,7 @@ final class BeaverReactorTests: XCTestCase {
         imageService.thumbnailsByURL[TestFixtures.samplePNG] = TestImages.solid(width: 10, height: 10)
 
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: imageService
         )
 
@@ -59,7 +59,7 @@ final class BeaverReactorTests: XCTestCase {
         imageService.thumbnailsByURL[secondURL] = second
 
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: imageService
         )
         await reactor.action(.addImages([firstURL, secondURL]))
@@ -74,7 +74,7 @@ final class BeaverReactorTests: XCTestCase {
 
     func testGoBackClearsPDFWorkflow() async {
         let reactor = BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: MockImageService()
         )
         await reactor.action(.addPDFs([TestFixtures.samplePDF]))

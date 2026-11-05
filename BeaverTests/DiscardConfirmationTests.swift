@@ -6,7 +6,7 @@ import Testing
 struct DiscardConfirmationTests {
     private func makeReactor() -> BeaverReactor {
         BeaverReactor(
-            filePanelService: MockFilePanelService(),
+            saveLocationProvider: MockSaveLocationProvider(),
             imageService: MockImageService()
         )
     }
