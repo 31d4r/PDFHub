@@ -71,6 +71,7 @@ enum DesignSystem {
     }
 
     enum Opacity {
+        static let disabled: Double = 0.4
         static let circleStart: Double = 0.05
         static let circleEnd: Double = 0.02
         static let separatorStart: Double = 0.3
@@ -137,6 +138,19 @@ enum DesignSystem {
     enum Accessibility {
         static var rotateLeft: String { String(localized: "Rotate left") }
         static var rotateRight: String { String(localized: "Rotate right") }
+
+        static func rotateLeft(_ fileName: String) -> String {
+            String(localized: "Rotate \(fileName) left")
+        }
+
+        static func rotateRight(_ fileName: String) -> String {
+            String(localized: "Rotate \(fileName) right")
+        }
+
+        /// Read after a file's name, e.g. "Rotated 90 degrees". Empty when upright.
+        static func rotation(_ angle: RotationAngle) -> String {
+            angle == .zero ? "" : String(localized: "Rotated \(angle.degrees) degrees")
+        }
         static var remove: String { String(localized: "Remove") }
         static var deleteImageHelp: String { String(localized: "Delete This Image") }
 

@@ -133,7 +133,12 @@ struct PDFGridListView: View {
                 ForEach($selectedPDFs) { $pdf in
                     VStack(spacing: 0) {
                         HStack {
-                            RotateControlsView(rotationAngle: $pdf.rotationAngle)
+                            RotateControlsView(
+                                subject: pdf.url.lastPathComponent,
+                                isDisabled: reactor.state.activity != nil
+                            ) { direction in
+                                pdf.rotationAngle = pdf.rotationAngle.rotated(direction)
+                            }
 
                             Spacer()
 

@@ -1,3 +1,4 @@
+import BeaverCore
 import Foundation
 @testable import Beaver
 
@@ -7,7 +8,7 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
     enum Call: Equatable {
         case merge(urls: [URL], rotationAngles: [URL: Int], destination: URL)
         case split(urls: [URL], rotationAngles: [URL: Int], directory: URL)
-        case convert(urls: [URL], destination: URL)
+        case convert(urls: [URL], rotations: [RotationAngle], destination: URL)
     }
 
     private let lock = NSLock()
@@ -43,8 +44,8 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
         await record(.split(urls: urls, rotationAngles: rotationAngles, directory: directory))
     }
 
-    func convertImages(urls: [URL], to destination: URL) async -> ExportAlert {
-        await record(.convert(urls: urls, destination: destination))
+    func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert {
+        await record(.convert(urls: urls, rotations: rotations, destination: destination))
     }
 
     private func record(_ call: Call) async -> ExportAlert {

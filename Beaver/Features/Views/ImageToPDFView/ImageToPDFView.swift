@@ -192,6 +192,13 @@ struct ImageToPDFView: View {
                 ForEach(selectedImages) { item in
                     VStack {
                         HStack {
+                            RotateControlsView(
+                                subject: item.url.lastPathComponent,
+                                isDisabled: reactor.state.activity != nil
+                            ) { direction in
+                                reactor.action(.rotateImage(id: item.id, direction: direction))
+                            }
+
                             Spacer()
 
                             DeleteIconButton(
@@ -203,7 +210,7 @@ struct ImageToPDFView: View {
                         }
                         .padding(DesignSystem.Spacing.contentPadding)
 
-                        Image(item.thumbnail, scale: 1, label: Text(item.url.lastPathComponent))
+                        Image(item.preview, scale: 1, label: Text(item.url.lastPathComponent))
                             .resizable()
                             .scaledToFit()
                             .frame(
@@ -211,6 +218,7 @@ struct ImageToPDFView: View {
                                 maxHeight: Constants.imageMaxHeight
                             )
                             .padding(DesignSystem.Spacing.contentPadding)
+                            .accessibilityValue(DesignSystem.Accessibility.rotation(item.rotationAngle))
                     }
                     .background(
                         RoundedRectangle(

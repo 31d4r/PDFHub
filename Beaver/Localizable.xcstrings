@@ -255,11 +255,44 @@
         }
       }
     },
+    "Rotate %@ left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate %@ left"
+          }
+        }
+      }
+    },
+    "Rotate %@ right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate %@ right"
+          }
+        }
+      }
+    },
     "Rotate left" : {
       "extractionState" : "manual"
     },
     "Rotate right" : {
       "extractionState" : "manual"
+    },
+    "Rotated %lld degrees" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotated %lld degrees"
+          }
+        }
+      }
     },
     "Save Converted PDF" : {
       "extractionState" : "manual"

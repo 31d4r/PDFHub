@@ -7,7 +7,16 @@ public protocol ImageServiceProtocol: Sendable {
     /// A preview no larger than `maxPixelSize` on its longest side, with EXIF
     /// orientation applied. `nil` when the file is not a readable image.
     func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage?
-    func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult
+    /// One page per readable image, in order. `rotations[i]` turns `imageUrls[i]` clockwise on top of
+    /// its EXIF orientation, and quarter turns swap the page size. Matched by position, so the same
+    /// file added twice can be turned two ways; missing entries mean no rotation.
+    func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult
+}
+
+public extension ImageServiceProtocol {
+    func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
+        convertImagesToPDF(imageUrls: imageUrls, rotations: [])
+    }
 }
 
 public struct ImageConversionResult {
@@ -32,7 +41,7 @@ public struct ImageService: ImageServiceProtocol {
         return orientedImage(from: source, maxPixelSize: maxPixelSize)
     }
 
-    public func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
+    public func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult {
         let data = NSMutableData()
         var skippedURLs: [URL] = []
         var pageCount = 0
@@ -44,19 +53,23 @@ public struct ImageService: ImageServiceProtocol {
             return ImageConversionResult(document: nil, skippedURLs: imageUrls)
         }
 
-        for imageUrl in imageUrls {
+        for (index, imageUrl) in imageUrls.enumerated() {
             guard let page = fullSizePage(for: imageUrl) else {
                 skippedURLs.append(imageUrl)
                 continue
             }
 
-            var mediaBox = CGRect(origin: .zero, size: page.size)
+            let rotation = rotations.indices.contains(index) ? rotations[index] : .zero
+            var mediaBox = CGRect(origin: .zero, size: rotation.rotatedSize(page.size))
             let pageInfo = [kCGPDFContextMediaBox as String: Data(
                 bytes: &mediaBox,
                 count: MemoryLayout<CGRect>.size
             )] as CFDictionary
             context.beginPDFPage(pageInfo)
-            context.draw(page.image, in: mediaBox)
+            context.saveGState()
+            context.concatenate(rotation.drawingTransform(for: page.size))
+            context.draw(page.image, in: CGRect(origin: .zero, size: page.size))
+            context.restoreGState()
             context.endPDFPage()
             pageCount += 1
         }

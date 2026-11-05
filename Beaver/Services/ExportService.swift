@@ -8,7 +8,8 @@ import PDFKit
 protocol ExportServiceProtocol: Sendable {
     func mergePDFs(urls: [URL], rotationAngles: [URL: Int], to destination: URL) async -> ExportAlert
     func splitPDFs(urls: [URL], rotationAngles: [URL: Int], into directory: URL) async -> ExportAlert
-    func convertImages(urls: [URL], to destination: URL) async -> ExportAlert
+    /// `rotations[i]` turns `urls[i]` clockwise before it becomes a page.
+    func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert
 }
 
 struct ExportService: ExportServiceProtocol {
@@ -82,8 +83,8 @@ struct ExportService: ExportServiceProtocol {
     }
 
     @concurrent
-    func convertImages(urls: [URL], to destination: URL) async -> ExportAlert {
-        let result = imageService.convertImagesToPDF(imageUrls: urls)
+    func convertImages(urls: [URL], rotations: [RotationAngle], to destination: URL) async -> ExportAlert {
+        let result = imageService.convertImagesToPDF(imageUrls: urls, rotations: rotations)
 
         guard let document = result.document else {
             return ExportAlert(

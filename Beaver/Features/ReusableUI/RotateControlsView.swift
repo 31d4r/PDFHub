@@ -1,32 +1,42 @@
 import BeaverCore
 import SwiftUI
 
+/// The pair of round rotate buttons on a card. Reports the direction instead of owning the angle,
+/// so the caller can route the change through the reactor.
 struct RotateControlsView: View {
-    @Binding var rotationAngle: RotationAngle
+    /// The file name, so VoiceOver says what turns ("Rotate photo.png left").
+    var subject: String?
+    var isDisabled = false
+    let onRotate: (RotationDirection) -> Void
 
     var body: some View {
         HStack(spacing: DesignSystem.Layout.rotateButtonSpacing) {
             rotateButton(
                 direction: .left,
                 icon: DesignSystem.Icons.rotateLeftIconFill,
-                label: DesignSystem.Accessibility.rotateLeft
+                help: DesignSystem.Accessibility.rotateLeft,
+                label: subject.map(DesignSystem.Accessibility.rotateLeft) ?? DesignSystem.Accessibility.rotateLeft
             )
             rotateButton(
                 direction: .right,
                 icon: DesignSystem.Icons.rotateRightIconFill,
-                label: DesignSystem.Accessibility.rotateRight
+                help: DesignSystem.Accessibility.rotateRight,
+                label: subject.map(DesignSystem.Accessibility.rotateRight) ?? DesignSystem.Accessibility.rotateRight
             )
         }
+        .disabled(isDisabled)
+        .opacity(isDisabled ? DesignSystem.Opacity.disabled : 1)
     }
 
     private func rotateButton(
         direction: RotationDirection,
         icon: String,
+        help: String,
         label: String
     ) -> some View {
         Button {
             withAnimation(.easeInOut(duration: DesignSystem.Layout.rotateAnimationDuration)) {
-                rotationAngle = rotationAngle.rotated(direction)
+                onRotate(direction)
             }
         } label: {
             Image(systemName: icon)
@@ -49,7 +59,7 @@ struct RotateControlsView: View {
                 )
         }
         .buttonStyle(.plain)
-        .help(label)
+        .help(help)
         .accessibilityLabel(label)
     }
 }

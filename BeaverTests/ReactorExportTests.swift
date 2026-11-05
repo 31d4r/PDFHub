@@ -87,7 +87,7 @@ struct ReactorExportTests {
 
         await reactor.action(.convertImagesToPDF)
 
-        #expect(export.calls == [.convert(urls: [TestFixtures.samplePNG, second], destination: destination)])
+        #expect(export.calls == [.convert(urls: [TestFixtures.samplePNG, second], rotations: [.zero, .zero], destination: destination)])
     }
 
     @Test func convertWithoutImagesShowsError() async {

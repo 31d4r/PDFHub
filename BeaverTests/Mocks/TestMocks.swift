@@ -44,13 +44,15 @@ final class MockFileIOService: FileIOServiceProtocol, @unchecked Sendable {
 final class MockImageService: ImageServiceProtocol, @unchecked Sendable {
     var thumbnailsByURL: [URL: CGImage] = [:]
     var convertedDocument: PDFDocument?
+    private(set) var convertedRotations: [[RotationAngle]] = []
 
     func thumbnail(for url: URL, maxPixelSize: Int) -> CGImage? {
         thumbnailsByURL[url]
     }
 
-    func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult {
-        ImageConversionResult(document: convertedDocument, skippedURLs: [])
+    func convertImagesToPDF(imageUrls: [URL], rotations: [RotationAngle]) -> ImageConversionResult {
+        convertedRotations.append(rotations)
+        return ImageConversionResult(document: convertedDocument, skippedURLs: [])
     }
 }
 

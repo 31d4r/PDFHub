@@ -240,7 +240,7 @@ struct ReactorReorderTests {
         reactor.action(.moveImage(id: reactor.state.selectedImages[2].id, to: 0))
         await reactor.action(.convertImagesToPDF)
 
-        #expect(export.calls == [.convert(urls: [urls[2], urls[0], urls[1]], destination: destination)])
+        #expect(export.calls == [.convert(urls: [urls[2], urls[0], urls[1]], rotations: [.zero, .zero, .zero], destination: destination)])
     }
 
     @Test func convertedFilePageOrderFollowsNewOrder() async throws {
@@ -291,7 +291,7 @@ struct ReactorReorderTests {
         export.release()
         await running.value
         #expect(reactor.state.activity == nil)
-        #expect(export.calls == [.convert(urls: urls, destination: destination)])
+        #expect(export.calls == [.convert(urls: urls, rotations: urls.map { _ in .zero }, destination: destination)])
     }
 
     // MARK: - Drag payload

@@ -46,6 +46,8 @@ final class BeaverReactor: AsyncReactor {
         /// Moves a card to `index`. Synchronous so a drop or menu choice applies at once.
         case movePDF(id: UUID, to: Int)
         case moveImage(id: UUID, to: Int)
+        /// Turns one image a quarter turn. Synchronous and carries the id, so a tap applies at once.
+        case rotateImage(id: UUID, direction: RotationDirection)
     }
 
     /// Something that would throw away the files the user has added.
@@ -91,7 +93,11 @@ final class BeaverReactor: AsyncReactor {
 
         /// Whether a discard would throw away rotations the user made on the current screen.
         var hasDiscardableRotations: Bool {
-            screen == .pdfWorkflow && selectedPDFs.contains { $0.rotationAngle != .zero }
+            switch screen {
+            case .pdfWorkflow: return selectedPDFs.contains { $0.rotationAngle != .zero }
+            case .imageWorkflow: return selectedImages.contains { $0.rotationAngle != .zero }
+            case .menu: return false
+            }
         }
     }
 
@@ -179,6 +185,11 @@ final class BeaverReactor: AsyncReactor {
         case .moveImage(let id, let index):
             guard state.activity == nil else { return }
             state.selectedImages.move(id: id, to: index)
+        case .rotateImage(let id, let direction):
+            guard state.activity == nil,
+                  let index = state.selectedImages.firstIndex(where: { $0.id == id })
+            else { return }
+            state.selectedImages[index].rotate(direction)
         }
     }
 
@@ -338,6 +349,7 @@ final class BeaverReactor: AsyncReactor {
     private func convertImagesToPDF() async {
         guard state.activity == nil else { return }
         let imageUrls = state.selectedImages.map(\.url)
+        let rotations = state.selectedImages.map(\.rotationAngle)
 
         guard !imageUrls.isEmpty else {
             state.exportAlert = ExportAlert(
@@ -357,7 +369,7 @@ final class BeaverReactor: AsyncReactor {
         let exportService = exportService
 
         await runExport(.converting) {
-            await exportService.convertImages(urls: imageUrls, to: saveURL)
+            await exportService.convertImages(urls: imageUrls, rotations: rotations, to: saveURL)
         }
     }
 
