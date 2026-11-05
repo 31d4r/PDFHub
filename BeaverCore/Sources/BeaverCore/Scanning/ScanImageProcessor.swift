@@ -8,7 +8,8 @@ public struct ScanImageProcessor: Sendable {
     /// Longest side kept from a camera photo: sharp text at A4 without huge files.
     public static let maximumPixelSize = 3200
     /// In Black & White, a pixel darker than this share of its neighbourhood's brightness is ink.
-    static let blackAndWhiteThreshold: Float = 0.9
+    /// Anything lighter, such as the shaded side of a fold, is paper.
+    static let blackAndWhiteThreshold: Float = 0.85
 
     private let context: CIContext
 
@@ -79,11 +80,7 @@ public struct ScanImageProcessor: Sendable {
     /// being taken for a shadow. Then a small gain pushes paper texture to white, a soft curve
     /// deepens the ink a touch, and a light sharpen crisps the edges.
     static func enhanced(_ image: CIImage) -> CIImage {
-        let divide = CIFilter.divideBlendMode()
-        // Divide blend gives background ÷ input: the page over its lighting.
-        divide.inputImage = background(of: image)
-        divide.backgroundImage = image
-        let evened = (divide.outputImage ?? image).cropped(to: image.extent)
+        let evened = divided(image, by: background(of: image, lighting: .smooth))
 
         let whitePoint = CIFilter.colorMatrix()
         whitePoint.inputImage = evened
@@ -109,13 +106,35 @@ public struct ScanImageProcessor: Sendable {
         return clamped(sharpen.outputImage ?? whitened).cropped(to: image.extent)
     }
 
+    /// How closely a lighting estimate follows the page.
+    struct Lighting {
+        /// Longest side the page is shrunk to; the radius and blur are in its pixels.
+        let size: Double
+        /// Wider than the strokes it spreads the paper over.
+        let inkRadius: Double
+        let blur: Double
+        /// The estimate never goes below this.
+        let darkest: CGFloat
+
+        /// Enhanced: lighting changes slowly across a page, and dark content stays dark because
+        /// the estimate never drops below `darkestPaper`.
+        static let smooth = Lighting(size: 256, inkRadius: 6, blur: 8, darkest: Constants.darkestPaper)
+        /// Black & White: close enough to follow deep shadows and the shaded sides of folds, so
+        /// they can be told apart from ink. Wider than text strokes; thicker filled shapes are
+        /// kept black by the dark test instead.
+        static let close = Lighting(size: 512, inkRadius: 6, blur: 4, darkest: 0.04)
+    }
+
     /// The paper's brightness without the ink, as grey: the brightest channel of each pixel,
-    /// shrunk, spread over the strokes, blurred, grown back, and kept above `darkestPaper`.
-    static func background(of image: CIImage) -> CIImage {
+    /// shrunk, spread over the strokes, blurred, grown back, and kept above `lighting.darkest`.
+    /// An image smaller than `lighting.size`, such as a preview, gets a radius and blur scaled
+    /// down with it, so it is estimated like the full page.
+    static func background(of image: CIImage, lighting: Lighting) -> CIImage {
         let extent = image.extent
         let longest = max(extent.width, extent.height)
         guard longest > 0 else { return image }
-        let scale = min(1, Constants.backgroundSize / longest)
+        let scale = min(1, lighting.size / longest)
+        let reach = longest * scale / lighting.size
         let brightest = CIFilter.maximumComponent()
         brightest.inputImage = image
         let small = (brightest.outputImage ?? image)
@@ -124,15 +143,15 @@ public struct ScanImageProcessor: Sendable {
 
         let maximum = CIFilter.morphologyMaximum()
         maximum.inputImage = small.clampedToExtent()
-        maximum.radius = Constants.inkRadius
+        maximum.radius = Float(lighting.inkRadius * reach)
 
         let blurred = (maximum.outputImage ?? small)
-            .applyingGaussianBlur(sigma: Constants.lightingBlur)
+            .applyingGaussianBlur(sigma: lighting.blur * reach)
             .cropped(to: small.extent)
 
         let floor = CIFilter.colorClamp()
         floor.inputImage = blurred
-        let darkest = Constants.darkestPaper
+        let darkest = lighting.darkest
         floor.minComponents = CIVector(x: darkest, y: darkest, z: darkest, w: 1)
         floor.maxComponents = CIVector(x: 1, y: 1, z: 1, w: 1)
 
@@ -152,39 +171,52 @@ public struct ScanImageProcessor: Sendable {
         return clamped(grey.outputImage ?? image).cropped(to: image.extent)
     }
 
-    /// Ink or paper per pixel, by an adaptive threshold: a pixel is ink when it is clearly darker
-    /// than its neighbourhood, so faint pencil and light coloured text survive next to bold
-    /// print, or when it is dark outright, so filled areas such as a dark band stay solid.
+    /// Ink or paper per pixel, like a photocopier that ignores the creases:
+    ///
+    /// 1. The grey page is divided by a close estimate of its lighting, which follows deep
+    ///    shadows and the shaded sides of folds, so the paper comes out evenly white.
+    /// 2. A pixel is ink when it is clearly darker than the evened page around it, by more than
+    ///    `blackAndWhiteThreshold`, so faint pencil and light coloured text survive while smooth
+    ///    shading, folds and camera noise go white. The neighbourhood grows with the page, so a
+    ///    preview thresholds the same way as the full page.
+    /// 3. A pixel is also ink when it is dark outright after Enhanced, so filled areas such as a
+    ///    dark band stay solid. Enhanced lifts shadows, so only truly dark areas pass this.
     static func blackAndWhite(_ image: CIImage) -> CIImage {
-        let grey = monochrome(enhanced(image))
-        let extent = grey.extent
+        let extent = image.extent
         let longest = max(extent.width, extent.height)
-        guard longest > 0 else { return grey }
+        guard longest > 0 else { return image }
+        let grey = monochrome(image)
+        let evened = clamped(divided(grey, by: background(of: grey, lighting: .close))).cropped(to: extent)
 
         let floor = CIFilter.colorClamp()
-        floor.inputImage = grey
+        floor.inputImage = evened
             .clampedToExtent()
             .applyingGaussianBlur(sigma: longest * Constants.neighbourhood)
             .cropped(to: extent)
         floor.minComponents = CIVector(x: 0.02, y: 0.02, z: 0.02, w: 1)
         floor.maxComponents = CIVector(x: 1, y: 1, z: 1, w: 1)
 
-        let relative = CIFilter.divideBlendMode()
-        relative.inputImage = floor.outputImage
-        relative.backgroundImage = grey
-
         let local = CIFilter.colorThreshold()
-        local.inputImage = clamped(relative.outputImage ?? grey).cropped(to: extent)
+        local.inputImage = clamped(divided(evened, by: floor.outputImage ?? evened)).cropped(to: extent)
         local.threshold = blackAndWhiteThreshold
 
         let dark = CIFilter.colorThreshold()
-        dark.inputImage = grey
+        dark.inputImage = monochrome(enhanced(image))
         dark.threshold = Constants.alwaysInk
 
         let both = CIFilter.minimumCompositing()
         both.inputImage = local.outputImage
         both.backgroundImage = dark.outputImage
         return (both.outputImage ?? grey).cropped(to: extent)
+    }
+
+    /// `image` over `divisor`, pixel by pixel.
+    private static func divided(_ image: CIImage, by divisor: CIImage) -> CIImage {
+        let divide = CIFilter.divideBlendMode()
+        // Divide blend gives background ÷ input.
+        divide.inputImage = divisor
+        divide.backgroundImage = image
+        return (divide.outputImage ?? image).cropped(to: image.extent)
     }
 
     private static func clamped(_ image: CIImage) -> CIImage {
@@ -197,12 +229,7 @@ public struct ScanImageProcessor: Sendable {
 }
 
 private enum Constants {
-    /// Longest side of the lighting estimate; lighting changes slowly across a page.
-    static let backgroundSize: Double = 256
-    /// Wider than a pen stroke at `backgroundSize`.
-    static let inkRadius: Float = 6
-    static let lightingBlur: Double = 8
-    /// The lighting estimate never goes below this, so dark content isn't mistaken for shadow.
+    /// Enhanced's lighting estimate never goes below this, so dark content isn't mistaken for shadow.
     static let darkestPaper: CGFloat = 0.45
     /// Evened-out paper at or above this becomes white; fainter marks below it are kept.
     static let paperWhite: CGFloat = 0.94
@@ -210,7 +237,7 @@ private enum Constants {
     static let sharpenRadius: Float = 1.2
     /// Black & White's neighbourhood blur, as a share of the longest side, so a preview
     /// thresholds the same way as the full page.
-    static let neighbourhood: Double = 0.02
-    /// In Black & White, anything darker than this is ink whatever surrounds it.
-    static let alwaysInk: Float = 0.4
+    static let neighbourhood: Double = 0.05
+    /// In Black & White, anything darker than this after Enhanced is ink whatever surrounds it.
+    static let alwaysInk: Float = 0.3
 }
