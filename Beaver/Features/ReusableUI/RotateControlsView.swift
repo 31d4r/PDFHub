@@ -1,3 +1,4 @@
+import BeaverCore
 import SwiftUI
 
 struct RotateControlsView: View {

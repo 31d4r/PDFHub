@@ -1,3 +1,4 @@
+import BeaverCore
 import XCTest
 @testable import Beaver
 

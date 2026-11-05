@@ -1,13 +1,13 @@
 import CoreGraphics
 import Foundation
 
-struct ImageItem: Identifiable, Equatable, Sendable {
-    let id: UUID
-    let url: URL
+public struct ImageItem: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public let url: URL
     /// A downsampled preview. The full-size image is only read when converting.
-    let thumbnail: CGImage
+    public let thumbnail: CGImage
 
-    init(
+    public init(
         id: UUID = UUID(),
         url: URL,
         thumbnail: CGImage
@@ -17,7 +17,7 @@ struct ImageItem: Identifiable, Equatable, Sendable {
         self.thumbnail = thumbnail
     }
 
-    static func == (
+    public static func == (
         lhs: ImageItem,
         rhs: ImageItem
     ) -> Bool {

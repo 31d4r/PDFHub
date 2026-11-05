@@ -3,11 +3,11 @@ import UniformTypeIdentifiers
 
 /// Which files a drop target accepts. Checks the file's real content type
 /// first and falls back to its extension when the type cannot be read.
-enum DroppedFileKind: Sendable {
+public enum DroppedFileKind: Sendable {
     case pdf
     case image
 
-    func accepts(_ url: URL) -> Bool {
+    public func accepts(_ url: URL) -> Bool {
         guard url.isFileURL else { return false }
 
         if let contentType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType {
@@ -19,7 +19,7 @@ enum DroppedFileKind: Sendable {
         return false
     }
 
-    func accepts(_ type: UTType) -> Bool {
+    public func accepts(_ type: UTType) -> Bool {
         switch self {
         case .pdf:
             return type.conforms(to: .pdf)
@@ -28,7 +28,7 @@ enum DroppedFileKind: Sendable {
         }
     }
 
-    func filter(_ urls: [URL]) -> [URL] {
+    public func filter(_ urls: [URL]) -> [URL] {
         urls.filter(accepts)
     }
 }

@@ -1,6 +1,6 @@
 import UniformTypeIdentifiers
 
-enum SupportedImageType: CaseIterable {
+public enum SupportedImageType: CaseIterable, Sendable {
     case png
     case jpeg
     case tiff
@@ -8,7 +8,7 @@ enum SupportedImageType: CaseIterable {
     case bmp
     case gif
 
-    var utType: UTType {
+    public var utType: UTType {
         switch self {
         case .png: return .png
         case .jpeg: return .jpeg
@@ -19,7 +19,7 @@ enum SupportedImageType: CaseIterable {
         }
     }
 
-    var fileExtensions: [String] {
+    public var fileExtensions: [String] {
         switch self {
         case .png: return ["png"]
         case .jpeg: return ["jpg", "jpeg"]
@@ -30,15 +30,15 @@ enum SupportedImageType: CaseIterable {
         }
     }
 
-    static var allUTTypes: [UTType] {
+    public static var allUTTypes: [UTType] {
         allCases.map(\.utType)
     }
 
-    static var allFileExtensions: [String] {
+    public static var allFileExtensions: [String] {
         allCases.flatMap(\.fileExtensions)
     }
 
-    static func contains(fileExtension: String) -> Bool {
+    public static func contains(fileExtension: String) -> Bool {
         allFileExtensions.contains(fileExtension.lowercased())
     }
 }

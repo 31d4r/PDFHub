@@ -1,3 +1,4 @@
+import BeaverCore
 import PDFKit
 import XCTest
 @testable import Beaver

@@ -1,7 +1,7 @@
 import Foundation
 import PDFKit
 
-protocol PDFFileWriterServiceProtocol: Sendable {
+public protocol PDFFileWriterServiceProtocol: Sendable {
     func savePDFDocument(
         _ document: PDFDocument,
         to url: URL
@@ -12,14 +12,14 @@ protocol PDFFileWriterServiceProtocol: Sendable {
     ) -> SaveResult
 }
 
-struct PDFFileWriterService: PDFFileWriterServiceProtocol {
+public struct PDFFileWriterService: PDFFileWriterServiceProtocol {
     private let fileIOService: FileIOServiceProtocol
 
-    init(fileIOService: FileIOServiceProtocol = FileIOService()) {
+    public init(fileIOService: FileIOServiceProtocol = FileIOService()) {
         self.fileIOService = fileIOService
     }
 
-    func savePDFDocument(
+    public func savePDFDocument(
         _ document: PDFDocument,
         to url: URL
     ) throws {
@@ -29,7 +29,7 @@ struct PDFFileWriterService: PDFFileWriterServiceProtocol {
         try fileIOService.write(data: data, to: url)
     }
 
-    func savePDFDocuments(
+    public func savePDFDocuments(
         _ pages: [SplitPage],
         to directory: URL
     ) -> SaveResult {
@@ -60,7 +60,7 @@ struct PDFFileWriterService: PDFFileWriterServiceProtocol {
 
     /// Returns `directory/fileName`, or `name (2).pdf`, `name (3).pdf`, … when that
     /// name already exists on disk or was used earlier in the same batch.
-    func uniqueURL(
+    public func uniqueURL(
         for fileName: String,
         in directory: URL,
         excluding usedNames: Set<String> = []
@@ -82,20 +82,26 @@ struct PDFFileWriterService: PDFFileWriterServiceProtocol {
     }
 }
 
-struct SaveResult: Equatable {
-    let successCount: Int
-    let failureCount: Int
-    let errors: [Error]
+public struct SaveResult: Equatable {
+    public let successCount: Int
+    public let failureCount: Int
+    public let errors: [Error]
 
-    var isCompleteSuccess: Bool {
+    public init(successCount: Int, failureCount: Int, errors: [Error]) {
+        self.successCount = successCount
+        self.failureCount = failureCount
+        self.errors = errors
+    }
+
+    public var isCompleteSuccess: Bool {
         failureCount == 0
     }
 
-    var isCompleteFailure: Bool {
+    public var isCompleteFailure: Bool {
         successCount == 0
     }
 
-    static func == (
+    public static func == (
         lhs: SaveResult,
         rhs: SaveResult
     ) -> Bool {
@@ -105,13 +111,13 @@ struct SaveResult: Equatable {
     }
 }
 
-enum PDFFileWriterError: LocalizedError {
+public enum PDFFileWriterError: LocalizedError {
     case failedToCreateData
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .failedToCreateData:
-            return String(localized: "The PDF data could not be created.")
+            return String(localized: "The PDF data could not be created.", bundle: .module)
         }
     }
 }

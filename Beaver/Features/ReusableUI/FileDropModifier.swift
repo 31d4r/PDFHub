@@ -1,3 +1,4 @@
+import BeaverCore
 import SwiftUI
 
 /// Accepts files of one kind dropped from Finder and highlights the target while hovering.

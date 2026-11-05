@@ -296,9 +296,6 @@
         }
       }
     },
-    "The PDF data could not be created.": {
-      "extractionState": "manual"
-    },
     "The original files on disk are not changed. Rotations you made here will be lost.": {
       "extractionState": "manual"
     },

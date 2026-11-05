@@ -1,9 +1,9 @@
 import Foundation
 
-enum PDFRotationMapper {
+public enum PDFRotationMapper {
     /// Maps each URL to the user's rotation for it. Duplicate URLs are allowed;
     /// the first matching PDF wins.
-    static func mapRotationAngles(
+    public static func mapRotationAngles(
         urls: [URL],
         from pdfs: [PDFItem]
     ) -> [URL: Int] {

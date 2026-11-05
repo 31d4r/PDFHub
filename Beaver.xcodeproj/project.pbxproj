@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CE22519C2D848668003F6736 /* AsyncReactor in Frameworks */ = {isa = PBXBuildFile; productRef = CE22519B2D848668003F6736 /* AsyncReactor */; };
+		B3A0C0DE2E00000000000001 /* BeaverCore in Frameworks */ = {isa = PBXBuildFile; productRef = B3A0C0DE2E00000000000002 /* BeaverCore */; };
 /* End PBXBuildFile section */
 
 
@@ -45,6 +46,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE22519C2D848668003F6736 /* AsyncReactor in Frameworks */,
+				B3A0C0DE2E00000000000001 /* BeaverCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +99,7 @@
 			name = Beaver;
 			packageProductDependencies = (
 				CE22519B2D848668003F6736 /* AsyncReactor */,
+				B3A0C0DE2E00000000000002 /* BeaverCore */,
 			);
 			productName = Beaver;
 			productReference = CE2251882D848628003F6736 /* Beaver.app */;
@@ -155,6 +158,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				CE22519A2D848668003F6736 /* XCRemoteSwiftPackageReference "AsyncReactor" */,
+				B3A0C0DE2E00000000000003 /* XCLocalSwiftPackageReference "BeaverCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE2251892D848628003F6736 /* Products */;
@@ -468,6 +472,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		B3A0C0DE2E00000000000003 /* XCLocalSwiftPackageReference "BeaverCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = BeaverCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		CE22519A2D848668003F6736 /* XCRemoteSwiftPackageReference "AsyncReactor" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -484,6 +495,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CE22519A2D848668003F6736 /* XCRemoteSwiftPackageReference "AsyncReactor" */;
 			productName = AsyncReactor;
+		};
+		B3A0C0DE2E00000000000002 /* BeaverCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BeaverCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

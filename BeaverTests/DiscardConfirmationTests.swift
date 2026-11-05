@@ -1,3 +1,4 @@
+import BeaverCore
 import Testing
 @testable import Beaver
 

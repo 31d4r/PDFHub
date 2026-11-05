@@ -1,43 +1,60 @@
 import Foundation
 import PDFKit
 
-protocol PDFServiceProtocol: Sendable {
+public protocol PDFServiceProtocol: Sendable {
     func loadPDF(from url: URL) -> PDFDocument?
     func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult
     func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult
 }
 
-struct PDFMergeResult {
+public struct PDFMergeResult {
     /// `nil` when no pages could be read.
-    let document: PDFDocument?
+    public let document: PDFDocument?
     /// Files that could not be opened as PDFs and were left out.
-    let skippedURLs: [URL]
+    public let skippedURLs: [URL]
+
+    public init(document: PDFDocument?, skippedURLs: [URL]) {
+        self.document = document
+        self.skippedURLs = skippedURLs
+    }
 }
 
-struct PDFSplitResult {
-    let pages: [SplitPage]
+public struct PDFSplitResult {
+    public let pages: [SplitPage]
     /// Files that could not be opened as PDFs and were left out.
-    let skippedURLs: [URL]
+    public let skippedURLs: [URL]
+
+    public init(pages: [SplitPage], skippedURLs: [URL]) {
+        self.pages = pages
+        self.skippedURLs = skippedURLs
+    }
 }
 
 /// One page split out of a source PDF, with the file name it should be saved under.
-struct SplitPage {
-    let document: PDFDocument
-    let fileName: String
+public struct SplitPage {
+    public let document: PDFDocument
+    public let fileName: String
+
+    public init(document: PDFDocument, fileName: String) {
+        self.document = document
+        self.fileName = fileName
+    }
 
     /// `<source name>_page-<n>.pdf`, with `n` starting at 1.
-    static func fileName(sourceURL: URL, pageNumber: Int) -> String {
+    public static func fileName(sourceURL: URL, pageNumber: Int) -> String {
         let stem = sourceURL.deletingPathExtension().lastPathComponent
         return "\(stem)_page-\(pageNumber).pdf"
     }
 }
 
-struct PDFService: PDFServiceProtocol {
-    func loadPDF(from url: URL) -> PDFDocument? {
+public struct PDFService: PDFServiceProtocol {
+    public init() {}
+
+    public func loadPDF(from url: URL) -> PDFDocument? {
         return PDFDocument(url: url)
     }
     
-    func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult {
+    public func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult {
         guard !urls.isEmpty else { return PDFMergeResult(document: nil, skippedURLs: []) }
 
         let mergedPDF = PDFDocument()
@@ -59,7 +76,7 @@ struct PDFService: PDFServiceProtocol {
         )
     }
     
-    func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult {
+    public func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult {
         var allSplitPages: [SplitPage] = []
         var skippedURLs: [URL] = []
 

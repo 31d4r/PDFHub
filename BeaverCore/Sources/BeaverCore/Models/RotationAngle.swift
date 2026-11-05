@@ -1,14 +1,14 @@
 import Foundation
 
-enum RotationAngle: Int, CaseIterable, Equatable {
+public enum RotationAngle: Int, CaseIterable, Equatable, Sendable {
     case zero = 0
     case ninety = 90
     case oneEighty = 180
     case twoSeventy = 270
 
-    var degrees: Int { rawValue }
+    public var degrees: Int { rawValue }
 
-    var rotatedLeft: RotationAngle {
+    public var rotatedLeft: RotationAngle {
         switch self {
         case .zero: return .twoSeventy
         case .ninety: return .zero
@@ -17,7 +17,7 @@ enum RotationAngle: Int, CaseIterable, Equatable {
         }
     }
 
-    var rotatedRight: RotationAngle {
+    public var rotatedRight: RotationAngle {
         switch self {
         case .zero: return .ninety
         case .ninety: return .oneEighty
@@ -27,15 +27,15 @@ enum RotationAngle: Int, CaseIterable, Equatable {
     }
 
     /// Adds this user rotation to a page's existing rotation, keeping the result in 0..<360.
-    func applied(to pageRotation: Int) -> Int {
+    public func applied(to pageRotation: Int) -> Int {
         Self.normalized(pageRotation + degrees)
     }
 
-    static func normalized(_ degrees: Int) -> Int {
+    public static func normalized(_ degrees: Int) -> Int {
         ((degrees % 360) + 360) % 360
     }
 
-    func rotated(_ direction: RotationDirection) -> RotationAngle {
+    public func rotated(_ direction: RotationDirection) -> RotationAngle {
         switch direction {
         case .left: return rotatedLeft
         case .right: return rotatedRight

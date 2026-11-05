@@ -1,3 +1,4 @@
+import BeaverCore
 import AsyncReactor
 import SwiftUI
 import UniformTypeIdentifiers

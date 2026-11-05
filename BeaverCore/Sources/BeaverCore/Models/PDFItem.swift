@@ -1,11 +1,11 @@
 import Foundation
 
-struct PDFItem: Identifiable, Equatable, Sendable {
-    let id: UUID
-    var url: URL
-    var rotationAngle: RotationAngle
+public struct PDFItem: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public var url: URL
+    public var rotationAngle: RotationAngle
 
-    init(
+    public init(
         id: UUID = UUID(),
         url: URL,
         rotationAngle: RotationAngle = .zero
