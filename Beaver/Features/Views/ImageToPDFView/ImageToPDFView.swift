@@ -39,6 +39,7 @@ struct ImageToPDFView: View {
                 content()
             }
         }
+        .processingOverlay(reactor.state.activity)
         .exportAlert(reactor: reactor)
     }
 

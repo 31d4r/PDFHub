@@ -36,6 +36,7 @@ struct PDFGridListView: View {
                 content()
             }
         }
+        .processingOverlay(reactor.state.activity)
         .exportAlert(reactor: reactor)
     }
 

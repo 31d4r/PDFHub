@@ -1,7 +1,7 @@
 import Foundation
 import PDFKit
 
-protocol PDFFileWriterServiceProtocol {
+protocol PDFFileWriterServiceProtocol: Sendable {
     func savePDFDocument(
         _ document: PDFDocument,
         to url: URL

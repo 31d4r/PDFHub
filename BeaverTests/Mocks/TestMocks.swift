@@ -29,7 +29,8 @@ final class MockFilePanelService: FilePanelServiceProtocol {
     }
 }
 
-final class MockFileIOService: FileIOServiceProtocol {
+// Tests drive this mock from one task at a time.
+final class MockFileIOService: FileIOServiceProtocol, @unchecked Sendable {
     var writtenURLs: [URL] = []
     var existingURLs: Set<URL> = []
     var shouldFail = false
@@ -53,7 +54,8 @@ final class MockFileIOService: FileIOServiceProtocol {
     }
 }
 
-final class MockImageService: ImageServiceProtocol {
+// Tests drive this mock from one task at a time.
+final class MockImageService: ImageServiceProtocol, @unchecked Sendable {
     var imagesByURL: [URL: NSImage] = [:]
     var convertedDocument: PDFDocument?
 

@@ -1,6 +1,6 @@
 import Foundation
 
-protocol FileIOServiceProtocol {
+protocol FileIOServiceProtocol: Sendable {
     func write(data: Data, to url: URL) throws
     func fileExists(at url: URL) -> Bool
 }

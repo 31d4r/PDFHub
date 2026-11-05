@@ -130,6 +130,12 @@ enum DesignSystem {
         }
     }
 
+    enum Progress {
+        static let merging = "Merging PDFs…"
+        static let splitting = "Splitting PDFs…"
+        static let converting = "Converting images…"
+    }
+
     enum Alerts {
         static let success = "Success"
         static let error = "Error"

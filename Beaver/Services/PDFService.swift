@@ -1,7 +1,7 @@
 import Foundation
 import PDFKit
 
-protocol PDFServiceProtocol {
+protocol PDFServiceProtocol: Sendable {
     func loadPDF(from url: URL) -> PDFDocument?
     func mergePDFs(urls: [URL], rotationAngles: [URL: Int]) -> PDFMergeResult
     func splitPDF(urls: [URL], rotationAngles: [URL: Int]) -> PDFSplitResult

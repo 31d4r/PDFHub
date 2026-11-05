@@ -1,5 +1,4 @@
 import AsyncReactor
-import PDFKit
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -34,31 +33,44 @@ final class BeaverReactor: AsyncReactor {
         case didChangeScreen(AppScreen)
     }
 
+    /// Long-running work in progress. While set, exports are ignored and the UI is disabled.
+    enum Activity: Equatable {
+        case merging
+        case splitting
+        case converting
+
+        var title: String {
+            switch self {
+            case .merging: return DesignSystem.Progress.merging
+            case .splitting: return DesignSystem.Progress.splitting
+            case .converting: return DesignSystem.Progress.converting
+            }
+        }
+    }
+
     struct State {
         var screen: AppScreen = .menu
         var selectedPDFs: [PDF] = []
         var selectedImages: [ImageItem] = []
         var exportAlert: ExportAlert?
+        var activity: Activity?
     }
 
     @Published private(set) var state: State
 
     private let filePanelService: FilePanelServiceProtocol
-    private let pdfService: PDFServiceProtocol
     private let imageService: ImageServiceProtocol
-    private let pdfFileWriterService: PDFFileWriterServiceProtocol
+    private let exportService: ExportServiceProtocol
 
     init(
         filePanelService: FilePanelServiceProtocol = FilePanelService(),
-        pdfService: PDFServiceProtocol = PDFService(),
         imageService: ImageServiceProtocol = ImageService(),
-        pdfFileWriterService: PDFFileWriterServiceProtocol = PDFFileWriterService()
+        exportService: ExportServiceProtocol = ExportService()
     ) {
         self.state = State()
         self.filePanelService = filePanelService
-        self.pdfService = pdfService
         self.imageService = imageService
-        self.pdfFileWriterService = pdfFileWriterService
+        self.exportService = exportService
     }
 
     func action(_ action: Action) async {
@@ -68,9 +80,9 @@ final class BeaverReactor: AsyncReactor {
         case .addPDFs(let urls):
             addPDFs(urls)
         case .mergePDF(let urls):
-            mergePDFs(urls: urls)
+            await mergePDFs(urls: urls)
         case .splitPDF(let urls):
-            splitPDF(urls: urls)
+            await splitPDF(urls: urls)
         case .deletePDF(let id):
             deletePDF(with: id)
         case .clearPDFs:
@@ -80,7 +92,7 @@ final class BeaverReactor: AsyncReactor {
         case .addImages(let urls):
             addImages(urls)
         case .convertImagesToPDF:
-            convertImagesToPDF()
+            await convertImagesToPDF()
         case .deleteImage(let id):
             deleteImage(with: id)
         case .clearImages:
@@ -111,6 +123,7 @@ final class BeaverReactor: AsyncReactor {
     }
 
     private func selectPDF() {
+        guard state.activity == nil else { return }
         let urls = filePanelService.openFilePanel(
             contentTypes: [.pdf],
             multipleSelection: true
@@ -119,6 +132,7 @@ final class BeaverReactor: AsyncReactor {
     }
 
     private func addPDFs(_ urls: [URL]) {
+        guard state.activity == nil else { return }
         var seen = Set(state.selectedPDFs.map(\.pdfURL))
         let newPDFs = urls.compactMap { url -> PDF? in
             guard !seen.contains(url) else { return nil }
@@ -132,36 +146,21 @@ final class BeaverReactor: AsyncReactor {
         state.screen = .pdfWorkflow
     }
 
-    private func mergePDFs(
-        urls: [URL]
-    ) {
-        guard !urls.isEmpty else { return }
-
-        let rotationAngles = PDFRotationMapper.mapRotationAngles(
-            urls: urls,
-            from: state.selectedPDFs
-        )
-
-        let result = pdfService.mergePDFs(
-            urls: urls,
-            rotationAngles: rotationAngles
-        )
-
-        guard let mergedPDF = result.document else {
-            send(.showAlert(
-                message: DesignSystem.Alerts.message(
-                    DesignSystem.Alerts.failedToMergePDFs,
-                    skipped: result.skippedURLs
-                ),
-                success: false
-            ))
-            return
-        }
-
-        saveMergedPDF(mergedPDF, skippedURLs: result.skippedURLs)
+    /// Runs `work` off the main actor with `activity` shown, then presents its result.
+    /// Ignored while another export is running.
+    private func runExport(
+        _ activity: Activity,
+        _ work: () async -> ExportAlert
+    ) async {
+        state.activity = activity
+        let alert = await work()
+        state.activity = nil
+        state.exportAlert = alert
     }
 
-    private func saveMergedPDF(_ mergedPDF: PDFDocument, skippedURLs: [URL]) {
+    private func mergePDFs(urls: [URL]) async {
+        guard !urls.isEmpty, state.activity == nil else { return }
+
         guard let saveURL = filePanelService.showSavePanel(
             defaultName: DesignSystem.FileNames.mergedPDF,
             prompt: DesignSystem.FileNames.saveMergedPDFPrompt,
@@ -170,73 +169,35 @@ final class BeaverReactor: AsyncReactor {
             return
         }
 
-        do {
-            try pdfFileWriterService.savePDFDocument(mergedPDF, to: saveURL)
-            send(.showAlert(
-                message: DesignSystem.Alerts.message(
-                    DesignSystem.Alerts.mergedPDFSaved(fileName: saveURL.lastPathComponent),
-                    skipped: skippedURLs
-                ),
-                success: true
-            ))
-        } catch {
-            send(.showAlert(
-                message: DesignSystem.Alerts.failedToSaveMergedPDF(
-                    error.localizedDescription
-                ),
-                success: false
-            ))
-        }
-    }
-
-    private func splitPDF(
-        urls: [URL]
-    ) {
-        guard !urls.isEmpty else { return }
-
         let rotationAngles = PDFRotationMapper.mapRotationAngles(
             urls: urls,
             from: state.selectedPDFs
         )
+        let exportService = exportService
 
-        let result = pdfService.splitPDF(
-            urls: urls,
-            rotationAngles: rotationAngles
-        )
-
-        guard !result.pages.isEmpty else {
-            send(.showAlert(
-                message: DesignSystem.Alerts.message(
-                    DesignSystem.Alerts.noPagesFoundToSplit,
-                    skipped: result.skippedURLs
-                ),
-                success: false
-            ))
-            return
+        await runExport(.merging) {
+            await exportService.mergePDFs(urls: urls, rotationAngles: rotationAngles, to: saveURL)
         }
-
-        saveSplitPDFs(result.pages, skippedURLs: result.skippedURLs)
     }
 
-    private func saveSplitPDFs(_ splitPDFs: [SplitPage], skippedURLs: [URL]) {
-        guard let selectedURL = filePanelService.showDirectoryPanel(
+    private func splitPDF(urls: [URL]) async {
+        guard !urls.isEmpty, state.activity == nil else { return }
+
+        guard let directory = filePanelService.showDirectoryPanel(
             prompt: DesignSystem.FileNames.saveSplitPDFsPrompt
         ) else {
             return
         }
 
-        let result = pdfFileWriterService.savePDFDocuments(
-            splitPDFs,
-            to: selectedURL
+        let rotationAngles = PDFRotationMapper.mapRotationAngles(
+            urls: urls,
+            from: state.selectedPDFs
         )
+        let exportService = exportService
 
-        send(.showAlert(
-            message: DesignSystem.Alerts.message(
-                DesignSystem.Alerts.message(for: result),
-                skipped: skippedURLs
-            ),
-            success: !result.isCompleteFailure
-        ))
+        await runExport(.splitting) {
+            await exportService.splitPDFs(urls: urls, rotationAngles: rotationAngles, into: directory)
+        }
     }
 
     private func deletePDF(
@@ -254,6 +215,7 @@ final class BeaverReactor: AsyncReactor {
     }
 
     private func selectImages() {
+        guard state.activity == nil else { return }
         let urls = filePanelService.openFilePanel(
             contentTypes: SupportedImageType.allUTTypes,
             multipleSelection: true
@@ -262,6 +224,7 @@ final class BeaverReactor: AsyncReactor {
     }
 
     private func addImages(_ urls: [URL]) {
+        guard state.activity == nil else { return }
         var seen = Set(state.selectedImages.map(\.url))
         var unreadableURLs: [URL] = []
         let newItems = urls.compactMap { url -> ImageItem? in
@@ -287,34 +250,18 @@ final class BeaverReactor: AsyncReactor {
         state.screen = .imageWorkflow
     }
 
-    private func convertImagesToPDF() {
+    private func convertImagesToPDF() async {
+        guard state.activity == nil else { return }
         let imageUrls = state.selectedImages.map(\.url)
 
         guard !imageUrls.isEmpty else {
-            send(.showAlert(
+            state.exportAlert = ExportAlert(
                 message: DesignSystem.Alerts.noImagesSelected,
-                success: false
-            ))
+                isSuccess: false
+            )
             return
         }
 
-        let result = imageService.convertImagesToPDF(imageUrls: imageUrls)
-
-        guard let pdfDocument = result.document else {
-            send(.showAlert(
-                message: DesignSystem.Alerts.message(
-                    DesignSystem.Alerts.failedToConvertImages,
-                    skipped: result.skippedURLs
-                ),
-                success: false
-            ))
-            return
-        }
-
-        saveConvertedPDF(pdfDocument, skippedURLs: result.skippedURLs)
-    }
-
-    private func saveConvertedPDF(_ pdfDocument: PDFDocument, skippedURLs: [URL]) {
         guard let saveURL = filePanelService.showSavePanel(
             defaultName: DesignSystem.FileNames.convertedImagesPDF,
             prompt: DesignSystem.FileNames.saveConvertedPDFPrompt,
@@ -323,22 +270,10 @@ final class BeaverReactor: AsyncReactor {
             return
         }
 
-        do {
-            try pdfFileWriterService.savePDFDocument(pdfDocument, to: saveURL)
-            send(.showAlert(
-                message: DesignSystem.Alerts.message(
-                    DesignSystem.Alerts.convertedImagesSuccess,
-                    skipped: skippedURLs
-                ),
-                success: true
-            ))
-        } catch {
-            send(.showAlert(
-                message: DesignSystem.Alerts.failedToSaveConvertedPDF(
-                    error.localizedDescription
-                ),
-                success: false
-            ))
+        let exportService = exportService
+
+        await runExport(.converting) {
+            await exportService.convertImages(urls: imageUrls, to: saveURL)
         }
     }
 

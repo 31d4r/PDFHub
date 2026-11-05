@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 import PDFKit
 
-protocol ImageServiceProtocol {
+protocol ImageServiceProtocol: Sendable {
     func loadImage(from url: URL) -> NSImage?
     func convertImagesToPDF(imageUrls: [URL]) -> ImageConversionResult
 }
