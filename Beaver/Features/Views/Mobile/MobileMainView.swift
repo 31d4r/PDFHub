@@ -16,6 +16,10 @@ struct MobileMainView: View {
     @State private var isPhotoPickerPresented = false
     @State private var photoSelection: [PhotosPickerItem] = []
     @State private var photoImport: Task<Void, Never>?
+    @State private var scanRequest: ScanRequest?
+    @State private var isScanPhotoPickerPresented = false
+    @State private var scanPhotoSelection: [PhotosPickerItem] = []
+    @State private var isCameraDeniedPresented = false
 
     @ActionBinding(
         BeaverReactor.self,
@@ -50,7 +54,9 @@ struct MobileMainView: View {
                         reactor: reactor,
                         isSelecting: $isSelecting,
                         onAddPhotos: { isPhotoPickerPresented = true },
-                        onAddFiles: { reactor.send(.chooseFiles) }
+                        onAddFiles: { reactor.send(.chooseFiles) },
+                        onScan: startScan,
+                        onScanFromPhoto: { isScanPhotoPickerPresented = true }
                     )
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) { statusBar }
@@ -68,6 +74,23 @@ struct MobileMainView: View {
         )
         .onChange(of: photoSelection) { _, items in
             importPhotos(items)
+        }
+        .onChange(of: scanPhotoSelection) { _, items in
+            guard !items.isEmpty else { return }
+            scanPhotoSelection = []
+            scanRequest = ScanRequest(source: .photos(items))
+        }
+        .fullScreenCover(item: $scanRequest) { request in
+            ScanFlowView(request: request) { url in
+                scanRequest = nil
+                reactor.send(.addScan(url))
+            }
+        }
+        .alert(DesignSystem.Scan.cameraDeniedTitle, isPresented: $isCameraDeniedPresented) {
+            Button(DesignSystem.Scan.openSettings) { ScanSettings.open() }
+            Button(DesignSystem.Scan.cancel, role: .cancel) {}
+        } message: {
+            Text(DesignSystem.Scan.cameraDeniedMessage)
         }
         .quickLookPreview($quickLookURL, in: state.items.map(\.url))
         .sheet(isPresented: $isPagesPresented) {
@@ -117,6 +140,15 @@ struct MobileMainView: View {
             .fileDrop(isTargeted: $isDropTargeted) { urls in
                 reactor.send(.addFiles(urls))
             }
+            // Its own picker, so photos picked to scan never land in the list as they are.
+            .photosPicker(
+                isPresented: $isScanPhotoPickerPresented,
+                selection: $scanPhotoSelection,
+                maxSelectionCount: nil,
+                selectionBehavior: .ordered,
+                matching: .images,
+                preferredItemEncoding: .current
+            )
             .overlay {
                 if isDropTargeted && !state.isEmpty {
                     DropHighlight()
@@ -130,7 +162,9 @@ struct MobileMainView: View {
             MobileEmptyStateView(
                 isTargeted: isDropTargeted,
                 onAddPhotos: { isPhotoPickerPresented = true },
-                onAddFiles: { reactor.send(.chooseFiles) }
+                onAddFiles: { reactor.send(.chooseFiles) },
+                onScan: startScan,
+                onScanFromPhoto: { isScanPhotoPickerPresented = true }
             )
         } else {
             MobileWorkspaceGrid(isSelecting: isSelecting)
@@ -161,6 +195,15 @@ struct MobileMainView: View {
                 reactor.action(.didDismissAlert)
             }
             .transition(barTransition)
+        }
+    }
+
+    /// Opens the document camera, or explains how to turn the camera back on.
+    private func startScan() {
+        if ScanAvailability.isCameraDenied {
+            isCameraDeniedPresented = true
+        } else {
+            scanRequest = ScanRequest(source: .camera)
         }
     }
 

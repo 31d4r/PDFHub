@@ -40,7 +40,7 @@ extension DesignSystem {
         static var emptyMessage: String {
             String(
                 localized: "mobile.empty.message",
-                defaultValue: "Add PDFs and photos, then merge them, split them into pages or turn them into one PDF. Your originals are never changed.",
+                defaultValue: "Scan paper or add PDFs and photos, then merge them, split them into pages or turn them into one PDF. Your originals are never changed.",
                 comment: "iOS empty state message"
             )
         }

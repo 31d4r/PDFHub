@@ -174,6 +174,16 @@ struct ScanPDFWriterTests {
         builder.discard([page])
         #expect(!FileManager.default.fileExists(atPath: stored.path))
     }
+
+    @Test func previewMatchesThePageShapeAtASmallerSize() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let builder = ScanDocumentBuilder(directory: directory)
+        let stored = try builder.store(ScanImages.make(width: 4000, height: 3000))
+        let page = ScanPage(imageURL: stored, filter: .blackAndWhite, rotation: .ninety)
+        let preview = try #require(builder.preview(page, maxPixelSize: 400))
+        #expect(preview.width == 300 && preview.height == 400)
+    }
 }
 
 struct ScanFileNameTests {

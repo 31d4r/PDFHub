@@ -20,6 +20,8 @@ final class BeaverReactor: AsyncReactor {
         case confirmRemoveAll
         /// Adds the PDF the last export saved to the list, when it isn't listed yet.
         case addExportToWorkspace
+        /// Adds a scan just saved as a PDF and offers to share it.
+        case addScan(URL)
 
         /// The user picked files or a folder in the importer for `state.fileImport`.
         case didImportFiles([URL])
@@ -226,6 +228,13 @@ final class BeaverReactor: AsyncReactor {
         case .addExportToWorkspace:
             guard let output = state.exportToAdd else { return }
             await addFiles([output])
+        case .addScan(let url):
+            await addFiles([url])
+            state.exportAlert = ExportAlert(
+                message: DesignSystem.Scan.saved(fileName: url.lastPathComponent),
+                isSuccess: true,
+                output: url
+            )
         case .requestRemoveAll:
             guard state.canRemoveAll else { return }
             state.isConfirmingRemoveAll = true

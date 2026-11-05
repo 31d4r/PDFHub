@@ -2,7 +2,7 @@
 import BeaverCore
 import SwiftUI
 
-/// The iOS toolbar. Browsing: Select at the top, Add and Actions at the bottom. Selecting:
+/// The iOS toolbar. Browsing: Select at the top, Add (scan, photos, files) and Actions at the bottom. Selecting:
 /// Select All and Done at the top, and Rotate, Actions and Remove for the chosen files at
 /// the bottom. Merge, Split, Convert and Combine stay listed when they can't run and say why.
 struct MobileWorkspaceToolbar: ToolbarContent {
@@ -10,6 +10,8 @@ struct MobileWorkspaceToolbar: ToolbarContent {
     @Binding var isSelecting: Bool
     let onAddPhotos: () -> Void
     let onAddFiles: () -> Void
+    let onScan: () -> Void
+    let onScanFromPhoto: () -> Void
 
     private var state: BeaverReactor.State { reactor.state }
 
@@ -52,6 +54,22 @@ struct MobileWorkspaceToolbar: ToolbarContent {
 
     private var addControl: some View {
         Menu {
+            Section {
+                Button(action: onScan) {
+                    Label {
+                        Text(DesignSystem.Scan.scanDocument)
+                        if let reason = ScanAvailability.unavailableReason {
+                            Text(reason)
+                        }
+                    } icon: {
+                        Image(systemName: DesignSystem.Scan.Icons.scan)
+                    }
+                }
+                .disabled(!ScanAvailability.isCameraScanSupported)
+                Button(action: onScanFromPhoto) {
+                    Label(DesignSystem.Scan.scanFromPhoto, systemImage: DesignSystem.Scan.Icons.scanFromPhoto)
+                }
+            }
             Button(action: onAddPhotos) {
                 Label(DesignSystem.Mobile.photos, systemImage: DesignSystem.Icons.photos)
             }

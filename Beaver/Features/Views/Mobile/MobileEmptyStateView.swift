@@ -7,6 +7,8 @@ struct MobileEmptyStateView: View {
     let isTargeted: Bool
     let onAddPhotos: () -> Void
     let onAddFiles: () -> Void
+    let onScan: () -> Void
+    let onScanFromPhoto: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .largeTitle) private var iconSize = Constants.iconSize
@@ -35,11 +37,12 @@ struct MobileEmptyStateView: View {
                 .frame(maxWidth: Constants.messageWidth)
 
                 VStack(spacing: DesignSystem.Spacing.small) {
+                    scanButton
                     Button(action: onAddPhotos) {
                         Label(DesignSystem.Mobile.choosePhotos, systemImage: DesignSystem.Icons.photos)
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
                     .accessibilityHint(DesignSystem.Mobile.photosHelp)
 
                     Button(action: onAddFiles) {
@@ -67,6 +70,39 @@ struct MobileEmptyStateView: View {
             }
         }
         .animation(reduceMotion ? nil : .snappy(duration: Constants.animationDuration), value: isTargeted)
+    }
+
+    /// Scan Document where there's a camera. Without one, Scan from Photo takes its place
+    /// and a line says why.
+    @ViewBuilder
+    private var scanButton: some View {
+        if let reason = ScanAvailability.unavailableReason {
+            Button(action: onScanFromPhoto) {
+                Label(DesignSystem.Scan.scanFromPhoto, systemImage: DesignSystem.Scan.Icons.scanFromPhoto)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .accessibilityHint(DesignSystem.Scan.scanFromPhotoHelp)
+            Text(reason)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, DesignSystem.Spacing.small)
+        } else {
+            Button(action: onScan) {
+                Label(DesignSystem.Scan.scanDocument, systemImage: DesignSystem.Scan.Icons.scan)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .accessibilityHint(DesignSystem.Scan.scanDocumentHelp)
+            Button(action: onScanFromPhoto) {
+                Label(DesignSystem.Scan.scanFromPhoto, systemImage: DesignSystem.Scan.Icons.scanFromPhoto)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityHint(DesignSystem.Scan.scanFromPhotoHelp)
+        }
     }
 }
 
