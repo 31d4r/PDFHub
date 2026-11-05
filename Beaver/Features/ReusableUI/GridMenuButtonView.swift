@@ -5,103 +5,107 @@ struct GridMenuButtonView: View {
     var icon: String
     var action: () -> Void
     @State private var isHovered = false
-    @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: Constants.verticalSpacing) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    DesignSystem.Colors.primaryGradientStart,
-                                    DesignSystem.Colors.primaryGradientMiddle,
-                                    DesignSystem.Colors.primaryGradientEnd
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(
-                            width: Constants.circleSize,
-                            height: Constants.circleSize
-                        )
-                        .shadow(
-                            color: DesignSystem.Colors.primaryGradientStart.opacity(DesignSystem.Shadows.defaultOpacity),
-                            radius: isPressed ? Constants.shadowRadiusPressed : Constants.shadowRadius,
-                            x: 0,
-                            y: isPressed ? Constants.shadowOffsetPressed : Constants.shadowOffset
-                        )
-
-                    Image(systemName: icon)
-                        .scaledFont(size: Constants.iconSize, weight: .medium)
-                        .foregroundColor(.white)
-                }
-                .scaleEffect(isPressed ? Constants.pressedScale : (isHovered ? Constants.hoveredScale : Constants.normalScale))
-                .accessibilityHidden(true)
-
-                Text(description)
-                    .scaledFont(size: Constants.fontSize, weight: .medium, design: .rounded)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(DesignSystem.Colors.titleColor)
-                    .lineLimit(Constants.lineLimit)
-                    .padding(.horizontal, Constants.textHorizontalPadding)
-            }
-            .padding(.vertical, Constants.verticalPadding)
-            .padding(.horizontal, Constants.horizontalPadding)
-            .frame(
-                width: Constants.buttonWidth,
-                height: Constants.buttonHeight
-            )
-            .background(
-                RoundedRectangle(
-                    cornerRadius: Constants.cornerRadius,
-                    style: .continuous
-                )
-                .fill(DesignSystem.Colors.cardSurface)
-                .shadow(
-                    color: .black.opacity(DesignSystem.Shadows.backgroundOpacity),
-                    radius: isPressed ? Constants.backgroundShadowRadiusPressed : DesignSystem.Shadows.backgroundRadius,
-                    x: 0,
-                    y: isPressed ? Constants.backgroundShadowOffsetPressed : DesignSystem.Shadows.backgroundOffset
-                )
-            )
-            .overlay(
-                RoundedRectangle(
-                    cornerRadius: Constants.cornerRadius,
-                    style: .continuous
-                )
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            DesignSystem.Colors.primaryGradientStart.opacity(Constants.gradientBorderStartOpacity),
-                            DesignSystem.Colors.primaryGradientEnd.opacity(Constants.gradientBorderEndOpacity)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: isHovered ? Constants.borderWidthHovered : Constants.borderWidthNormal
-                )
-            )
-            .scaleEffect(isPressed ? Constants.buttonPressedScale : Constants.normalScale)
+            Text(description)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GridMenuButtonStyle(icon: icon, isHovered: isHovered))
         .accessibilityLabel(description.replacingOccurrences(of: "\n", with: " "))
         .onHover { hovering in
             withAnimation(.easeInOut(duration: Constants.hoverAnimationDuration)) {
                 isHovered = hovering
             }
         }
-        .pressEvents {
-            withAnimation(.easeInOut(duration: Constants.pressAnimationDuration)) {
-                isPressed = true
+    }
+}
+
+/// Draws the menu card and reacts to the button's real pressed state.
+private struct GridMenuButtonStyle: ButtonStyle {
+    let icon: String
+    let isHovered: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        let isPressed = configuration.isPressed
+
+        VStack(spacing: Constants.verticalSpacing) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.primaryGradientStart,
+                                DesignSystem.Colors.primaryGradientMiddle,
+                                DesignSystem.Colors.primaryGradientEnd
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(
+                        width: Constants.circleSize,
+                        height: Constants.circleSize
+                    )
+                    .shadow(
+                        color: DesignSystem.Colors.primaryGradientStart.opacity(DesignSystem.Shadows.defaultOpacity),
+                        radius: isPressed ? Constants.shadowRadiusPressed : Constants.shadowRadius,
+                        x: 0,
+                        y: isPressed ? Constants.shadowOffsetPressed : Constants.shadowOffset
+                    )
+
+                Image(systemName: icon)
+                    .scaledFont(size: Constants.iconSize, weight: .medium)
+                    .foregroundColor(.white)
             }
-        } onRelease: {
-            withAnimation(.easeInOut(duration: Constants.pressAnimationDuration)) {
-                isPressed = false
-            }
+            .scaleEffect(isPressed ? Constants.pressedScale : (isHovered ? Constants.hoveredScale : Constants.normalScale))
+            .accessibilityHidden(true)
+
+            configuration.label
+                .scaledFont(size: Constants.fontSize, weight: .medium, design: .rounded)
+                .multilineTextAlignment(.center)
+                .foregroundColor(DesignSystem.Colors.titleColor)
+                .lineLimit(Constants.lineLimit)
+                .padding(.horizontal, Constants.textHorizontalPadding)
         }
+        .padding(.vertical, Constants.verticalPadding)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .frame(
+            width: Constants.buttonWidth,
+            height: Constants.buttonHeight
+        )
+        .background(
+            RoundedRectangle(
+                cornerRadius: Constants.cornerRadius,
+                style: .continuous
+            )
+            .fill(DesignSystem.Colors.cardSurface)
+            .shadow(
+                color: .black.opacity(DesignSystem.Shadows.backgroundOpacity),
+                radius: isPressed ? Constants.backgroundShadowRadiusPressed : DesignSystem.Shadows.backgroundRadius,
+                x: 0,
+                y: isPressed ? Constants.backgroundShadowOffsetPressed : DesignSystem.Shadows.backgroundOffset
+            )
+        )
+        .overlay(
+            RoundedRectangle(
+                cornerRadius: Constants.cornerRadius,
+                style: .continuous
+            )
+            .stroke(
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.primaryGradientStart.opacity(Constants.gradientBorderStartOpacity),
+                        DesignSystem.Colors.primaryGradientEnd.opacity(Constants.gradientBorderEndOpacity)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: isHovered ? Constants.borderWidthHovered : Constants.borderWidthNormal
+            )
+        )
+        .contentShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+        .scaleEffect(isPressed ? Constants.buttonPressedScale : Constants.normalScale)
+        .animation(.easeInOut(duration: Constants.pressAnimationDuration), value: isPressed)
     }
 }
 
