@@ -1754,13 +1754,25 @@
       }
     },
     "mobile.add.help" : {
-      "comment" : "iOS: accessibility hint for Add",
+      "comment" : "iOS: accessibility hint for the Add menu",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add PDFs and images from Files"
+            "value" : "Adds photos, or PDFs and images from Files."
+          }
+        }
+      }
+    },
+    "mobile.addingPhotos" : {
+      "comment" : "iOS: shown while picked photos load",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adding Photos…"
           }
         }
       }
@@ -1773,6 +1785,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Browse Files"
+          }
+        }
+      }
+    },
+    "mobile.choosePhotos" : {
+      "comment" : "iOS empty state button that opens the photo library",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Photos"
           }
         }
       }
@@ -1809,6 +1833,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add Your First Document"
+          }
+        }
+      }
+    },
+    "mobile.files.help" : {
+      "comment" : "iOS: accessibility hint for Browse Files",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds PDFs and images from Files."
+          }
+        }
+      }
+    },
+    "mobile.photos" : {
+      "comment" : "iOS: add images from the photo library",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos"
+          }
+        }
+      }
+    },
+    "mobile.photos.help" : {
+      "comment" : "iOS: hint for adding photos",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds photos in the order you pick them."
+          }
+        }
+      }
+    },
+    "mobile.photosFailed" : {
+      "comment" : "iOS alert when picked photos can't be loaded; count of photos",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld photo couldn't be added. If it's in iCloud, try again when it has downloaded."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld photos couldn't be added. If they're in iCloud, try again when they've downloaded."
+                }
+              }
+            }
           }
         }
       }

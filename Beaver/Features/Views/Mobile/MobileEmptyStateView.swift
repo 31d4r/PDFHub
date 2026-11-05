@@ -5,6 +5,7 @@ import SwiftUI
 /// also takes files dragged in from another app.
 struct MobileEmptyStateView: View {
     let isTargeted: Bool
+    let onAddPhotos: () -> Void
     let onAddFiles: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -34,12 +35,19 @@ struct MobileEmptyStateView: View {
                 .frame(maxWidth: Constants.messageWidth)
 
                 VStack(spacing: DesignSystem.Spacing.small) {
-                    Button(action: onAddFiles) {
-                        Label(DesignSystem.Mobile.browseFiles, systemImage: DesignSystem.Icons.addFiles)
+                    Button(action: onAddPhotos) {
+                        Label(DesignSystem.Mobile.choosePhotos, systemImage: DesignSystem.Icons.photos)
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .accessibilityHint(DesignSystem.Mobile.addHelp)
+                    .accessibilityHint(DesignSystem.Mobile.photosHelp)
+
+                    Button(action: onAddFiles) {
+                        Label(DesignSystem.Mobile.browseFiles, systemImage: DesignSystem.Icons.folder)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityHint(DesignSystem.Mobile.filesHelp)
                 }
                 .controlSize(.large)
                 .frame(maxWidth: Constants.buttonWidth)

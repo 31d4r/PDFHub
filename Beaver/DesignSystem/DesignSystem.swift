@@ -55,6 +55,8 @@ enum DesignSystem {
         static let actions = "doc.badge.gearshape"
         static let select = "checkmark.circle"
         static let selectionEmpty = "circle"
+        static let photos = "photo.on.rectangle"
+        static let folder = "folder"
         static let undo = "arrow.uturn.backward"
         static let redo = "arrow.uturn.forward"
     }

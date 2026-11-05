@@ -24,7 +24,10 @@ extension DesignSystem {
         }
 
         static var addHelp: String {
-            String(localized: "mobile.add.help", defaultValue: "Add PDFs and images from Files", comment: "iOS: accessibility hint for Add")
+            String(localized: "mobile.add.help", defaultValue: "Adds photos, or PDFs and images from Files.", comment: "iOS: accessibility hint for the Add menu")
+        }
+        static var filesHelp: String {
+            String(localized: "mobile.files.help", defaultValue: "Adds PDFs and images from Files.", comment: "iOS: accessibility hint for Browse Files")
         }
         static var selectHelp: String {
             String(localized: "mobile.select.help", defaultValue: "Choose files to rotate, remove or turn into a PDF", comment: "iOS: accessibility hint for Select")
@@ -57,6 +60,19 @@ extension DesignSystem {
         }
         static func savedCopy(_ fileName: String) -> String {
             String(localized: "mobile.savedCopy", defaultValue: "Saved a copy of \(fileName)", comment: "iOS: VoiceOver announcement after Save to Files")
+        }
+        static var photos: String { String(localized: "mobile.photos", defaultValue: "Photos", comment: "iOS: add images from the photo library") }
+        static var choosePhotos: String { String(localized: "mobile.choosePhotos", defaultValue: "Choose Photos", comment: "iOS empty state button that opens the photo library") }
+        static var photosHelp: String {
+            String(localized: "mobile.photos.help", defaultValue: "Adds photos in the order you pick them.", comment: "iOS: hint for adding photos")
+        }
+        static var addingPhotos: String { String(localized: "mobile.addingPhotos", defaultValue: "Adding Photos…", comment: "iOS: shown while picked photos load") }
+        static func photosFailed(_ count: Int) -> String {
+            String(
+                localized: "mobile.photosFailed",
+                defaultValue: "\(count) photos couldn't be added. If they're in iCloud, try again when they've downloaded.",
+                comment: "iOS alert when picked photos can't be loaded; count of photos"
+            )
         }
         static var selectedBadge: String { String(localized: "mobile.selected", defaultValue: "Selected", comment: "iOS: VoiceOver value of a chosen file") }
     }

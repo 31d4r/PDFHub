@@ -1,6 +1,7 @@
 #if os(iOS)
 import AsyncReactor
 import BeaverCore
+import PhotosUI
 import QuickLook
 import SwiftUI
 
@@ -12,6 +13,9 @@ struct MobileMainView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isSelecting = false
     @State private var isDropTargeted = false
+    @State private var isPhotoPickerPresented = false
+    @State private var photoSelection: [PhotosPickerItem] = []
+    @State private var photoImport: Task<Void, Never>?
 
     @ActionBinding(
         BeaverReactor.self,
@@ -45,12 +49,25 @@ struct MobileMainView: View {
                     MobileWorkspaceToolbar(
                         reactor: reactor,
                         isSelecting: $isSelecting,
+                        onAddPhotos: { isPhotoPickerPresented = true },
                         onAddFiles: { reactor.send(.chooseFiles) }
                     )
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) { statusBar }
                 .animation(reduceMotion ? nil : .snappy, value: state.activity)
                 .animation(reduceMotion ? nil : .snappy, value: state.exportAlert)
+                .animation(reduceMotion ? nil : .snappy, value: photoImport != nil)
+        }
+        .photosPicker(
+            isPresented: $isPhotoPickerPresented,
+            selection: $photoSelection,
+            maxSelectionCount: nil,
+            selectionBehavior: .ordered,
+            matching: .images,
+            preferredItemEncoding: .current
+        )
+        .onChange(of: photoSelection) { _, items in
+            importPhotos(items)
         }
         .quickLookPreview($quickLookURL, in: state.items.map(\.url))
         .sheet(isPresented: $isPagesPresented) {
@@ -110,9 +127,11 @@ struct MobileMainView: View {
     @ViewBuilder
     private var content: some View {
         if state.isEmpty {
-            MobileEmptyStateView(isTargeted: isDropTargeted) {
-                reactor.send(.chooseFiles)
-            }
+            MobileEmptyStateView(
+                isTargeted: isDropTargeted,
+                onAddPhotos: { isPhotoPickerPresented = true },
+                onAddFiles: { reactor.send(.chooseFiles) }
+            )
         } else {
             MobileWorkspaceGrid(isSelecting: isSelecting)
         }
@@ -121,7 +140,13 @@ struct MobileMainView: View {
     /// Export progress, or what to do with the new PDF.
     @ViewBuilder
     private var statusBar: some View {
-        if let activity = state.activity {
+        if photoImport != nil {
+            ActivityBar(title: DesignSystem.Mobile.addingPhotos) {
+                photoImport?.cancel()
+                photoImport = nil
+            }
+            .transition(barTransition)
+        } else if let activity = state.activity {
             ActivityBar(title: activity.title) {
                 reactor.action(.cancelExport)
             }
@@ -136,6 +161,24 @@ struct MobileMainView: View {
                 reactor.action(.didDismissAlert)
             }
             .transition(barTransition)
+        }
+    }
+
+    /// Copies the picked photos in, in the order they were picked, and adds them.
+    private func importPhotos(_ items: [PhotosPickerItem]) {
+        guard !items.isEmpty else { return }
+        photoSelection = []
+        photoImport?.cancel()
+        photoImport = Task {
+            let result = await PhotoLibraryImporter.load(items)
+            guard !Task.isCancelled else { return }
+            photoImport = nil
+            if !result.urls.isEmpty {
+                reactor.send(.addFiles(result.urls))
+            }
+            if result.failedCount > 0 {
+                reactor.send(.showAlert(message: DesignSystem.Mobile.photosFailed(result.failedCount), success: false))
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import SwiftUI
 struct MobileWorkspaceToolbar: ToolbarContent {
     @ObservedObject var reactor: BeaverReactor
     @Binding var isSelecting: Bool
+    let onAddPhotos: () -> Void
     let onAddFiles: () -> Void
 
     private var state: BeaverReactor.State { reactor.state }
@@ -50,7 +51,14 @@ struct MobileWorkspaceToolbar: ToolbarContent {
     // MARK: - Browsing
 
     private var addControl: some View {
-        Button(action: onAddFiles) {
+        Menu {
+            Button(action: onAddPhotos) {
+                Label(DesignSystem.Mobile.photos, systemImage: DesignSystem.Icons.photos)
+            }
+            Button(action: onAddFiles) {
+                Label(DesignSystem.Mobile.browseFiles, systemImage: DesignSystem.Icons.folder)
+            }
+        } label: {
             Label(DesignSystem.Mobile.add, systemImage: DesignSystem.Icons.addFiles)
                 .labelStyle(.titleAndIcon)
         }
