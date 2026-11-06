@@ -6,11 +6,20 @@ import UniformTypeIdentifiers
 
 final class MockSaveLocationProvider: SaveLocationProviding {
     var saveURL: URL?
+    var folderURL: URL?
     private(set) var requestedNames: [String] = []
+    private(set) var requestedTypes: [UTType] = []
+    private(set) var requestedFolderNames: [String] = []
 
-    func saveLocation(defaultName: String, prompt: String) -> URL? {
+    func saveLocation(defaultName: String, prompt: String, contentType: UTType) -> URL? {
         requestedNames.append(defaultName)
+        requestedTypes.append(contentType)
         return saveURL
+    }
+
+    func folderLocation(defaultName: String, prompt: String) -> URL? {
+        requestedFolderNames.append(defaultName)
+        return folderURL
     }
 }
 

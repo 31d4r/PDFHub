@@ -50,6 +50,13 @@ extension DesignSystem {
         static var shareHelp: String {
             String(localized: "mobile.share.help", defaultValue: "Send the PDF with AirDrop, Mail, Messages and more", comment: "iOS: accessibility hint for Share")
         }
+        static var shareImagesHelp: String {
+            String(
+                localized: "mobile.shareImages.help",
+                defaultValue: "Send the images with AirDrop, Mail, Messages and more, or save them to Photos",
+                comment: "iOS: accessibility hint for Share after saving pages as images"
+            )
+        }
         static var showInFiles: String { String(localized: "mobile.showInFiles", defaultValue: "Show in Files", comment: "iOS: open the Files app at the saved pages") }
         static var showInFilesHelp: String {
             String(localized: "mobile.showInFiles.help", defaultValue: "Open the folder with the saved pages in Files", comment: "iOS: accessibility hint for Show in Files")

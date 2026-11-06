@@ -4,7 +4,8 @@ import SwiftUI
 import AppKit
 #endif
 
-/// A sheet with every page of one PDF: rotate single pages, a selection, or all of them.
+/// A sheet with every page of one PDF: rotate single pages, a selection, or all of them, and
+/// export the selection (or every page) as a new PDF or as images.
 /// Changes go through the reactor at once, so they can be undone and are used by Merge and Split.
 /// The sheet starts at a size that fits its pages and can be resized.
 struct PDFPagesView: View {
@@ -158,7 +159,7 @@ struct PDFPagesView: View {
 
     // MARK: - Footer
 
-    /// Rotate the selected pages or all of them, and Done.
+    /// Rotate the selected pages or all of them, Export, and Done.
     @ViewBuilder
     private var footer: some View {
         #if os(iOS)
@@ -207,11 +208,61 @@ struct PDFPagesView: View {
             .disabled(isDisabled || count == 0)
             .help(DesignSystem.Help.rotateAllPages)
 
+            exportMenu
+
             Spacer(minLength: DesignSystem.Spacing.medium)
 
             Button(DesignSystem.Pages.done, action: close)
                 .keyboardShortcut(.defaultAction)
                 .help(DesignSystem.Help.done)
+        }
+    }
+
+    /// Saves the selected pages, or every page when none are selected, as one PDF or as one
+    /// image per page. The section header says which pages, and each item what it makes.
+    private var exportMenu: some View {
+        let exportCount = selection.isEmpty ? count : selection.indexes.count
+        return Menu {
+            Section(DesignSystem.Pages.exportScope(selectedCount: selection.indexes.count)) {
+                ForEach(PageExportFormat.allCases, id: \.self) { format in
+                    Button {
+                        export(format)
+                    } label: {
+                        #if os(iOS)
+                        Label {
+                            Text(DesignSystem.Pages.exportTitle(format))
+                            Text(DesignSystem.Pages.exportDetail(format, count: exportCount))
+                        } icon: {
+                            Image(systemName: format == .pdf ? DesignSystem.Icons.pdf : DesignSystem.Icons.image)
+                        }
+                        #else
+                        Text(DesignSystem.Pages.exportTitle(format))
+                        #endif
+                    }
+                    .keyboardShortcut(Self.exportShortcut(format).key, modifiers: Self.exportShortcut(format).modifiers)
+                    .help(DesignSystem.Help.exportPages(format, count: exportCount))
+                }
+            }
+        } label: {
+            Label(DesignSystem.Pages.export, systemImage: DesignSystem.Icons.exportPages)
+                #if os(iOS)
+                // The icon alone is small; keep a full touch target when the titles don't fit.
+                .frame(minWidth: DesignSystem.Layout.minTouchTarget, minHeight: DesignSystem.Layout.minTouchTarget)
+                .contentShape(Rectangle())
+                #endif
+        }
+        .fixedSize()
+        .help(DesignSystem.Pages.exportHint)
+        .accessibilityHint(DesignSystem.Pages.exportHint)
+        .disabled(isDisabled || count == 0)
+    }
+
+    /// ⌘E for a PDF; the image formats use the same keys as the Actions menu.
+    private static func exportShortcut(_ format: PageExportFormat) -> (key: KeyEquivalent, modifiers: EventModifiers) {
+        switch format {
+        case .pdf: return ("e", .command)
+        case .png: return ("e", [.command, .option])
+        case .jpeg: return ("e", [.command, .option, .shift])
         }
     }
 
@@ -275,6 +326,13 @@ struct PDFPagesView: View {
         withAnimation(reduceMotion ? nil : .easeInOut(duration: DesignSystem.Layout.rotateAnimationDuration)) {
             reactor.action(.rotateAllPages(id: pdf.id, direction: direction))
         }
+    }
+
+    /// The page view closes and the export continues on the window, where the save panel and
+    /// the result banner live.
+    private func export(_ format: PageExportFormat) {
+        let pages = selection.isEmpty ? nil : selection.sorted
+        reactor.send(.exportPages(id: pdf.id, pages: pages, format: format))
     }
 
     private func close() {

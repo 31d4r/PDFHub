@@ -15,6 +15,12 @@ final class BeaverReactor: AsyncReactor {
         /// Runs Merge, Split, Convert or Combine on `ids`, or on the targets when `ids` is nil.
         /// Merge, Convert and Combine ask where to save one PDF; Split asks for a folder.
         case perform(DocumentAction, ids: Set<UUID>? = nil)
+        /// Saves pages (zero-based) of one PDF as a new PDF or as images; `nil` means every page.
+        /// From the page view, the view closes first and the export starts in `didDismissPages`,
+        /// so the save panel and the result appear on the window.
+        case exportPages(id: UUID, pages: [Int]?, format: PageExportFormat)
+        /// The page view finished closing: runs an export it asked for.
+        case didDismissPages
 
         /// Asks before Remove All; runs immediately when the list is empty.
         case requestRemoveAll
@@ -77,6 +83,12 @@ final class BeaverReactor: AsyncReactor {
         case dismissRecognizedText
     }
 
+    /// Pages to save from one or more PDFs, and what to save them as.
+    struct PageExportRequest: Equatable, Sendable {
+        let sources: [PageExportSource]
+        let format: PageExportFormat
+    }
+
     /// The modifier keys held during a click.
     enum SelectionModifier: Sendable {
         case none
@@ -115,6 +127,8 @@ final class BeaverReactor: AsyncReactor {
         case splitting
         case converting
         case combining
+        case exportingPages
+        case exportingImages
 
         var title: String {
             switch self {
@@ -122,6 +136,8 @@ final class BeaverReactor: AsyncReactor {
             case .splitting: return DesignSystem.Progress.splitting
             case .converting: return DesignSystem.Progress.converting
             case .combining: return DesignSystem.Progress.combining
+            case .exportingPages: return DesignSystem.Progress.exportingPages
+            case .exportingImages: return DesignSystem.Progress.exportingImages
             }
         }
     }
@@ -142,6 +158,8 @@ final class BeaverReactor: AsyncReactor {
         var quickLookURL: URL?
         /// Text Vision read from a file, shown in a sheet.
         var recognizedText: RecognizedTextSheet.Content?
+        /// An export the page view asked for, run once the view has closed.
+        var pendingPageExport: PageExportRequest?
 
         var pdfs: [PDFItem] { items.pdfs }
         var images: [ImageItem] { items.images }
@@ -231,6 +249,22 @@ final class BeaverReactor: AsyncReactor {
             await addFiles(urls)
         case .perform(let documentAction, let ids):
             await perform(documentAction, ids: ids)
+        case .exportPages(let id, let pages, let format):
+            guard state.isIdle, let pdf = state.pdfs.first(where: { $0.id == id }) else { return }
+            let request = PageExportRequest(
+                sources: [PageExportSource(url: pdf.url, rotation: pdf.rotation, pages: pages)],
+                format: format
+            )
+            if state.pagesPDFID != nil {
+                state.pendingPageExport = request
+                state.pagesPDFID = nil
+            } else {
+                await exportPages(request)
+            }
+        case .didDismissPages:
+            guard let request = state.pendingPageExport else { return }
+            state.pendingPageExport = nil
+            await exportPages(request)
         case .addExportToWorkspace:
             guard let output = state.exportToAdd else { return }
             await addFiles([output])
@@ -536,6 +570,15 @@ final class BeaverReactor: AsyncReactor {
         guard state.availability(of: action, ids: ids).isAvailable else { return }
         let sources = action.sources(from: state.targets(for: ids))
 
+        if let format = action.imageFormat {
+            let pdfs = sources.pdfs
+            await exportPages(PageExportRequest(
+                sources: pdfs.map { PageExportSource(url: $0.url, rotation: $0.rotation) },
+                format: format
+            ))
+            return
+        }
+
         if action == .split {
             requestFileImport(.splitDestination(sources.map(\.exportSource)))
             return
@@ -571,10 +614,106 @@ final class BeaverReactor: AsyncReactor {
             await runExport(.combining) {
                 await exportService.combine(sources: exportSources, to: saveURL)
             }
-        case .split:
+        case .split, .exportPNG, .exportJPEG:
             break
         }
     }
+
+    // MARK: - Page export
+
+    /// Saves one file (a PDF of the pages, or a single page image) where the person chooses, or
+    /// several page images into a folder. Unreadable and password-protected PDFs are reported
+    /// before anything is asked.
+    private func exportPages(_ request: PageExportRequest) async {
+        guard state.isIdle, !request.sources.isEmpty else { return }
+
+        let counts = await Self.pageCounts(request.sources)
+        guard state.isIdle else { return }
+
+        var readable: [(source: PageExportSource, count: Int)] = []
+        var skippedURLs: [URL] = []
+        var firstError: PageExportError?
+        for (source, count) in zip(request.sources, counts) {
+            switch count {
+            case .success(let count):
+                readable.append((source, count))
+            case .failure(let error):
+                skippedURLs.append(source.url)
+                firstError = firstError ?? error
+            }
+        }
+
+        guard let first = readable.first else {
+            let message = firstError.map(DesignSystem.Alerts.pageExportFailed) ?? DesignSystem.Alerts.failedToSaveAnyImages
+            state.exportAlert = ExportAlert(
+                message: DesignSystem.Alerts.message(message, skipped: request.sources.count > 1 ? skippedURLs : []),
+                isSuccess: false
+            )
+            return
+        }
+
+        let format = request.format
+        let exportService = exportService
+        let skipped = skippedURLs
+        let total = readable.reduce(0) { $0 + $1.count }
+
+        if format == .pdf || total == 1 {
+            let source = first.source
+            let pages = source.pages ?? Array(0..<first.count)
+            let fileName = format == .pdf
+                ? PDFPageExporter.pdfFileName(sourceURL: source.url, pages: pages)
+                : PDFPageExporter.imageFileName(sourceURL: source.url, pageIndex: pages.first ?? 0, format: format)
+            guard let destination = saveLocationProvider.saveLocation(
+                defaultName: fileName,
+                prompt: format == .pdf ? DesignSystem.FileNames.savePagesPrompt : DesignSystem.FileNames.saveImagePrompt,
+                contentType: format.contentType
+            ) else { return }
+
+            await runExport(format == .pdf ? .exportingPages : .exportingImages) {
+                await exportService.exportPages(source, as: format, to: destination).noting(skipped: skipped)
+            }
+            return
+        }
+
+        guard let directory = saveLocationProvider.folderLocation(
+            defaultName: PDFPageExporter.imageFolderName(sourceURL: first.source.url),
+            prompt: DesignSystem.FileNames.saveImagesPrompt
+        ) else { return }
+
+        let isScoped = directory.startAccessingSecurityScopedResource()
+        defer {
+            if isScoped { directory.stopAccessingSecurityScopedResource() }
+        }
+
+        let sources = readable.map(\.source)
+        await runExport(.exportingImages) {
+            await exportService.exportPageImages(sources, as: format, into: directory).noting(skipped: skipped)
+        }
+
+        #if os(iOS)
+        // iOS made this folder for the export; don't leave it behind empty.
+        if state.exportAlert?.isSuccess != true {
+            Self.removeIfEmpty(directory)
+        }
+        #endif
+    }
+
+    @concurrent
+    private nonisolated static func pageCounts(_ sources: [PageExportSource]) async -> [Result<Int, PageExportError>] {
+        let exporter = PDFPageExporter()
+        return sources.map { source in
+            Result { () throws(PageExportError) in try exporter.pageCount(of: source) }
+        }
+    }
+
+    #if os(iOS)
+    private static func removeIfEmpty(_ directory: URL) {
+        let contents = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
+        if contents.isEmpty {
+            try? FileManager.default.removeItem(at: directory)
+        }
+    }
+    #endif
 
     private func split(_ sources: [ExportSource], into directory: URL) async {
         guard !sources.isEmpty, state.activity == nil else { return }
@@ -596,5 +735,18 @@ final class BeaverReactor: AsyncReactor {
             }
             return await exportService.split(sources: sources, into: directory)
         }
+    }
+}
+
+private extension ExportAlert {
+    /// Adds the files that were left out before the export began to the message.
+    func noting(skipped urls: [URL]) -> ExportAlert {
+        guard !urls.isEmpty, self != .cancelled else { return self }
+        return ExportAlert(
+            message: DesignSystem.Alerts.message(message, skipped: urls),
+            isSuccess: isSuccess,
+            output: output,
+            sharedFiles: sharedFiles
+        )
     }
 }

@@ -115,7 +115,7 @@ struct MainView: View {
     private func presentations(_ view: some View) -> some View {
         view
             .quickLookPreview($quickLookURL, in: reactor.state.items.map(\.url))
-            .sheet(isPresented: $isPagesPresented) {
+            .sheet(isPresented: $isPagesPresented, onDismiss: { reactor.send(.didDismissPages) }) {
                 if let pdf = reactor.state.pagesPDF {
                     PDFPagesView(pdf: pdf)
                         .environmentObject(reactor)

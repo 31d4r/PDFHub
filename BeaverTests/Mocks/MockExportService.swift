@@ -11,6 +11,8 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
         case convert(urls: [URL], rotations: [RotationAngle], destination: URL)
         case combine(sources: [ExportSource], destination: URL)
         case splitSources(sources: [ExportSource], directory: URL)
+        case exportPages(source: PageExportSource, format: PageExportFormat, destination: URL)
+        case exportPageImages(sources: [PageExportSource], format: PageExportFormat, directory: URL)
     }
 
     private let lock = NSLock()
@@ -62,6 +64,14 @@ final class MockExportService: ExportServiceProtocol, @unchecked Sendable {
 
     func split(sources: [ExportSource], into directory: URL) async -> ExportAlert {
         await record(.splitSources(sources: sources, directory: directory))
+    }
+
+    func exportPages(_ source: PageExportSource, as format: PageExportFormat, to destination: URL) async -> ExportAlert {
+        await record(.exportPages(source: source, format: format, destination: destination))
+    }
+
+    func exportPageImages(_ sources: [PageExportSource], as format: PageExportFormat, into directory: URL) async -> ExportAlert {
+        await record(.exportPageImages(sources: sources, format: format, directory: directory))
     }
 
     private func record(_ call: Call) async -> ExportAlert {

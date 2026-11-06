@@ -134,7 +134,7 @@ struct ExportBanner: View {
         }
 
         #if os(iOS)
-        MobileExportActions(output: output, isFolder: isFolder, fillsWidth: fillsWidth)
+        MobileExportActions(output: output, isFolder: isFolder, sharedFiles: alert.sharedFiles, fillsWidth: fillsWidth)
         #else
         Button(DesignSystem.Export.showInFinder) {
             NSWorkspace.shared.activateFileViewerSelecting([output])
