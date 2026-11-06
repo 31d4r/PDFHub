@@ -77,6 +77,8 @@ Automated tests do not cover these, so check them by hand before a release:
 - Menu bar commands and their shortcuts in the File and PDF menus.
 - Dark mode, larger text sizes and VoiceOver labels.
 - A signed, sandboxed build: open, merge, split and convert files in folders outside the container.
+- Export from the page view and the Actions menu: one page as PDF, PNG and JPEG, several pages into a
+  folder, and a password-protected PDF (shows an error, nothing is saved).
 
 On an iPhone or iPad (the simulator has no camera):
 
@@ -85,6 +87,7 @@ On an iPhone or iPad (the simulator has no camera):
 - Scan from Photo on real photos of paper: the page is found, flattened, and each filter looks right.
 - Crop: drag each corner, and with VoiceOver use the Move Up/Down/Left/Right actions.
 - HEIC photos and photos still in iCloud from the Photos picker; Save to Files and Share.
+- Page images: Share after exporting one page or several, and Save Image(s) to Photos from the share sheet.
 - iPad: drag PDFs and images in from Files, in both orientations and in Split View.
 - Haptics when changing filters, rotating, saving and on errors.
 

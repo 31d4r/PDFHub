@@ -11,6 +11,7 @@ Perfect for privacy-conscious users -> All processing happens locally on your Ma
 - Convert images to PDF
 - Split PDF into separate pages
 - Merge multiple PDFs into one
+- Export pages as a new PDF, or as PNG or JPEG images (one per page)
 - iPhone and iPad: add photos in the order you pick them, PDFs and images from Files, or files
   dragged in on iPad
 - iPhone and iPad: scan paper with the document camera, or find and flatten the page in a photo
