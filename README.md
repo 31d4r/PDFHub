@@ -2,16 +2,17 @@
 
 ![Beaver](Images/BeaverIcon.png)
 
-Beaver is an open-source app for working with PDF files on Mac, iPhone and iPad. You can convert one or more images into a single PDF, split a PDF into multiple documents, merge multiple PDFs into one, and on iPhone and iPad scan paper documents with the camera.
+Beaver is an open-source app for working with PDF files on Mac, iPhone and iPad. You can turn photos and scans into a PDF, split a PDF into separate documents, merge several PDFs into one, pull selected pages out as their own PDF, or save pages as PNG or JPEG images, which is useful when you only need one page, or a picture to send in Messages. On iPhone and iPad you can also scan paper with the camera.
 
 Perfect for privacy-conscious users -> All processing happens locally on your Mac, iPhone or iPad. Your documents never leave your device, making it ideal for sensitive documents like visa applications, legal papers, medical records, or any confidential information you need to convert or manage.
 
 ## Features
 
-- Convert images to PDF
-- Split PDF into separate pages
+- Convert one or more images into a single PDF
+- Split a PDF into separate page documents
 - Merge multiple PDFs into one
-- Export pages as a new PDF, or as PNG or JPEG images (one per page)
+- Export selected pages as a new PDF: extract one page, or several, without splitting the whole file
+- Export pages as PNG or JPEG images (one file per page): PNG for sharp text, JPEG for smaller files
 - iPhone and iPad: add photos in the order you pick them, PDFs and images from Files, or files
   dragged in on iPad
 - iPhone and iPad: scan paper with the document camera, or find and flatten the page in a photo
