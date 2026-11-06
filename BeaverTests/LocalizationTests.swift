@@ -101,14 +101,25 @@ struct LocalizationTests {
 
     // MARK: - Catalog completeness
 
-    /// Every user-facing key must ship de, bs, hr and sr-Latn with matching format
-    /// tokens. South-Slavic locales use one/few/other; German uses one/other.
-    @Test func everyKeyHasGermanBosnianCroatianAndSerbianLatin() throws {
+    /// Every user-facing key must ship de, bs, hr, sr-Latn, es, pt-BR, ru, zh-Hans and fr
+    /// with matching format tokens and the plural categories each locale needs.
+    @Test func everyKeyHasAllShippedLocalizations() throws {
         let catalogURL = try #require(Self.localizableCatalogURL())
         let data = try Data(contentsOf: catalogURL)
         let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try #require(json["strings"] as? [String: Any])
-        let required = ["de", "bs", "hr", "sr-Latn"]
+        let required = ["de", "bs", "hr", "sr-Latn", "es", "pt-BR", "ru", "zh-Hans", "fr"]
+        let pluralForms: [String: Set<String>] = [
+            "de": ["one", "other"],
+            "bs": ["one", "few", "other"],
+            "hr": ["one", "few", "other"],
+            "sr-Latn": ["one", "few", "other"],
+            "es": ["one", "many", "other"],
+            "pt-BR": ["one", "many", "other"],
+            "ru": ["one", "few", "many", "other"],
+            "zh-Hans": ["other"],
+            "fr": ["one", "many", "other"],
+        ]
         var problems: [String] = []
         for (key, raw) in strings {
             guard let entry = raw as? [String: Any] else { continue }
@@ -125,7 +136,7 @@ struct LocalizationTests {
                 }
                 if let variations = loc["variations"] as? [String: Any],
                    let plural = variations["plural"] as? [String: Any] {
-                    let needed: Set<String> = lang == "de" ? ["one", "other"] : ["one", "few", "other"]
+                    let needed = pluralForms[lang] ?? ["one", "other"]
                     let have = Set(plural.keys)
                     if !needed.isSubset(of: have) {
                         problems.append("\(key): \(lang) forms \(have.sorted()) missing \(needed.subtracting(have))")
@@ -165,6 +176,39 @@ struct LocalizationTests {
             }
         }
         #expect(problems.isEmpty, "\(problems.prefix(20).joined(separator: "\n"))\(problems.count > 20 ? "\n… +\(problems.count - 20) more" : "")")
+    }
+
+    /// Spot-check catalog plural copy for the new locales (CLDR categories, not Bundle lookup).
+    @Test func newLocalePagePluralsMatchExpectedCopy() throws {
+        let catalogURL = try #require(Self.localizableCatalogURL())
+        let data = try Data(contentsOf: catalogURL)
+        let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let strings = try #require(json["strings"] as? [String: Any])
+        let entry = try #require(strings["%lld pages"] as? [String: Any])
+        let locs = try #require(entry["localizations"] as? [String: Any])
+
+        func form(_ lang: String, _ name: String) throws -> String {
+            let loc = try #require(locs[lang] as? [String: Any])
+            let plural = try #require((loc["variations"] as? [String: Any])?["plural"] as? [String: Any])
+            let node = try #require(plural[name] as? [String: Any])
+            let unit = try #require(node["stringUnit"] as? [String: Any])
+            return try #require(unit["value"] as? String)
+        }
+
+        #expect(try form("es", "one") == "%lld página")
+        #expect(try form("es", "other") == "%lld páginas")
+        #expect(try form("es", "many") == "%lld páginas")
+        #expect(try form("pt-BR", "one") == "%lld página")
+        #expect(try form("pt-BR", "other") == "%lld páginas")
+        #expect(try form("pt-BR", "many") == "%lld páginas")
+        #expect(try form("ru", "one") == "%lld страница")
+        #expect(try form("ru", "few") == "%lld страницы")
+        #expect(try form("ru", "many") == "%lld страниц")
+        #expect(try form("ru", "other") == "%lld страниц")
+        #expect(try form("zh-Hans", "other") == "%lld 页")
+        #expect(try form("fr", "one") == "%lld page")
+        #expect(try form("fr", "other") == "%lld pages")
+        #expect(try form("fr", "many") == "%lld pages")
     }
 
     private static func localizableCatalogURL() -> URL? {

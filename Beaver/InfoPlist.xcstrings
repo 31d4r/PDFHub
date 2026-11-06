@@ -32,6 +32,36 @@
             "state": "translated",
             "value": "Beaver kartica"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarjeta Beaver"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cartão Beaver"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Карточка Beaver"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver 卡片"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carte Beaver"
+          }
         }
       }
     },
@@ -64,6 +94,36 @@
           }
         },
         "sr-Latn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Beaver"
@@ -104,6 +164,36 @@
             "state": "translated",
             "value": "Beaver"
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver"
+          }
         }
       }
     },
@@ -140,6 +230,36 @@
             "state": "translated",
             "value": "Beaver koristi kameru za skeniranje papirnih dokumenata u PDF-ove."
           }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver usa la cámara para escanear documentos en papel y convertirlos en PDF."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Beaver usa a câmera para digitalizar documentos em papel e convertê-los em PDF."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver использует камеру, чтобы сканировать бумажные документы в PDF."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver 使用相机将纸质文稿扫描为 PDF。"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beaver utilise la caméra pour numériser des documents papier en PDF."
+          }
         }
       }
     },
@@ -172,6 +292,36 @@
           }
         },
         "sr-Latn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "fr": {
           "stringUnit": {
             "state": "translated",
             "value": ""
