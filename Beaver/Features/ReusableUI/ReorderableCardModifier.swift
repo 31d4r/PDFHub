@@ -18,7 +18,7 @@ struct CardDragItem: Codable, Transferable {
 }
 
 extension UTType {
-    static let beaverCard = UTType(exportedAs: "com.eldartutnjic.Beaver.card")
+    static let beaverCard = UTType(exportedAs: "com.eldartutnjic.PDFHub.card")
 }
 
 /// A command a card offers in its context menu and to VoiceOver.

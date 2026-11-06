@@ -297,7 +297,7 @@ struct ReactorReorderTests {
     // MARK: - Drag payload
 
     @Test func dragTypeIsDeclaredByTheApp() {
-        #expect(UTType.beaverCard.identifier == "com.eldartutnjic.Beaver.card")
+        #expect(UTType.beaverCard.identifier == "com.eldartutnjic.PDFHub.card")
         #expect(UTType.beaverCard.isDeclared)
         #expect(!UTType.beaverCard.conforms(to: .fileURL))
     }

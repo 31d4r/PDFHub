@@ -46,7 +46,7 @@ To run the project locally:
 1. Connect the device, or pair it over Wi-Fi in Window > Devices and Simulators, and turn on
    Developer Mode on the device (Settings > Privacy & Security > Developer Mode).
 2. In the Beaver target's Signing & Capabilities, keep Automatically manage signing on. The project
-   uses team `89ZNTTCP5L` and bundle ID `com.eldartutnjic.Beaver`; pick your own team if you build
+   uses team `89ZNTTCP5L` and bundle ID `com.eldartutnjic.PDFHub`; pick your own team if you build
    under a different account, and change the bundle ID if that one is taken.
 3. Choose the device as the run destination and press Run (⌘R). The first launch may ask you to
    trust the developer in Settings > General > VPN & Device Management.
