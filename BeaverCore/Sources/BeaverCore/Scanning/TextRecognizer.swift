@@ -43,8 +43,12 @@ public enum TextRecognizer {
     /// Languages we prefer when the device supports them. Vision's accurate model
     /// currently lists English and German from this set; Bosnian / Croatian / Serbian
     /// Latin share the Latin script, so automatic language detection still helps when
-    /// those locales aren't in `supportedRecognitionLanguages` yet.
-    public static let preferredLanguages = ["en-US", "de-DE", "hr-HR", "bs", "sr-Latn", "sr"]
+    /// those locales aren't in `supportedRecognitionLanguages` yet. Spanish, Portuguese,
+    /// Russian, Simplified Chinese, and French are included when the device reports them.
+    public static let preferredLanguages = [
+        "en-US", "de-DE", "hr-HR", "bs", "sr-Latn", "sr",
+        "es-ES", "pt-BR", "ru-RU", "zh-Hans", "fr-FR",
+    ]
 
     /// Serialises Vision's blocking `perform` so concurrent callers can't starve the pool.
     private static let queue = DispatchQueue(label: "com.eldartutnjic.Beaver.text-recognizer", qos: .userInitiated)
