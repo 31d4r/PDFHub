@@ -1,6 +1,8 @@
 # Beaver
 
-![Beaver](Images/BeaverIcon.png)
+<p align="center">
+  <img src="Images/header-5244x2950.png" alt="Beaver" />
+</p>
 
 Beaver is an open-source app for working with PDF files on Mac, iPhone and iPad. You can turn photos and scans into a PDF, split a PDF into separate documents, merge several PDFs into one, pull selected pages out as their own PDF, or save pages as PNG or JPEG images, which is useful when you only need one page, or a picture to send in Messages. On iPhone and iPad you can also scan paper with the camera.
 
