@@ -50,7 +50,7 @@ Beaver does not collect personal information from anyone, including children.
 
 ## Open source
 
-Beaver is open source. You can review the code, including how files are handled, in the public repository: [https://github.com/31d4r/PDFHub](https://github.com/31d4r/PDFHub).
+Beaver is open source. You can review the code, including how files are handled, in the public repository: [https://github.com/31d4r/Beaver](https://github.com/31d4r/Beaver).
 
 ## Changes
 
@@ -58,4 +58,4 @@ If this policy changes, we will update this page and the date above.
 
 ## Contact
 
-Questions about privacy are welcome through GitHub Issues: [https://github.com/31d4r/PDFHub/issues](https://github.com/31d4r/PDFHub/issues).
+Questions about privacy are welcome through GitHub Issues: [https://github.com/31d4r/Beaver/issues](https://github.com/31d4r/Beaver/issues).
