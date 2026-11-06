@@ -20,6 +20,19 @@ Perfect for privacy-conscious users -> All processing happens locally on your Ma
   corners, rotate, reorder, retake and rename before saving
 - 100% local processing -> Your files never leave your device
 
+## Why choose Beaver
+
+A lot of popular scanner apps are built around ads, accounts, and the cloud. CamScanner is a well-known example: the free version shows a lot of ads, it pushes subscriptions, and documents are processed on remote servers, so your files leave the device. Other well-known scanners work in a similar way. They want you signed in, they upload scans for OCR or backup, and your documents become part of someone else's service.
+
+Beaver is the opposite:
+
+- No ads
+- No account, no analytics, and no tracking
+- All processing happens on your Mac, iPhone, or iPad
+- Open source, so you can read how files are handled
+- The originals you import are never changed
+
+If you are scanning visas, contracts, medical records, or anything else you would not want sitting on someone else's server, that difference matters.
 
 ## Built With
 
