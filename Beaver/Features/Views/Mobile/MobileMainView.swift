@@ -105,7 +105,7 @@ struct MobileMainView: View {
             Text(DesignSystem.Scan.cameraDeniedMessage)
         }
         .quickLookPreview($quickLookURL, in: state.items.map(\.url))
-        .sheet(isPresented: $isPagesPresented) {
+        .sheet(isPresented: $isPagesPresented, onDismiss: { reactor.send(.didDismissPages) }) {
             if let pdf = state.pagesPDF {
                 PDFPagesView(pdf: pdf)
                     .environmentObject(reactor)

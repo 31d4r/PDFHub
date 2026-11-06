@@ -4,7 +4,7 @@ import SwiftUI
 import Testing
 @testable import Beaver
 
-/// Merge, Split, Convert and Combine: when each one applies, what its tooltip says, and the
+/// Merge, Split, Convert, Combine and the image exports: when each one applies, what its tooltip says, and the
 /// Actions menu that runs them.
 @MainActor
 struct DocumentActionTests {
@@ -44,6 +44,8 @@ struct DocumentActionTests {
             .split: .unavailable(.needsPDF(selection: false)),
             .convert: .unavailable(.needsImages(selection: false)),
             .combine: .unavailable(.needsBothKinds(selection: false)),
+            .exportPNG: .unavailable(.needsPDFForImages(selection: false)),
+            .exportJPEG: .unavailable(.needsPDFForImages(selection: false)),
         ])
     }
 
@@ -54,6 +56,8 @@ struct DocumentActionTests {
             .split: .available(count: 2, selection: false),
             .convert: .unavailable(.convertTakesOnlyImages),
             .combine: .available(count: 4, selection: false),
+            .exportPNG: .available(count: 2, selection: false),
+            .exportJPEG: .available(count: 2, selection: false),
         ])
         #expect(state.hasBothKinds)
     }
@@ -69,6 +73,8 @@ struct DocumentActionTests {
             .split: .available(count: 2, selection: true),
             .convert: .unavailable(.needsImages(selection: true)),
             .combine: .unavailable(.needsBothKinds(selection: true)),
+            .exportPNG: .available(count: 2, selection: true),
+            .exportJPEG: .available(count: 2, selection: true),
         ])
     }
 
@@ -81,6 +87,8 @@ struct DocumentActionTests {
             .split: .available(count: 1, selection: true),
             .convert: .unavailable(.needsImages(selection: true)),
             .combine: .unavailable(.needsBothKinds(selection: true)),
+            .exportPNG: .available(count: 1, selection: true),
+            .exportJPEG: .available(count: 1, selection: true),
         ])
     }
 
@@ -95,6 +103,8 @@ struct DocumentActionTests {
             .split: .unavailable(.needsPDF(selection: true)),
             .convert: .available(count: 2, selection: true),
             .combine: .unavailable(.needsBothKinds(selection: true)),
+            .exportPNG: .unavailable(.needsPDFForImages(selection: true)),
+            .exportJPEG: .unavailable(.needsPDFForImages(selection: true)),
         ])
     }
 
@@ -241,6 +251,7 @@ struct DocumentActionTests {
     @Test func menuListsEveryActionInOrder() {
         #expect(ActionsMenu.items(for: nil).map(\.title) == [
             "Add Files…", "Merge PDFs…", "Split PDF…", "Convert to PDF…", "Combine into PDF…",
+            "Export as PNG…", "Export as JPEG…",
             "Rotate Left", "Rotate Right", "Rotate All Left", "Rotate All Right",
             "Show Pages…", "Quick Look", "Remove", "Remove All…",
         ])
@@ -254,6 +265,8 @@ struct DocumentActionTests {
             .split: DesignSystem.Help.Shortcut.split,
             .convert: DesignSystem.Help.Shortcut.convert,
             .combine: DesignSystem.Help.Shortcut.combine,
+            .exportPNG: DesignSystem.Help.Shortcut.exportPNG,
+            .exportJPEG: DesignSystem.Help.Shortcut.exportJPEG,
             .rotateLeft: DesignSystem.Help.Shortcut.rotateLeft,
             .rotateRight: DesignSystem.Help.Shortcut.rotateRight,
             .rotateAllLeft: DesignSystem.Help.Shortcut.rotateAllLeft,
@@ -284,11 +297,13 @@ struct DocumentActionTests {
             Set(ActionsMenu.items(for: reactor.state).filter(\.isEnabled).map(\.command))
         }
 
-        #expect(enabled() == [.addFiles, .split, .combine, .rotateAllLeft, .rotateAllRight, .quickLook, .removeAll])
+        #expect(enabled() == [
+            .addFiles, .split, .combine, .exportPNG, .exportJPEG, .rotateAllLeft, .rotateAllRight, .quickLook, .removeAll,
+        ])
 
         reactor.action(.select(reactor.state.items[0].id, .none))
         #expect(enabled() == [
-            .addFiles, .split, .rotateLeft, .rotateRight, .rotateAllLeft, .rotateAllRight,
+            .addFiles, .split, .exportPNG, .exportJPEG, .rotateLeft, .rotateRight, .rotateAllLeft, .rotateAllRight,
             .showPages, .quickLook, .remove, .removeAll,
         ])
     }

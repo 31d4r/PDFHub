@@ -7,6 +7,7 @@ enum ActionsMenu {
     enum Command: CaseIterable, Sendable {
         case addFiles
         case merge, split, convert, combine
+        case exportPNG, exportJPEG
         case rotateLeft, rotateRight, rotateAllLeft, rotateAllRight
         case showPages, quickLook
         case remove, removeAll
@@ -35,7 +36,7 @@ enum ActionsMenu {
             key: shortcut(command).key,
             modifiers: shortcut(command).modifiers,
             isEnabled: state.map { isEnabled(command, in: $0) } ?? false,
-            startsGroup: [.merge, .rotateLeft, .showPages, .remove].contains(command)
+            startsGroup: [.merge, .exportPNG, .rotateLeft, .showPages, .remove].contains(command)
         )
     }
 
@@ -46,6 +47,8 @@ enum ActionsMenu {
         case .split: return DesignSystem.Actions.menuTitle(.split)
         case .convert: return DesignSystem.Actions.menuTitle(.convert)
         case .combine: return DesignSystem.Actions.menuTitle(.combine)
+        case .exportPNG: return DesignSystem.Actions.menuTitle(.exportPNG)
+        case .exportJPEG: return DesignSystem.Actions.menuTitle(.exportJPEG)
         case .rotateLeft: return DesignSystem.Commands.rotateLeft
         case .rotateRight: return DesignSystem.Commands.rotateRight
         case .rotateAllLeft: return DesignSystem.Commands.rotateAllLeft
@@ -64,6 +67,8 @@ enum ActionsMenu {
         case .split: return ("s", [.command, .option])
         case .convert: return ("i", [.command, .option])
         case .combine: return ("c", [.command, .option])
+        case .exportPNG: return ("e", [.command, .option])
+        case .exportJPEG: return ("e", [.command, .option, .shift])
         case .rotateLeft: return ("l", .command)
         case .rotateRight: return ("r", .command)
         case .rotateAllLeft: return ("l", [.command, .shift])
@@ -94,6 +99,8 @@ enum ActionsMenu {
         case .split: return .split
         case .convert: return .convert
         case .combine: return .combine
+        case .exportPNG: return .exportPNG
+        case .exportJPEG: return .exportJPEG
         default: return nil
         }
     }
@@ -110,7 +117,7 @@ enum ActionsMenu {
         case .quickLook: return !state.isEmpty
         case .remove: return state.canRemoveSelection
         case .removeAll: return state.canRemoveAll
-        case .merge, .split, .convert, .combine: return false
+        case .merge, .split, .convert, .combine, .exportPNG, .exportJPEG: return false
         }
     }
 
@@ -131,7 +138,7 @@ enum ActionsMenu {
         case .quickLook: reactor.action(.toggleQuickLook)
         case .remove: reactor.action(.remove(reactor.state.selection.ids))
         case .removeAll: reactor.send(.requestRemoveAll)
-        case .merge, .split, .convert, .combine: break
+        case .merge, .split, .convert, .combine, .exportPNG, .exportJPEG: break
         }
     }
 }

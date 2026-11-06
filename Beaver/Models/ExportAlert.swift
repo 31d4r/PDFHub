@@ -6,11 +6,14 @@ struct ExportAlert: Equatable, Sendable {
     let isSuccess: Bool
     /// The saved PDF, or the folder the pages went into, for Show in Finder and Open.
     var output: URL?
+    /// The new files to offer in the share sheet when `output` is a folder of page images.
+    var sharedFiles: [URL]
 
-    init(message: String, isSuccess: Bool, output: URL? = nil) {
+    init(message: String, isSuccess: Bool, output: URL? = nil, sharedFiles: [URL] = []) {
         self.message = message
         self.isSuccess = isSuccess
         self.output = output
+        self.sharedFiles = sharedFiles
     }
 
     /// Returned when the export was cancelled before anything was written; never shown.

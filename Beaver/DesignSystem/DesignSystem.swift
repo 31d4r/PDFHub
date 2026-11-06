@@ -46,6 +46,8 @@ enum DesignSystem {
         static let split = "scissors"
         static let convert = "photo.on.rectangle.angled"
         static let combine = "square.stack"
+        static let exportImages = "photo.stack"
+        static let exportPages = "square.and.arrow.up"
         static let rotate = "rotate.right"
         static let pages = "square.grid.2x2"
         static let quickLook = "eye"
@@ -127,7 +129,8 @@ enum DesignSystem {
 
     }
 
-    /// Merge, Split, Convert and Combine: their names, what they'll do, and why they can't.
+    /// Merge, Split, Convert, Combine and the image exports: their names, what they'll do, and
+    /// why they can't.
     enum Actions {
         static func title(_ action: DocumentAction) -> String {
             switch action {
@@ -135,6 +138,8 @@ enum DesignSystem {
             case .split: return String(localized: "action.split", defaultValue: "Split PDF")
             case .convert: return String(localized: "action.convert", defaultValue: "Convert to PDF")
             case .combine: return String(localized: "action.combine", defaultValue: "Combine into PDF")
+            case .exportPNG: return String(localized: "action.exportPNG", defaultValue: "Export as PNG")
+            case .exportJPEG: return String(localized: "action.exportJPEG", defaultValue: "Export as JPEG")
             }
         }
 
@@ -145,6 +150,8 @@ enum DesignSystem {
             case .split: return String(localized: "menu.split", defaultValue: "Split PDF…")
             case .convert: return String(localized: "menu.convert", defaultValue: "Convert to PDF…")
             case .combine: return String(localized: "menu.combine", defaultValue: "Combine into PDF…")
+            case .exportPNG: return String(localized: "menu.exportPNG", defaultValue: "Export as PNG…")
+            case .exportJPEG: return String(localized: "menu.exportJPEG", defaultValue: "Export as JPEG…")
             }
         }
 
@@ -154,6 +161,7 @@ enum DesignSystem {
             case .split: return Icons.split
             case .convert: return Icons.convert
             case .combine: return Icons.combine
+            case .exportPNG, .exportJPEG: return Icons.exportImages
             }
         }
 
@@ -176,6 +184,14 @@ enum DesignSystem {
                 return String(localized: "action.combine.detail.selected", defaultValue: "Combine \(count) selected files into one PDF, in order")
             case (.combine, false):
                 return String(localized: "action.combine.detail.all", defaultValue: "Combine all \(count) files into one PDF, in order")
+            case (.exportPNG, true):
+                return String(localized: "action.exportPNG.detail.selected", defaultValue: "Save each page of \(count) selected PDFs as a sharp PNG image")
+            case (.exportPNG, false):
+                return String(localized: "action.exportPNG.detail.all", defaultValue: "Save each page of all \(count) PDFs as a sharp PNG image")
+            case (.exportJPEG, true):
+                return String(localized: "action.exportJPEG.detail.selected", defaultValue: "Save each page of \(count) selected PDFs as a smaller JPEG image")
+            case (.exportJPEG, false):
+                return String(localized: "action.exportJPEG.detail.all", defaultValue: "Save each page of all \(count) PDFs as a smaller JPEG image")
             }
         }
 
@@ -210,6 +226,10 @@ enum DesignSystem {
                 return selection
                     ? String(localized: "action.reason.combine.select", defaultValue: "Select both PDFs and images to combine")
                     : String(localized: "action.reason.combine.add", defaultValue: "Combine needs both PDFs and images")
+            case .needsPDFForImages(let selection):
+                return selection
+                    ? String(localized: "action.reason.exportImages.select", defaultValue: "Select a PDF to save its pages as images")
+                    : String(localized: "action.reason.exportImages.add", defaultValue: "Add a PDF to save its pages as images")
             }
         }
     }
@@ -313,6 +333,42 @@ enum DesignSystem {
             String(localized: "pages.rotateSelection.disabled", defaultValue: "Select pages to rotate them")
         }
 
+        /// The Export menu, which saves the selected pages, or every page, as a PDF or images.
+        static var export: String { String(localized: "pages.export", defaultValue: "Export", comment: "Page view: menu that saves pages as a PDF or images") }
+        static func exportTitle(_ format: PageExportFormat) -> String {
+            switch format {
+            case .pdf: return String(localized: "pages.export.pdf", defaultValue: "Export as PDF…")
+            case .png: return String(localized: "pages.export.png", defaultValue: "Export as PNG…")
+            case .jpeg: return String(localized: "pages.export.jpeg", defaultValue: "Export as JPEG…")
+            }
+        }
+
+        /// Which pages the Export menu saves: "2 Selected Pages" or "All Pages".
+        static func exportScope(selectedCount: Int) -> String {
+            selectedCount == 0
+                ? String(localized: "pages.export.scope.all", defaultValue: "All Pages")
+                : String(localized: "pages.export.scope.selected", defaultValue: "\(selectedCount) Selected Pages")
+        }
+
+        /// What each Export item makes from `count` pages, as a second line or tooltip.
+        static func exportDetail(_ format: PageExportFormat, count: Int) -> String {
+            switch format {
+            case .pdf:
+                return String(localized: "pages.export.pdf.detail", defaultValue: "One new PDF with \(count) pages")
+            case .png:
+                return String(localized: "pages.export.png.detail", defaultValue: "\(count) PNG images, sharp text")
+            case .jpeg:
+                return String(localized: "pages.export.jpeg.detail", defaultValue: "\(count) JPEG images, smaller files")
+            }
+        }
+
+        static var exportHint: String {
+            String(
+                localized: "pages.export.hint",
+                defaultValue: "Saves the selected pages, or every page when none are selected, as a PDF or images"
+            )
+        }
+
         /// The sheet title is the file name; "3 pages" goes underneath.
         static func title(_ fileName: String) -> String {
             fileName
@@ -392,6 +448,9 @@ enum DesignSystem {
             static let split = "⌥⌘S"
             static let convert = "⌥⌘I"
             static let combine = "⌥⌘C"
+            static let exportPNG = "⌥⌘E"
+            static let exportJPEG = "⌥⇧⌘E"
+            static let exportPagesPDF = "⌘E"
             static let rotateLeft = "⌘L"
             static let rotateRight = "⌘R"
             static let rotateAllLeft = "⇧⌘L"
@@ -403,6 +462,8 @@ enum DesignSystem {
                 case .split: return split
                 case .convert: return convert
                 case .combine: return combine
+                case .exportPNG: return exportPNG
+                case .exportJPEG: return exportJPEG
                 }
             }
             static let showPages = "⌥⌘P"
@@ -491,6 +552,16 @@ enum DesignSystem {
         static var rotateAllPagesLeft: String { Pages.rotateAllPagesLeft }
         static var rotateAllPagesRight: String { Pages.rotateAllPagesRight }
         static var done: String { withShortcut(Pages.done, Shortcut.done) }
+        /// "Export as PDF… (⌘E)", then what it makes.
+        static func exportPages(_ format: PageExportFormat, count: Int) -> String {
+            let title: String
+            switch format {
+            case .pdf: title = withShortcut(Pages.exportTitle(.pdf), Shortcut.exportPagesPDF)
+            case .png: title = withShortcut(Pages.exportTitle(.png), Shortcut.exportPNG)
+            case .jpeg: title = withShortcut(Pages.exportTitle(.jpeg), Shortcut.exportJPEG)
+            }
+            return withDetail(title, Pages.exportDetail(format, count: count))
+        }
     }
 
     /// The Help ▸ Keyboard Shortcuts window: a reference people open when they want it,
@@ -583,6 +654,8 @@ enum DesignSystem {
         static var splitting: String { String(localized: "Splitting into pages…") }
         static var converting: String { String(localized: "Converting images…") }
         static var combining: String { String(localized: "Creating PDF…") }
+        static var exportingImages: String { String(localized: "progress.exportingImages", defaultValue: "Saving pages as images…") }
+        static var exportingPages: String { String(localized: "progress.exportingPages", defaultValue: "Saving pages…") }
     }
 
     enum Confirmations {
@@ -650,6 +723,43 @@ enum DesignSystem {
             urls.isEmpty ? message : message + "\n\n" + skippedFiles(urls)
         }
 
+        /// "Saved report_page-3.png"
+        static func pagesSaved(fileName: String) -> String {
+            combinedPDFSaved(fileName: fileName)
+        }
+
+        static func imagesSaved(_ count: Int) -> String {
+            String(localized: "alert.imagesSaved", defaultValue: "Saved \(count) images")
+        }
+
+        static var failedToSaveAnyImages: String {
+            String(localized: "alert.failedToSaveImages", defaultValue: "Couldn’t save the images")
+        }
+
+        static func failedToSavePages(_ errorDescription: String) -> String {
+            String(localized: "alert.failedToSavePages", defaultValue: "Couldn’t save the pages: \(errorDescription)")
+        }
+
+        /// Why pages couldn't be exported, with what to do about it.
+        static func pageExportFailed(_ error: PageExportError) -> String {
+            switch error {
+            case .unreadable(let url):
+                return String(localized: "alert.pageExport.unreadable", defaultValue: "Beaver couldn’t read “\(url.lastPathComponent)” as a PDF.")
+            case .locked(let url):
+                return String(
+                    localized: "alert.pageExport.locked",
+                    defaultValue: "“\(url.lastPathComponent)” is protected with a password. Remove the password in another app, then try again."
+                )
+            case .noPages(let url):
+                return String(localized: "alert.pageExport.noPages", defaultValue: "“\(url.lastPathComponent)” has no pages to export.")
+            case .renderFailed(let url, let page):
+                return String(
+                    localized: "alert.pageExport.renderFailed",
+                    defaultValue: "Beaver couldn’t turn page \(page + 1) of “\(url.lastPathComponent)” into an image."
+                )
+            }
+        }
+
         static func message(for result: SaveResult) -> String {
             if result.isCompleteSuccess {
                 return savedPDFFilesCount(result.successCount)
@@ -672,6 +782,9 @@ enum DesignSystem {
         static var saveSplitPDFsPrompt: String { String(localized: "Save Split PDFs") }
         static var saveConvertedPDFPrompt: String { String(localized: "Save Converted PDF") }
         static var saveCombinedPDFPrompt: String { String(localized: "Save PDF") }
+        static var saveImagesPrompt: String { String(localized: "fileNames.saveImages", defaultValue: "Save Images") }
+        static var saveImagePrompt: String { String(localized: "fileNames.saveImage", defaultValue: "Save Image") }
+        static var savePagesPrompt: String { String(localized: "fileNames.savePages", defaultValue: "Save Pages") }
         static var addFilesPrompt: String { String(localized: "Add") }
     }
 }
