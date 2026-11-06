@@ -80,9 +80,35 @@ declaring that no data is collected; its one listed API is UserDefaults, for the
 
 ## Screenshots
 
-![Main Screen](Screenshots/Beaver1.png)
-![Split PDF Feature](Screenshots/Beaver2.png)
-![Images to PDF Feature](Screenshots/Beaver3.png)
+### iPhone
+
+| Empty workspace | Your documents | Select and rotate |
+|:---:|:---:|:---:|
+| <img src="Screenshots/iOS/01-empty-workspace.png" alt="Empty workspace" width="220" /> | <img src="Screenshots/iOS/02-workspace.png" alt="Workspace with documents" width="220" /> | <img src="Screenshots/iOS/03-selection.png" alt="Selecting documents" width="220" /> |
+
+| Scan review and filters | Actions | Saved, ready to share |
+|:---:|:---:|:---:|
+| <img src="Screenshots/iOS/04-scan-review.png" alt="Scan review and filters" width="220" /> | <img src="Screenshots/iOS/05-actions-menu.png" alt="Actions menu" width="220" /> | <img src="Screenshots/iOS/06-saved-banner.png" alt="Saved banner with Share and Show in Files" width="220" /> |
+
+### Mac
+
+<p align="center">
+  <img src="Screenshots/macOS/01-empty-workspace.png" alt="Fresh launch: empty workspace with Choose Files and drag-and-drop hints" width="820" />
+</p>
+<p align="center"><em>A fresh launch</em></p>
+
+| Your documents | Select, rotate and merge |
+|:---:|:---:|
+| <img src="Screenshots/macOS/02-workspace.png" alt="PDFs and an image together, with Split and Combine actions" width="440" /> | <img src="Screenshots/macOS/03-selection-and-rotation.png" alt="Selected PDFs with accent rings, a 90-degree rotation badge and Merge PDFs enabled" width="440" /> |
+
+| Split a PDF | Convert an image to PDF |
+|:---:|:---:|
+| <img src="Screenshots/macOS/04-split-pdf.png" alt="A selected three-page lease ready to split into individual PDFs" width="440" /> | <img src="Screenshots/macOS/06-image-to-pdf.png" alt="A selected cafe receipt image with Convert to PDF enabled" width="440" /> |
+
+<p align="center">
+  <img src="Screenshots/macOS/05-page-organizer.png" alt="All three lease pages in the page organizer with per-page rotation controls" width="820" />
+</p>
+<p align="center"><em>Organize document pages</em></p>
 
 ## Project Status
 
